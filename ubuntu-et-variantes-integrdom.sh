@@ -1,5 +1,7 @@
 #!/bin/bash
 # version 2.3.9
+# Dernière modification : 14/05/2020-2 (amélioration invocation script PostInstall)
+
 
 # Testé & validé pour les distributions suivantes :
 ################################################
@@ -53,6 +55,8 @@
 # - Applet réseau finalement non-supprimé
 # - Possibilité d'enchainer automatiquement avec le script de post-install une fois le script terminé (via 1 paramètre de commande) 
 # - Suppression de l'écran de démarrage d'Ubuntu avec Gnome de la 18.04
+# - Mise en place d'un fichier de configuration centralisé
+# - Ajout de la possibilité de paramétrer une photocopieuse à code
 
 # --------------------------------------------------------------------------------------------------------------------
 
@@ -63,18 +67,7 @@
 # Xavier Garel - Mission Tice Ac-lyon
 # Simon Bernard - Technicien Ac-Lyon
 # Olivier Calpetard - Académie de la Réunion
-
-# Proxy system
-###########################################################################
-#Paramétrage par défaut
-#Changez les valeurs, ainsi, il suffira de taper 'entrée' à chaque question
-###########################################################################
-scribe_def_ip="192.168.220.10"
-proxy_def_ip="172.16.0.252"
-proxy_def_port="3128"
-proxy_gnome_noproxy="[ 'localhost', '127.0.0.0/8', '172.16.0.0/16', '192.168.0.0/16', '*.crdp-lyon.fr', '*.crdplyon.lan' ]"
-proxy_env_noproxy="localhost,127.0.0.1,192.168.0.0/16,172.16.0.0/16,.crdp-lyon.fr,.crdplyon.lan"
-pagedemarragepardefaut="https://lite.qwant.com"
+# Didier SEVERIN - Académie de la Réunion
 
 #############################################
 # Run using sudo, of course.
@@ -89,7 +82,7 @@ fi
 . /etc/lsb-release
 
 # Affectation à la variable "version" suivant la variante utilisé
-
+version=unsupported
 if [ "$DISTRIB_RELEASE" = "14.04" ] || [ "$DISTRIB_RELEASE" = "17" ] || [ "$DISTRIB_RELEASE" = "17.3" ] ; then
   version=trusty # Ubuntu 14.04 / Linux Mint 17/17.3
 fi
@@ -102,68 +95,56 @@ if [ "$DISTRIB_RELEASE" = "18.04" ] || [ "$DISTRIB_RELEASE" = "19" ] || [ "$DIST
   version=bionic # Ubuntu 18.04 / Mint 19 / Elementary OS 5.0
 fi
 
+if [ "$DISTRIB_RELEASE" = "20.04" ] || [ "$DISTRIB_RELEASE" = "20" ] || [ "$DISTRIB_RELEASE" = "6.0" ] ; then 
+  version=focal # Ubuntu 20.04 / Mint 20 / Elementary OS 6.0
+fi
+
 ########################################################################
 # Vérification de version
 ########################################################################
 
-if [ "$version" != "trusty" ] && [ "$version" != "xenial" ] && [ "$version" != "bionic" ] ; then
+if [ "$version" == "unsupported" ]; then
   echo "Désolé, vous n'êtes pas sur une version compatible !"
   exit
 fi
 
-##############################################################################
-### Questionnaire : IP du scribe, proxy firefox, port proxy, exception proxy #
-##############################################################################
-read -p "Donnez l'ip du serveur Scribe ? [$scribe_def_ip] " ip_scribe
-if [ "$ip_scribe" = "" ] ; then
-  ip_scribe=$scribe_def_ip
+my_dir="$(dirname "$0")"
+source $my_dir/config.cfg
+
+read -p "Voulez-vous configurer la photocopieuse SdP (O/[N]): " config_photocopieuse
+if [ $config_photocopieuse -eq "o" ] || [ $config_photocopieuse -eq "O" ]; then
+	./setup_photocopieuse.sh
 fi
-echo "Adresse du serveur Scribe = $ip_scribe"
 
-#####################################
-# Existe-t-il un proxy à paramétrer ?
-#####################################
+echo "Adresse du serveur Scribe = $scribe_def_ip"
 
-read -p "Faut-il enregistrer l'utilisation d'un proxy ? [O/n] " rep_proxy
-if [ "$rep_proxy" = "O" ] || [ "$rep_proxy" = "o" ] || [ "$rep_proxy" = "" ] ; then
-  read -p "Donnez l'adresse ip du proxy ? [$proxy_def_ip] " ip_proxy
-  if [ "$ip_proxy" = "" ] ; then
-    ip_proxy=$proxy_def_ip
-  fi
-  read -p "Donnez le n° port du proxy ? [$proxy_def_port] " port_proxy
-  if [ "$port_proxy" = "" ] ; then
-    port_proxy=$proxy_def_port
-  fi
-else
-  ip_proxy=""
-  port_proxy=""
+#############################################
+# Modification du /etc/wgetrc.
+#############################################
+grep "proxy-password = $scribepass" /etc/wgetrc > /dev/null
+if [ $? != 0 ]
+	then
+		echo "
+https_proxy = $proxy_wgetrc/
+http_proxy = $proxy_wgetrc/
+ftp_proxy = $proxy_wgetrc/
+use_proxy=on
+proxy-user = $scribeuserapt
+proxy-password = $scribepass" >> /etc/wgetrc
 fi
 
 ###################################################
 # cron d'extinction automatique à lancer ?
 ###################################################
 
-echo "Pour terminer, voulez-vous activer l'extinction automatique des postes le soir ?"
-echo "0 = non, pas d'extinction automatique le soir"
-echo "1 = oui, extinction a 19H00"
-echo "2 = oui, extinction a 20H00"
-echo "3 = oui, extinction a 22H00"
-read -p "Répondre par le chiffre correspondant (0,1,2,3) : " rep_proghalt
-
-if [ "$rep_proghalt" = "1" ] ; then
-        echo "0 19 * * * root /sbin/shutdown -h now" > /etc/cron.d/prog_extinction
-        else if [ "$rep_proghalt" = "2" ] ; then
-                echo "0 20 * * * root /sbin/shutdown -h now" > /etc/cron.d/prog_extinction
-                else if [ "$rep_proghalt" = "3" ] ; then
-                        echo "0 22 * * * root /sbin/shutdown -h now" > /etc/cron.d/prog_extinction
-                     fi
-             fi
+if [ "$extinction" != "" ]; then
+	echo "0 $extinction * * * root /sbin/shutdown -h now" > /etc/cron.d/prog_extinction
 fi
 
 ##############################################################################
 ### Utilisation du Script Esubuntu ?
 ##############################################################################
-read -p "Voulez-vous activer le script Esubuntu (cf doc avant : https://frama.link/esub) ? [o/N] :" esubuntu
+
 
 ########################################################################
 #rendre debconf silencieux
@@ -191,9 +172,9 @@ fi
 #######################################################
 #Paramétrage des paramètres Proxy pour tout le système
 #######################################################
-if [[ "$ip_proxy" != "" ]] || [[ $port_proxy != "" ]] ; then
+if [[ "$proxy_def_ip" != "" ]] || [[ $proxy_def_port != "" ]] ; then
 
-  echo "Paramétrage du proxy $ip_proxy:$port_proxy" 
+  echo "Paramétrage du proxy $proxy_def_ip:$proxy_def_port" 
 
 #Paramétrage des paramètres Proxy pour Gnome
 #######################################################
@@ -202,27 +183,27 @@ mode='manual'
 use-same-proxy=true
 ignore-hosts=$proxy_gnome_noproxy
 [org.gnome.system.proxy.http]
-host='$ip_proxy'
-port=$port_proxy
+host='$proxy_def_ip'
+port=$proxy_def_port
 [org.gnome.system.proxy.https]
-host='$ip_proxy'
-port=$port_proxy
+host='$proxy_def_ip'
+port=$proxy_def_port
 " >> /usr/share/glib-2.0/schemas/my-defaults.gschema.override
 
   glib-compile-schemas /usr/share/glib-2.0/schemas
 
 #Paramétrage du Proxy pour le système
 ######################################################################
-echo "http_proxy=http://$ip_proxy:$port_proxy/
-https_proxy=http://$ip_proxy:$port_proxy/
-ftp_proxy=http://$ip_proxy:$port_proxy/
+echo "http_proxy=http://$proxy_def_ip:$proxy_def_port/
+https_proxy=http://$proxy_def_ip:$proxy_def_port/
+ftp_proxy=http://$proxy_def_ip:$proxy_def_port/
 no_proxy=\"$proxy_env_noproxy\"" >> /etc/environment
 
 #Paramétrage du Proxy pour apt
 ######################################################################
-echo "Acquire::http::proxy \"http://$ip_proxy:$port_proxy/\";
-Acquire::ftp::proxy \"ftp://$ip_proxy:$port_proxy/\";
-Acquire::https::proxy \"https://$ip_proxy:$port_proxy/\";" > /etc/apt/apt.conf.d/20proxy
+echo "Acquire::http::proxy \"http://$proxy_def_ip:$proxy_def_port/\";
+Acquire::ftp::proxy \"ftp://$proxy_def_ip:$proxy_def_port/\";
+Acquire::https::proxy \"https://$proxy_def_ip:$proxy_def_port/\";" > /etc/apt/apt.conf.d/20proxy
 
 #Permettre d'utiliser la commande add-apt-repository derrière un Proxy
 ######################################################################
@@ -245,27 +226,47 @@ apt install -y net-tools
 ####################################################
 # Téléchargement + Mise en place de Esubuntu (si activé)
 ####################################################
-if [ "$esubuntu" = "O" ] || [ "$esubuntu" = "o" ] ; then 
-  # Téléchargement des paquets
-  #wget --no-check-certificate https://codeload.github.com/dane-lyon/Esubuntu/zip/master #(pose problème lors des tests)
-  ## Précision : en raison des problèmes que pose l'https pour le téléchargement dans les établissements, l'archive est ré-hebergé sur un ftp free :
-  wget http://nux87.free.fr/pour_script_integrdom/Esubuntu-master.zip
-  
- # Déplacement/extraction de l'archive + lancement par la suite
-  unzip Esubuntu-master.zip ; rm -r Esubuntu-master.zip ; chmod -R +x Esubuntu-master
-  ./Esubuntu-master/install_esubuntu.sh
-  # Mise en place des wallpapers pour les élèves, profs, admin 
-  wget http://nux87.free.fr/esu_ubuntu/wallpaper.zip
-  #Lien alternatif : https://github.com/dane-lyon/fichier-de-config/raw/master/wallpaper.zip
-  unzip wallpaper.zip ; rm -r wallpaper.zip
-  mv wallpaper /usr/share/
+if [ "$esubuntu" = "yes" ] ; then 
+	# Téléchargement des paquets
+	## Précision : en raison des problèmes que pose l'https pour le téléchargement dans les établissements, l'archive est ré-hebergé sur un ftp free :
+	if [ -e $second_dir/Esubuntu-master.zip ]; then
+		cp $second_dir/Esubuntu-master.zip .
+	else  
+		wget --no-check-certificate https://codeload.github.com/dane-lyon/Esubuntu/zip/master #(pose problème lors des tests)
+		if [ -e $second_dir/Esubuntu-master.zip ]; then
+			echo "Esubuntu-master récupéré sur github"
+		else
+			wget http://nux87.free.fr/pour_script_integrdom/Esubuntu-master.zip
+			echo "Esubuntu-master récupéré sur nux87.free.fr"
+		fi
+	fi
+
+	# Déplacement/extraction de l'archive + lancement par la suite
+	unzip Esubuntu-master.zip ; rm -r Esubuntu-master.zip ; chmod -R +x Esubuntu-master
+	./Esubuntu-master/install_esubuntu.sh
+
+	# Mise en place des wallpapers pour les élèves, profs, admin 
+	if [ -e $second_dir/wallpaper.zip ]; then
+		cp $second_dir/wallpaper.zip .
+	else  
+		wget https://github.com/dane-lyon/fichier-de-config/raw/master/wallpaper.zip
+		if [ -e wallpaper.zip ]; then
+			echo "wallpaper.zip récupéré sur github"
+		else
+			wget http://nux87.free.fr/esu_ubuntu/wallpaper.zip
+			echo "wallpaper.zip récupéré sur nux87.free.fr"
+		fi
+	fi
+	
+	unzip wallpaper.zip ; rm -r wallpaper.zip
+	mv wallpaper /usr/share/
 fi
 
 ########################################################################
 #Mettre la station à l'heure à partir du serveur Scribe
 ########################################################################
 apt install -y ntpdate ;
-ntpdate $ip_scribe
+ntpdate $scribe_def_ip
 
 ########################################################################
 #installation des paquets nécessaires
@@ -285,7 +286,7 @@ APT::Periodic::Unattended-Upgrade \"1\";" > /etc/apt/apt.conf.d/20auto-upgrades
 ########################################################################
 echo "
 # /etc/ldap.conf
-host $ip_scribe
+host $scribe_def_ip
 base o=gouv, c=fr
 nss_override_attribute_value shadowMax 9999
 " > /etc/ldap.conf
@@ -412,25 +413,25 @@ fi
 ########################################################################
 if [ "$(which gnome-shell)" = "/usr/bin/gnome-shell" ] ; then  # si GS installé
 
-# Désactiver userlist pour GDM
-echo "user-db:user
-system-db:gdm
-file-db:/usr/share/gdm/greeter-dconf-defaults" > /etc/dconf/profile/gdm
+	# Désactiver userlist pour GDM
+	echo "user-db:user
+	system-db:gdm
+	file-db:/usr/share/gdm/greeter-dconf-defaults" > /etc/dconf/profile/gdm
 
-mkdir /etc/dconf/db/gdm.d
-echo "[org/gnome/login-screen]
-# Do not show the user list
-disable-user-list=true" > /etc/dconf/db/gdm.d/00-login-screen
+	mkdir /etc/dconf/db/gdm.d
+	echo "[org/gnome/login-screen]
+	# Do not show the user list
+	disable-user-list=true" > /etc/dconf/db/gdm.d/00-login-screen
 
-#prise en compte du changement
-dconf update
+	#prise en compte du changement
+	dconf update
 
-# Suppression icone Amazon
-apt purge -y ubuntu-web-launchers gnome-initial-setup
+	# Suppression icone Amazon
+	apt purge -y ubuntu-web-launchers gnome-initial-setup
 
-# Remplacement des snaps par défauts par la version apt (plus rapide)
-snap remove gnome-calculator gnome-characters gnome-logs gnome-system-monitor
-apt install gnome-calculator gnome-characters gnome-logs gnome-system-monitor -y 
+	# Remplacement des snaps par défauts par la version apt (plus rapide)
+	snap remove gnome-calculator gnome-characters gnome-logs gnome-system-monitor
+	apt install gnome-calculator gnome-characters gnome-logs gnome-system-monitor -y 
 
 fi
 
@@ -439,7 +440,7 @@ fi
 #Paramétrage pour remplir pam_mount.conf
 ########################################################################
 
-eclairng="<volume user=\"*\" fstype=\"cifs\" server=\"$ip_scribe\" path=\"eclairng\" mountpoint=\"/media/Serveur_Scribe\" />"
+eclairng="<volume user=\"*\" fstype=\"cifs\" server=\"$scribe_def_ip\" path=\"eclairng\" mountpoint=\"/media/Serveur_Scribe\" />"
 grep "/media/Serveur_Scribe" /etc/security/pam_mount.conf.xml  >/dev/null
 if [ $? != 0 ]
 then
@@ -448,7 +449,7 @@ else
   echo "eclairng déjà présent"
 fi
 
-homes="<volume user=\"*\" fstype=\"cifs\" server=\"$ip_scribe\" path=\"perso\" mountpoint=\"~/Documents\" />"
+homes="<volume user=\"*\" fstype=\"cifs\" server=\"$scribe_def_ip\" path=\"perso\" mountpoint=\"~/Documents\" />"
 grep "mountpoint=\"~\"" /etc/security/pam_mount.conf.xml  >/dev/null
 if [ $? != 0 ]
 then sed -i "/<\!-- Volume definitions -->/a\ $homes" /etc/security/pam_mount.conf.xml
@@ -456,7 +457,7 @@ else
   echo "homes déjà présent"
 fi
 
-netlogon="<volume user=\"*\" fstype=\"cifs\" server=\"$ip_scribe\" path=\"netlogon\" mountpoint=\"/tmp/netlogon\"  sgrp=\"DomainUsers\" />"
+netlogon="<volume user=\"*\" fstype=\"cifs\" server=\"$scribe_def_ip\" path=\"netlogon\" mountpoint=\"/tmp/netlogon\"  sgrp=\"DomainUsers\" />"
 grep "/tmp/netlogon" /etc/security/pam_mount.conf.xml  >/dev/null
 if [ $? != 0 ]
 then
@@ -491,7 +492,7 @@ sed -i "s/enabled=True/enabled=False/g" /etc/xdg/user-dirs.conf
 # les profs peuvent sudo
 ########################################################################
 grep "%professeurs ALL=(ALL) ALL" /etc/sudoers > /dev/null
-if [ $?!=0 ]
+if [ $? != 0 ]
 then
   sed -i "/%admin ALL=(ALL) ALL/a\%professeurs ALL=(ALL) ALL" /etc/sudoers
   sed -i "/%admin ALL=(ALL) ALL/a\%DomainAdmins ALL=(ALL) ALL" /etc/sudoers
@@ -547,7 +548,11 @@ fi
 
 if [ "$version" = "bionic" ] ; then
   # Création de raccourci sur le bureau + dans dossier utilisateur (pour la 18.04 uniquement) pour l'accès aux partages (commun+perso+lespartages)
-  wget http://nux87.free.fr/pour_script_integrdom/skel.tar.gz
+	if [ -e /$second_dir/skel.tar.gz ]; then  
+		cp $second_dir/skel.tar.gz .
+	else
+		wget http://nux87.free.fr/pour_script_integrdom/skel.tar.gz
+	fi
   tar -xzf skel.tar.gz -C /etc/
   rm -f skel.tar.gz
 fi
@@ -555,16 +560,44 @@ fi
 # Suppression de notification de mise à niveau 
 sed -r -i 's/Prompt=lts/Prompt=never/g' /etc/update-manager/release-upgrades
 
-# Enchainer sur un script de Postinstallation sur demande (facultatif)
-if [ "$1" = "pi" ] ; then # Pour 14.04/16.04/18.04
-  wget --no-check-certificate https://raw.githubusercontent.com/dane-lyon/clients-linux-scribe/master/ubuntu-et-variantes-postinstall.sh 
-  chmod +x ubuntu-et-variantes-postinstall.sh ; ./ubuntu-et-variantes-postinstall.sh ; rm -f ubuntu*.sh ;
+# Enchainer sur un script de Postinstallation
+if [ "$postinstallbase" = "yes" ]; then 
+	if [ -e $second_dir/ubuntu-et-variantes-postinstall.sh  ] ; then # Pour 14.04/16.04/18.04/20.04
+		cp $second_dir/ubuntu-et-variantes-postinstall.sh .
+	else
+	  wget --no-check-certificate https://raw.githubusercontent.com/dane-lyon/clients-linux-scribe/master/ubuntu-et-variantes-postinstall.sh 
+	fi
+	chmod +x ubuntu-et-variantes-postinstall.sh ; ./ubuntu-et-variantes-postinstall.sh ; rm -f ubuntu-et-variantes-postinstall.sh ;
 fi
 
-if [ "$1" = "extra" ] ; then # Pour 18.04 uniquement
-  wget --no-check-certificate https://raw.githubusercontent.com/simbd/Scripts_Ubuntu/master/Ubuntu18.04_Bionic_Postinstall.sh
-  chmod +x Ubuntu18.04_Bionic_Postinstall.sh ; ./Ubuntu18.04_Bionic_Postinstall.sh ; rm -f Ubuntu*.sh ;
+if [ "$postinstalladditionnel" = "yes" ]; then 
+	if [ "$version" = "bionic" ]; then
+		if [ -e $second_dir/Ubuntu18.04_Bionic_Postinstall.sh ] ; then # Pour 18.04 uniquement
+			cp $second_dir/Ubuntu18.04_Bionic_Postinstall.sh .
+		else
+			 wget --no-check-certificate https://github.com/simbd/Scripts_Ubuntu/blob/master/Ubuntu18.04_Bionic_Postinstall.sh
+		fi
+		chmod +x Ubuntu18.04_Bionic_Postinstall.sh ; ./Ubuntu18.04_Bionic_Postinstall.sh ; rm -f Ubuntu*.sh ;
+	elif [ "$version" = "focal" ]; then
+		if [ -e $second_dir/Postinstall_Ubuntu-20.04LTS_FocalFossa.sh ] ; then # Pour 20.04 uniquement, on doit lancer avec l'admin local (obligation imposée par le script de PostInstall)
+			cp $second_dir/Postinstall_Ubuntu-20.04LTS_FocalFossa.sh .
+		else
+			 sudo -u $localadmin wget --no-check-certificate https://github.com/simbd/Ubuntu_20.04LTS_PostInstall/archive/master.zip
+			 sudo -u $localadmin unzip master.zip -d .
+			 sudo -u $localadmin rm -f master.zip
+		fi
+		sudo -u $localadmin mv Ubuntu_20.04LTS_PostInstall-master/* .
+		sudo -u $localadmin chmod +x Postinstall_Ubuntu-20.04LTS_FocalFossa.sh ; sudo -u $localadmin ./Postinstall_Ubuntu-20.04LTS_FocalFossa.sh
+		sudo -u $localadmin rm -f Postinstall_Ubuntu-20.04LTS_FocalFossa.sh Config_Function.sh Description_logiciel.fr README.md Zenity_default_choice.sh Ubuntu_20.04LTS_PostInstall-master;
 fi
+
+echo "INSTALLATION DU GESTIONNAIRE DE RACCOURCIS"
+apt-get install xbindkeys xbindkeys-config -y
+
+
+# Installation quelque soit la variante et la version 
+echo "Gestion des partitions exfat"
+apt-get install -y exfat-utils exfat-fuse
 
 ########################################################################
 #nettoyage station avant clonage
