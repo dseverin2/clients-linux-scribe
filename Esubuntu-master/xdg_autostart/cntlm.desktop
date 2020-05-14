@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=cntlm
+Comment=configuration cntlm client.
+Exec=/etc/esubuntu/cntlm.sh
+GenericName=cntlm
+Terminal=false
+Categories=Education;
+Name[fr_FR]=cntlm

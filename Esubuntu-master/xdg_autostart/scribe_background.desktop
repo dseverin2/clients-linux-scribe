@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Background_scribe
+Comment=changer le fond d'ecan a l'ouverture de session scribe.
+Exec=/etc/esubuntu/background.sh
+GenericName=scribe_background
+Terminal=false
+Categories=Education;
+Name[fr_FR]=scribe_background
