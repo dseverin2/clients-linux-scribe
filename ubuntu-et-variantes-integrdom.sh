@@ -232,17 +232,20 @@ if [ "$esubuntu" = "yes" ] ; then
 	if [ -e $second_dir/Esubuntu-master.zip ]; then
 		cp $second_dir/Esubuntu-master.zip .
 	else  
-		wget --no-check-certificate https://codeload.github.com/dane-lyon/Esubuntu/zip/master #(pose problème lors des tests)
-		if [ -e $second_dir/Esubuntu-master.zip ]; then
+		wget --no-check-certificate https://github.com/dseverin2/clients-linux-scribe/archive/master.zip #(pose problème lors des tests)
+		if [ -e $second_dir/master.zip ]; then
 			echo "Esubuntu-master récupéré sur github"
+			unzip master.zip
+			mv clients-linux-scribe-master/Esubuntu-master .
+			rm -fr clients-linux-scribe-master
 		else
-			wget http://nux87.free.fr/pour_script_integrdom/Esubuntu-master.zip
+			wget http://nux87.free.fr/pour_script_integrdom/master.7z
 			echo "Esubuntu-master récupéré sur nux87.free.fr"
 		fi
 	fi
 
 	# Déplacement/extraction de l'archive + lancement par la suite
-	unzip Esubuntu-master.zip ; rm -r Esubuntu-master.zip ; chmod -R +x Esubuntu-master
+	7z x Esubuntu-master.7z ; rm -r Esubuntu-master.7z ; chmod -R +x Esubuntu-master
 	./Esubuntu-master/install_esubuntu.sh
 
 	# Mise en place des wallpapers pour les élèves, profs, admin 
