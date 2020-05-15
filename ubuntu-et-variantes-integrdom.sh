@@ -351,11 +351,9 @@ Session-Type: Additional
 Session:
        optional                        pam_mkhomedir.so silent" > /usr/share/pam-configs/mkhomedir
 
+
 grep "auth    required     pam_group.so use_first_pass"  /etc/pam.d/common-auth  >/dev/null
-if [ $? == 0 ]
-then
-  echo "/etc/pam.d/common-auth Ok"
-else
+if [ $? != 0 ]; then
   echo  "auth    required     pam_group.so use_first_pass" >> /etc/pam.d/common-auth
 fi
 
@@ -386,9 +384,7 @@ export DEBIAN_PRIORITY="high"
 if [ "$(which lightdm)" = "/usr/sbin/lightdm" ] ; then #Si lightDM présent
   touch /etc/lightdm/logonscript.sh
   grep "if mount | grep -q \"/tmp/netlogon\" ; then umount /tmp/netlogon ;fi" /etc/lightdm/logonscript.sh  >/dev/null
-  if [ $? == 0 ] ; then
-    echo "Présession Ok"
-  else
+  if [ $? != 0 ] ; then
     echo "if mount | grep -q \"/tmp/netlogon\" ; then umount /tmp/netlogon ;fi" >> /etc/lightdm/logonscript.sh
   fi
   chmod +x /etc/lightdm/logonscript.sh
@@ -476,37 +472,33 @@ fi
 
 homes="<volume user=\"*\" fstype=\"cifs\" server=\"$scribe_def_ip\" path=\"perso\" mountpoint=\"~/Documents\" />"
 grep "mountpoint=\"~\"" /etc/security/pam_mount.conf.xml  >/dev/null
-if [ $? != 0 ]
-then sed -i "/<\!-- Volume definitions -->/a\ $homes" /etc/security/pam_mount.conf.xml
-else
-  echo "homes déjà présent"
+if [ $? != 0 ]; then 
+	sed -i "/<\!-- Volume definitions -->/a\ $homes" /etc/security/pam_mount.conf.xml
 fi
 
 netlogon="<volume user=\"*\" fstype=\"cifs\" server=\"$scribe_def_ip\" path=\"netlogon\" mountpoint=\"/tmp/netlogon\"  sgrp=\"DomainUsers\" />"
 grep "/tmp/netlogon" /etc/security/pam_mount.conf.xml  >/dev/null
-if [ $? != 0 ]
-then
+if [ $? != 0 ]; then
   sed -i "/<\!-- Volume definitions -->/a\ $netlogon" /etc/security/pam_mount.conf.xml
-else
-  echo "netlogon déjà présent"
 fi
 
 grep "<cifsmount>mount -t cifs //%(SERVER)/%(VOLUME) %(MNTPT) -o \"noexec,nosetuids,mapchars,cifsacl,serverino,nobrl,iocharset=utf8,user=%(USER),uid=%(USERUID)%(before=\\",\\" OPTIONS)\"</cifsmount>" /etc/security/pam_mount.conf.xml  >/dev/null
-if [ $? != 0 ]
-then
+if [ $? != 0 ]; then
   sed -i "/<\!-- pam_mount parameters: Volume-related -->/a\ <cifsmount>mount -t cifs //%(SERVER)/%(VOLUME) %(MNTPT) -o \"noexec,nosetuids,mapchars,cifsacl,serverino,nobrl,iocharset=utf8,user=%(USER),uid=%(USERUID)%(before=\\",\\" OPTIONS),vers=1.0\"</cifsmount>" /etc/security/pam_mount.conf.xml
-else
-  echo "mount.cifs déjà présent"
 fi
 
 ########################################################################
 #/etc/profile
 ########################################################################
-echo "
+grep "export LC_ALL=fr_FR.utf8" /etc/profile  >> /dev/null
+if [ $? != 0 ]; then
+  echo "
 export LC_ALL=fr_FR.utf8
 export LANG=fr_FR.utf8
 export LANGUAGE=fr_FR.utf8
 " >> /etc/profile
+fi
+
 
 ########################################################################
 #ne pas créer les dossiers par défaut dans home
