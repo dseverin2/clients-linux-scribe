@@ -490,7 +490,7 @@ fi
 ########################################################################
 #/etc/profile
 ########################################################################
-grep "export LC_ALL=fr_FR.utf8" /etc/profile  >> /dev/null
+grep "export LC_ALL=fr_FR.utf8" /etc/profile > /dev/null
 if [ $? != 0 ]; then
   echo "
 export LC_ALL=fr_FR.utf8
@@ -509,12 +509,9 @@ sed -i "s/enabled=True/enabled=False/g" /etc/xdg/user-dirs.conf
 # les profs peuvent sudo
 ########################################################################
 grep "%professeurs ALL=(ALL) ALL" /etc/sudoers > /dev/null
-if [ $? != 0 ]
-then
+if [ $? != 0 ]; then
   sed -i "/%admin ALL=(ALL) ALL/a\%professeurs ALL=(ALL) ALL" /etc/sudoers
   sed -i "/%admin ALL=(ALL) ALL/a\%DomainAdmins ALL=(ALL) ALL" /etc/sudoers
-else
-  echo "prof déjà dans sudo"
 fi
 
 # Suppression de paquet inutile sous Ubuntu/Unity
@@ -540,7 +537,11 @@ echo "enabled=0" > /etc/default/apport
 apt purge -y indicator-messages 
 
 # Changement page d'accueil firefox
-echo "user_pref(\"browser.startup.homepage\", \"$pagedemarragepardefaut\");" >> /usr/lib/firefox/defaults/pref/channel-prefs.js
+grep "$pagedemarragepardefaut" /usr/lib/firefox/defaults/pref/channel-prefs.js > /dev/null
+if [ $? != 0 ]; then
+  echo "user_pref(\"browser.startup.homepage\", \"$pagedemarragepardefaut\");" >> /usr/lib/firefox/defaults/pref/channel-prefs.js
+fi
+
 
 # Logiciels utiles
 apt install -y vim htop
