@@ -32,7 +32,7 @@ founduser=$defaultuser
 
 # Définition des fichiers SCRIBE
 pin_list_csv=$basedirectory/id_prof_photocop.csv
-driver_original=$basedirectory/TA4062i.PPD
+driver_original=$basedirectory/DRIVER_ORIGINAL.PPD
 driver_compile=$baseppddirectory/PHOTOCOPIEUSE_SDP.ppd
 
 echo 'USER : '$USER

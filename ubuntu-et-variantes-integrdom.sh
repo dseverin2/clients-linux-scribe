@@ -564,7 +564,7 @@ if [ "$version" = "xenial" ] || [ "$version" = "bionic" ] ; then
   sed -i "30i\session optional        pam_mkhomedir.so" /etc/pam.d/common-session
 fi
 
-if [ "$version" = "bionic" ] ; then
+if [ "$version" = "bionic" ] || [ "$version" = "focal" ] ; then
   # Création de raccourci sur le bureau + dans dossier utilisateur (pour la 18.04 uniquement) pour l'accès aux partages (commun+perso+lespartages)
 	if [ -e /$second_dir/skel.tar.gz ]; then  
 		cp $second_dir/skel.tar.gz .
@@ -607,6 +607,7 @@ if [ "$postinstalladditionnel" = "yes" ]; then
 		sudo -u $localadmin mv Ubuntu_20.04LTS_PostInstall-master/* .
 		sudo -u $localadmin chmod +x Postinstall_Ubuntu-20.04LTS_FocalFossa.sh ; sudo -u $localadmin ./Postinstall_Ubuntu-20.04LTS_FocalFossa.sh
 		sudo -u $localadmin rm -f Postinstall_Ubuntu-20.04LTS_FocalFossa.sh Config_Function.sh Description_logiciel.fr README.md Zenity_default_choice.sh Ubuntu_20.04LTS_PostInstall-master;
+	fi
 fi
 
 echo "INSTALLATION DU GESTIONNAIRE DE RACCOURCIS"
@@ -620,7 +621,8 @@ apt-get install -y exfat-utils exfat-fuse
 ########################################################################
 #nettoyage station avant clonage
 ########################################################################
-apt-get -y autoremove --purge ; apt-get -y clean ; clear
+apt-get -y autoremove --purge ; apt-get -y clean
+# clear
 
 ########################################################################
 #FIN

@@ -165,7 +165,7 @@ fi
 
 #=======================================================================================================#
 
-if [ "$version" != "bionic" ] ; then  # Installation spécifique pour 14.04 ou 16.04
+if [ "$version" != "bionic" ] && [ "$version" != "focal"] ; then  # Installation spécifique pour 14.04 ou 16.04
   # drivers imprimantes (sauf pour Bionic ou il est installé différemment)
   wget -e use_proxy=yes -e http_proxy=$proxy_params --no-check-certificate http://www.openprinting.org/download/printdriver/debian/dists/lsb3.2/contrib/binary-amd64/openprinting-gutenprint_5.2.7-1lsb3.2_amd64.deb
   dpkg -i openprinting-gutenprint_5.2.7-1lsb3.2_amd64.deb ; apt-get -fy install ; rm openprinting-gutenprint*
@@ -223,7 +223,7 @@ dpkg -i scratch-desktop_3.3.0_amd64.deb ; apt install -fy ; rm scratch-desktop_3
 
 #[ Serveur ]
 if [ "$ansible" = "yes" ]; then
-	apt-get -y install openssh-server #à décommenter si vous utilisez "Ansible"
+	apt-get -y install openssh-server
 fi
 
 ### Supplément de logiciel proposé dans la section wpkg du forum de la dane en version linux (pour Ubuntu 18.04)
@@ -321,7 +321,7 @@ fi
     bash /usr/share/doc/libdvdread4/install-css.sh
   fi
   
-  if [ "$version" = "xenial" ] || [ "$version" = "bionic" ] ; then #lecture dvd pour 16.04 ou 18.04
+  if [ "$version" = "xenial" ] || [ "$version" = "bionic" ] || [ "$version" = "focal" ]; then #lecture dvd pour 16.04 ou 18.04
     apt install -y libdvd-pkg
     dpkg-reconfigure libdvd-pkg
   fi
