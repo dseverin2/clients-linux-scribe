@@ -1,5 +1,5 @@
 #!/bin/bash
-# Script original de Didier SEVERIN (18/04/20)
+# Script original de Didier SEVERIN (15/05/20)
 # Académie de la Réunion
 # Version 1.0
 
@@ -7,9 +7,10 @@
 driverfile="/etc/cups/ppd/PHOTOCOPIEUSE_SDP.ppd"
 binarydir="/usr/bin/recup_pin/"
 scriptfile="$binarydir/recup_pin.sh"
+my_dir="$(dirname "$0")"
 
 # Copie du package recup_pin et attribution à l'utilisateur root
-cp -fr ./recup_pin /usr/bin/
+cp -fr $my_dir/recup_pin /usr/bin/
 chown root:root $scriptfile
 
 # Définition des droits
@@ -20,7 +21,7 @@ chmod 0744 $binarydir/DRIVER_ORIGINAL.PPD
 
 # Copie du driver original
 rm -fr /etc/cups/ppd/PHOTOCOPIEUSE*
-cp recup_pin/TA4062i.PPD $driverfile
+cp $my_dir/recup_pin/DRIVER_ORIGINAL.PPD $driverfile
 
 # Modification des permissions sur le driver
 chown root:lp $driverfile
