@@ -257,7 +257,7 @@ if [ "$esubuntu" = "yes" ] ; then
 			echo "Esubuntu-master récupéré sur github"
 			unzip master.zip
 			mv clients-linux-scribe-master/Esubuntu-master .
-			rm -fr clients-linux-scribe-master
+			rm -fr clients-linux-scribe-master master.zip
 		else
 			wget http://nux87.free.fr/pour_script_integrdom/master.7z
 			7z x master.7z ; rm -r master.7z 
@@ -268,6 +268,7 @@ if [ "$esubuntu" = "yes" ] ; then
 	# Déplacement/extraction de l'archive + lancement par la suite
 
 	chmod -R +x Esubuntu-master
+	cp config.cfg Esubuntu-master/
 	./Esubuntu-master/install_esubuntu.sh
 
 	# Mise en place des wallpapers pour les élèves, profs, admin 
@@ -560,7 +561,7 @@ if [ "$version" = "trusty" ] ; then
 fi
 
 # Spécifique base 16.04 ou 18.04 : pour le fonctionnement du dossier /etc/skel 
-if [ "$version" = "xenial" ] || [ "$version" = "bionic" ] ; then
+if [ "$version" = "xenial" ] || [ "$version" = "bionic" ]  || [ "$version" = "focal" ] ; then
   sed -i "30i\session optional        pam_mkhomedir.so" /etc/pam.d/common-session
 fi
 
