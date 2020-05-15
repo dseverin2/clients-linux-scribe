@@ -39,7 +39,7 @@ fi
 
 # Chargement du fichier de configuration
 my_dir="$(dirname "$0")"
-source=$my_dir/../config.cfg
+source $my_dir/config.cfg
 
 #determiner le repertoire de lancement
 updatedb
