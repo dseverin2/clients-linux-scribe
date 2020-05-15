@@ -115,14 +115,15 @@ if [ $config_photocopieuse = "o" ] || [ $config_photocopieuse = "O" ]; then
 	$second_dir/setup_photocopieuse.sh
 fi
 
+apt --fix-broken install -y
+
 echo "Adresse du serveur Scribe = $scribe_def_ip"
 
 #############################################
 # Modification du /etc/wgetrc.
 #############################################
-grep "proxy-password = $scribepass" /etc/wgetrc > /dev/null
-if [ $? != 0 ]
-	then
+grep "https_proxy = $proxy_wgetrc" /etc/wgetrc > /dev/null
+if [ $? != 0 ]; then
 		echo "
 https_proxy = $proxy_wgetrc/
 http_proxy = $proxy_wgetrc/
@@ -177,6 +178,8 @@ if [[ "$proxy_def_ip" != "" ]] || [[ $proxy_def_port != "" ]] ; then
 
 #Paramétrage des paramètres Proxy pour Gnome
 #######################################################
+grep "ignore-hosts=$proxy_gnome_noproxy" /usr/share/glib-2.0/schemas/my-defaults.gschema.override > /dev/null
+if [ $? != 0 ]; then
   echo "[org.gnome.system.proxy]
 mode='manual'
 use-same-proxy=true
@@ -188,33 +191,50 @@ port=$proxy_def_port
 host='$proxy_def_ip'
 port=$proxy_def_port
 " >> /usr/share/glib-2.0/schemas/my-defaults.gschema.override
+fi
 
   glib-compile-schemas /usr/share/glib-2.0/schemas
 
 #Paramétrage du Proxy pour le système
 ######################################################################
-echo "http_proxy=http://$proxy_def_ip:$proxy_def_port/
+grep "http_proxy=http://$proxy_def_ip:$proxy_def_port" /etc/environment > /dev/null
+if [ $? != 0 ]; then
+  echo "http_proxy=http://$proxy_def_ip:$proxy_def_port/
 https_proxy=http://$proxy_def_ip:$proxy_def_port/
 ftp_proxy=http://$proxy_def_ip:$proxy_def_port/
 no_proxy=\"$proxy_env_noproxy\"" >> /etc/environment
+fi
 
 #Paramétrage du Proxy pour apt
 ######################################################################
-echo "Acquire::http::proxy \"http://$proxy_def_ip:$proxy_def_port/\";
-Acquire::ftp::proxy \"ftp://$proxy_def_ip:$proxy_def_port/\";
-Acquire::https::proxy \"https://$proxy_def_ip:$proxy_def_port/\";" > /etc/apt/apt.conf.d/20proxy
+grep "http://$proxy_def_ip:$proxy_def_port" /etc/apt/apt.conf.d/20proxy > /dev/null
+if [ $? != 0 ]; then
+	echo "Acquire::http::proxy \"http://$proxy_def_ip:$proxy_def_port/\";
+	Acquire::ftp::proxy \"ftp://$proxy_def_ip:$proxy_def_port/\";
+	Acquire::https::proxy \"https://$proxy_def_ip:$proxy_def_port/\";" > /etc/apt/apt.conf.d/20proxy
+fi
 
 #Permettre d'utiliser la commande add-apt-repository derrière un Proxy
 ######################################################################
-echo "Defaults env_keep = https_proxy" >> /etc/sudoers
+grep "Defaults env_keep = https_proxy" /etc/sudoers > /dev/null
+if [ $? != 0 ]; then
+	echo "Defaults env_keep = https_proxy" >> /etc/sudoers
+fi
+
 
 fi
 
 # Modification pour ne pas avoir de problème lors du rafraichissement des dépots avec un proxy
 # cette ligne peut être commentée/ignorée si vous n'utilisez pas de proxy ou avec la 14.04.
-echo "Acquire::http::No-Cache true;" >> /etc/apt/apt.conf
-echo "Acquire::http::Pipeline-Depth 0;" >> /etc/apt/apt.conf
+grep "Acquire::http::No-Cache true;" /etc/apt/apt.conf > /dev/null
+if [ $? != 0 ]; then
+	echo "Acquire::http::No-Cache true;" >> /etc/apt/apt.conf
+fi
 
+grep "Acquire::http::Pipeline-Depth 0;" /etc/apt/apt.conf > /dev/null
+if [ $? != 0 ]; then
+	echo "Acquire::http::Pipeline-Depth 0;" >> /etc/apt/apt.conf
+fi
 
 # Vérification que le système est bien à jour
 apt update ; apt full-upgrade -y
@@ -230,6 +250,7 @@ if [ "$esubuntu" = "yes" ] ; then
 	## Précision : en raison des problèmes que pose l'https pour le téléchargement dans les établissements, l'archive est ré-hebergé sur un ftp free :
 	if [ -e $second_dir/Esubuntu-master.zip ]; then
 		cp $second_dir/Esubuntu-master.zip .
+		unzip Esubuntu-master.zip ; rm -r Esubuntu-master.zip 
 	else  
 		wget --no-check-certificate https://github.com/dseverin2/clients-linux-scribe/archive/master.zip #(pose problème lors des tests)
 		if [ -e master.zip ]; then
@@ -239,12 +260,14 @@ if [ "$esubuntu" = "yes" ] ; then
 			rm -fr clients-linux-scribe-master
 		else
 			wget http://nux87.free.fr/pour_script_integrdom/master.7z
+			7z x master.7z ; rm -r master.7z 
 			echo "Esubuntu-master récupéré sur nux87.free.fr"
 		fi
 	fi
 
 	# Déplacement/extraction de l'archive + lancement par la suite
-	7z x Esubuntu-master.7z ; rm -r Esubuntu-master.7z ; chmod -R +x Esubuntu-master
+
+	chmod -R +x Esubuntu-master
 	./Esubuntu-master/install_esubuntu.sh
 
 	# Mise en place des wallpapers pour les élèves, profs, admin 
