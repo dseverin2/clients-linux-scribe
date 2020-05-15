@@ -51,7 +51,13 @@ echo $chemin
 chmod -R +x $chemin
 
 #creation du dossier upkg et esubuntu
+if [ -e /usr/local/upkg_client/ ]; then
+	rm -fr /usr/local/upkg_client/
+fi
 sudo mkdir /usr/local/upkg_client/
+if [ -e /etc/esubuntu/ ]; then
+	rm -fr /etc/esubuntu/
+fi
 sudo mkdir /etc/esubuntu/
 
 sudo chmod 777 /usr/local/upkg_client
