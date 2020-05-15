@@ -111,9 +111,8 @@ fi
 my_dir="$(dirname "$0")"
 source $my_dir/config.cfg
 
-read -p "Voulez-vous configurer la photocopieuse SdP (O/[N]): " config_photocopieuse
-if [ $config_photocopieuse -eq "o" ] || [ $config_photocopieuse -eq "O" ]; then
-	./setup_photocopieuse.sh
+if [ $config_photocopieuse = "o" ] || [ $config_photocopieuse = "O" ]; then
+	$second_dir/setup_photocopieuse.sh
 fi
 
 echo "Adresse du serveur Scribe = $scribe_def_ip"
@@ -233,7 +232,7 @@ if [ "$esubuntu" = "yes" ] ; then
 		cp $second_dir/Esubuntu-master.zip .
 	else  
 		wget --no-check-certificate https://github.com/dseverin2/clients-linux-scribe/archive/master.zip #(pose problème lors des tests)
-		if [ -e $second_dir/master.zip ]; then
+		if [ -e master.zip ]; then
 			echo "Esubuntu-master récupéré sur github"
 			unzip master.zip
 			mv clients-linux-scribe-master/Esubuntu-master .
