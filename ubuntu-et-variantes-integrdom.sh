@@ -110,7 +110,7 @@ fi
 
 my_dir="$(dirname "$0")"
 source $my_dir/config.cfg
-
+chmod +x $second_dir/*.sh $second_dir/apps/*.sh $second_dir/Esubuntu-master/*.sh
 if [ $config_photocopieuse = "o" ] || [ $config_photocopieuse = "O" ]; then
 	$second_dir/setup_photocopieuse.sh
 fi
