@@ -1,5 +1,5 @@
 #!/bin/bash
-# version 2.0.4 (05/03/20)
+# version 2.0.4 (20/05/20)
 
 # Ce script sert à installer des logiciels supplémentaires utiles pour les collèges & lyçées
 # Ce script est utilisable pour Ubuntu et variantes en 14.04, 16.04, 18.04, 20.04
@@ -46,6 +46,12 @@ fi
 my_dir="$(dirname "$0")"
 source $my_dir/config.cfg
 
+if [ "$installdepuisdomaine" ="yes"]; then
+ $wgetparams="-e use_proxy=yes -e http_proxy=$proxy_params"
+else
+ $wgetparams=""
+fi
+
 # désactiver mode intéractif pour automatiser l'installation de wireshark
 export DEBIAN_FRONTEND="noninteractive"
 
@@ -58,7 +64,7 @@ apt-get update ; apt-get -y dist-upgrade
 
 # Installation d'onlyoffice
 #apt-get install onlyoffice-desktopeditors
-wget -e use_proxy=yes -e http_proxy=$proxy_params --no-check-certificate https://download.onlyoffice.com/install/desktop/editors/linux/onlyoffice-desktopeditors_amd64.deb
+wget $wgetparams --no-check-certificate https://download.onlyoffice.com/install/desktop/editors/linux/onlyoffice-desktopeditors_amd64.deb
 if [ -e onlyoffice-desktopeditors_amd64.deb ]
 	then
 		echo "onlyoffice-desktopeditors_amd64.deb récupéré avec succès"
@@ -79,7 +85,7 @@ if [ "$version" = "trusty" ] ; then
   
   # Google Earth
   apt-get -y install libfontconfig1:i386 libx11-6:i386 libxrender1:i386 libxext6:i386 libgl1-mesa-glx:i386 libglu1-mesa:i386 libglib2.0-0:i386 libsm6:i386
-  wget -e use_proxy=yes -e http_proxy=$proxy_params  https://dl.google.com/dl/earth/client/current/google-earth-stable_current_i386.deb --no-check-certificate; 
+  wget $wgetparams  https://dl.google.com/dl/earth/client/current/google-earth-stable_current_i386.deb --no-check-certificate; 
   dpkg -i google-earth-stable_current_i386.deb ; apt-get -fy install ; rm -f google-earth-stable_current_i386.deb   
 fi
 
@@ -97,13 +103,13 @@ if [ "$version" = "xenial" ] ; then
   add-apt-repository -y ppa:libreoffice/ppa ; apt update ; apt upgrade -y
 
   # Google Earth
-  wget -e use_proxy=yes -e http_proxy=$proxy_params --no-check-certificate https://dl.google.com/dl/earth/client/current/google-earth-stable_current_amd64.deb 
-  wget -e use_proxy=yes -e http_proxy=$proxy_params --no-check-certificate http://ftp.fr.debian.org/debian/pool/main/l/lsb/lsb-core_4.1+Debian13+nmu1_amd64.deb
-  wget -e use_proxy=yes -e http_proxy=$proxy_params --no-check-certificate http://ftp.fr.debian.org/debian/pool/main/l/lsb/lsb-security_4.1+Debian13+nmu1_amd64.deb 
+  wget $wgetparams --no-check-certificate https://dl.google.com/dl/earth/client/current/google-earth-stable_current_amd64.deb 
+  wget $wgetparams --no-check-certificate http://ftp.fr.debian.org/debian/pool/main/l/lsb/lsb-core_4.1+Debian13+nmu1_amd64.deb
+  wget $wgetparams --no-check-certificate http://ftp.fr.debian.org/debian/pool/main/l/lsb/lsb-security_4.1+Debian13+nmu1_amd64.deb 
   dpkg -i lsb*.deb ; dpkg -i google-earth*.deb ; apt install -fy ; rm -f lsb*.deb && rm -f google-earth*.deb
   
   # Celestia
-  wget -e use_proxy=yes -e http_proxy=$proxy_params --no-check-certificate https://gitlab.com/simbd/Scripts_Ubuntu/-/blob/7925144bf30ed4c353b9676521d591dc35c97dde/Celestia_pour_Bionic.sh
+  wget $wgetparams --no-check-certificate https://gitlab.com/simbd/Scripts_Ubuntu/-/blob/7925144bf30ed4c353b9676521d591dc35c97dde/Celestia_pour_Bionic.sh
 if [ -e Celestia_pour_Bionic.sh ]
 	then
 		echo "Celestia_pour_Bionic.sh récupéré avec succès"
@@ -121,11 +127,11 @@ if [ "$version" = "bionic" ] ; then
   apt-get install -y idle-python3.6 x265
 
   # Google Earth Pro x64 
-  wget -e use_proxy=yes -e http_proxy=$proxy_params --no-check-certificate https://dl.google.com/dl/earth/client/current/google-earth-pro-stable_current_amd64.deb ; dpkg -i google-earth-pro-stable_current_amd64.deb ; apt install -fy
+  wget $wgetparams --no-check-certificate https://dl.google.com/dl/earth/client/current/google-earth-pro-stable_current_amd64.deb ; dpkg -i google-earth-pro-stable_current_amd64.deb ; apt install -fy
   rm /etc/apt/sources.list.d/google-earth* ; rm google-earth-pro* #dépot google retiré volontairement
   
   # Celestia
-  wget -e use_proxy=yes -e http_proxy=$proxy_params --no-check-certificate https://gitlab.com/simbd/Scripts_Ubuntu/-/blob/7925144bf30ed4c353b9676521d591dc35c97dde/Celestia_pour_Bionic.sh
+  wget $wgetparams --no-check-certificate https://gitlab.com/simbd/Scripts_Ubuntu/-/blob/7925144bf30ed4c353b9676521d591dc35c97dde/Celestia_pour_Bionic.sh
   if [ -e Celestia_pour_Bionic.sh ]
 	then
 		echo "Celestia_pour_Bionic.sh récupéré avec succès sur github"
@@ -146,11 +152,11 @@ if [ "$version" = "focal" ] ; then
   apt-get install -y idle-python3.7 x265
 
   # Google Earth Pro x64 
-  wget -e use_proxy=yes -e http_proxy=$proxy_params --no-check-certificate https://dl.google.com/dl/earth/client/current/google-earth-pro-stable_current_amd64.deb ; dpkg -i google-earth-pro-stable_current_amd64.deb ; apt install -fy
+  wget $wgetparams --no-check-certificate https://dl.google.com/dl/earth/client/current/google-earth-pro-stable_current_amd64.deb ; dpkg -i google-earth-pro-stable_current_amd64.deb ; apt install -fy
   rm /etc/apt/sources.list.d/google-earth* ; rm google-earth-pro* #dépot google retiré volontairement
   
   # Celestia
-  #wget -e use_proxy=yes -e http_proxy=$proxy_params --no-check-certificate https://futureadressegit/Celestia_pour_focal.sh
+  #wget $wgetparams --no-check-certificate https://futureadressegit/Celestia_pour_focal.sh
   if [ -e Celestia_pour_focal.sh ]
 	then
 		echo "Celestia_pour_focal.sh récupéré avec succès sur github"
@@ -167,7 +173,7 @@ fi
 
 if [ "$version" != "bionic" ] && [ "$version" != "focal"] ; then  # Installation spécifique pour 14.04 ou 16.04
   # drivers imprimantes (sauf pour Bionic ou il est installé différemment)
-  wget -e use_proxy=yes -e http_proxy=$proxy_params --no-check-certificate http://www.openprinting.org/download/printdriver/debian/dists/lsb3.2/contrib/binary-amd64/openprinting-gutenprint_5.2.7-1lsb3.2_amd64.deb
+  wget $wgetparams --no-check-certificate http://www.openprinting.org/download/printdriver/debian/dists/lsb3.2/contrib/binary-amd64/openprinting-gutenprint_5.2.7-1lsb3.2_amd64.deb
   dpkg -i openprinting-gutenprint_5.2.7-1lsb3.2_amd64.deb ; apt-get -fy install ; rm openprinting-gutenprint*
   
   # Gdevelop (PPA pas encore actif pour la 18.04)
@@ -188,7 +194,7 @@ add-apt-repository -y ppa:webupd8team/java ; apt-get update ; echo oracle-java8-
 apt-get -y install libreoffice libreoffice-gtk libreoffice-l10n-fr freeplane scribus gnote xournal cups-pdf
 
 #[ Web ]
-apt-get -y install chromium-browser chromium-browser-l10n ;
+apt-get -y install chromium-browser chromium-browser-l10n firefox;
 apt-get -y install adobe-flashplugin ; #permet d'avoir flash en même temps pour firefox et chromium
 
 #[ Video / Audio ]
@@ -217,7 +223,7 @@ apt-get -y install python3-pil.imagetk python3-pil traceroute python3-tk #python
 if [ -e $second_dir/scratch-desktop_3.3.0_amd64.deb ]; then
 	cp $second_dir/scratch-desktop_3.3.0_amd64.deb .
 else
-	wget -e use_proxy=yes -e http_proxy=$proxy_params https://github.com/redshaderobotics/scratch3.0-linux/releases/download/3.3.0/scratch-desktop_3.3.0_amd64.deb 
+	wget $wgetparams https://github.com/redshaderobotics/scratch3.0-linux/releases/download/3.3.0/scratch-desktop_3.3.0_amd64.deb 
 fi
 dpkg -i scratch-desktop_3.3.0_amd64.deb ; apt install -fy ; rm scratch-desktop_3.3.0_amd64.deb 
 
@@ -230,34 +236,23 @@ fi
 ### cf : https://forum-dane.ac-lyon.fr/forum/viewforum.php?f=44
 if [ "$version" = "bionic" ] || [ "$version" = "focal" ] ; then
   # Openboard
-  if [ "$version" = "bionic" ]; then
-	  #wget -e use_proxy=yes -e http_proxy=$proxy_params --no-check-certificate https://gitlab.com/simbd/Scripts_Ubuntu/-/blob/7925144bf30ed4c353b9676521d591dc35c97dde/Openboard_1804.sh
-	  if [ -e Openboard_1804.sh  ]
-		then
-			echo "Openboard_1804.sh  récupéré avec succès sur gitlab"
-		else
-			cp $second_dir/Openboard_1804.sh  .
-	  fi
-	  chmod +x Openboard* && ./Openboard_1804.sh ; rm Openboard* 
-  elif [ "$version" = "focal" ]; then
-	./installOpenBoard.sh
-  fi
+./installOpenBoard.sh $version
   # Openshot-qt, Gshutdown, X-Cas, Planner, extension ooohg, winff, optgeo, ghostscript
   apt install openshot-qt gshutdown xcas planner ooohg winff winff-qt optgeo ghostscript -y #gshutdown équivalent à poweroff
   # GanttProject
   apt install openjdk-8-jre oenjdk-11-jre java-11-amazon-corretto-jdk bellsoft-java11-runtime
-  wget -e use_proxy=yes -e http_proxy=$proxy_params --no-check-certificate https://www.ganttproject.biz/dl/2.8.11/lin && dpkg -i ganttproject* ; apt install -fy ; rm ganttproject*
+  wget $wgetparams --no-check-certificate https://dl.ganttproject.biz/ganttproject-2.8.11/ganttproject_2.8.11-r2396-1_all.deb && dpkg -i ganttproject* ; apt install -fy ; rm ganttproject*
   # mBlock
   apt install libgconf-2-4 -y ; wget http://mblock.makeblock.com/mBlock4.0/mBlock_4.0.4_amd64.deb ; dpkg -i mBlock*.deb ; apt install -fy ; rm mBlock*.deb      
   # Xia (alias ImageActive)
   echo "deb http://repository.crdp.ac-versailles.fr/debian xia main" | tee /etc/apt/sources.list.d/xia.list
-  wget -e use_proxy=yes -e http_proxy=$proxy_params -q http://repository.crdp.ac-versailles.fr/crdp.gpg -O - | apt-key add - ; apt update ; apt install xia -y
+  wget $wgetparams -q http://repository.crdp.ac-versailles.fr/crdp.gpg -O - | apt-key add - ; apt update ; apt install xia -y
   # Marble (avec le moins de dépendance KDE possible)
   apt install --no-install-recommends marble -y
   # OpenMeca
-  wget -e use_proxy=yes -e http_proxy=$proxy_params --no-check-certificate http://d.a.d.a.pagesperso-orange.fr/openmeca-64b.deb && dpkg -i openmeca-64b.deb ; apt install -fy ; rm openmeca*
+  wget $wgetparams --no-check-certificate http://d.a.d.a.pagesperso-orange.fr/openmeca-64b.deb && dpkg -i openmeca-64b.deb ; apt install -fy ; rm openmeca*
   # BlueGriffon
-  wget -e use_proxy=yes -e http_proxy=$proxy_params --no-check-certificate http://bluegriffon.org/freshmeat/3.0.1/bluegriffon-3.0.1.Ubuntu16.04-x86_64.deb && dpkg -i bluegriffon*.deb ; apt install -fy ; rm bluegriffon*
+  wget $wgetparams --no-check-certificate http://bluegriffon.org/freshmeat/3.0.1/bluegriffon-3.0.1.Ubuntu16.04-x86_64.deb && dpkg -i bluegriffon*.deb ; apt install -fy ; rm bluegriffon*
   ### Logiciel non installé (mais existant sous linux) : Xmind (déjà un équivalent), Scenari (pas utile de le pré-installer)
   ./installGeogebra6.sh
   ./installWPS.sh
@@ -296,7 +291,7 @@ if [ "$(which xfwm4)" = "/usr/bin/xfwm4" ] ; then # si Xubuntu/Xfce alors :
   if [ "$version" = "trusty" ] || [ "$version" = "xenial" ] ; then #ajout ppa pour 14.04 et 16.04 (pas nécessaire pour la 18.04)
     add-apt-repository -y ppa:docky-core/stable ; apt-get update   
   fi
-  apt-get -y install plank ; wget -e use_proxy=yes -e http_proxy=$proxy_params --no-check-certificate https://dane.ac-lyon.fr/spip/IMG/tar/skel_xub1404.tar
+  apt-get -y install plank ; wget $wgetparams --no-check-certificate https://dane.ac-lyon.fr/spip/IMG/tar/skel_xub1404.tar
   tar xvf skel_xub1404.tar -C /etc ; rm -rf skel_xub1404.tar
 fi
 
