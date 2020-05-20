@@ -73,6 +73,15 @@ if [ -e onlyoffice-desktopeditors_amd64.deb ]
   fi
 dpkg -i onlyoffice-desktopeditors_amd64.deb ; apt-get -fy install ; rm -f onlyoffice-desktopeditors_amd64.deb
 
+# Installation des logiciels de TBI
+chmod +x TBI/*.sh
+if [ "$activinspire" = "yes" ]; then
+	TBI/installActivInspire.sh
+fi
+if [ "$ebeam" = "yes" ]; then
+	TBI/installEbeam.sh
+fi
+
 #########################################
 # Paquets uniquement pour Trusty (14.04)
 #########################################
