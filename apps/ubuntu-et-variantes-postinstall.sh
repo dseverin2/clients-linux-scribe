@@ -41,10 +41,17 @@ fi
 if [ "$version" == "unsupported" ]; then
   echo "Désolé, vous n'êtes pas sur une version compatible !"
   exit
+elif [ -e ../config.cfg ]; then
+  cp ../config.cfg .
 fi
 
-my_dir="$(dirname "$0")"
-source $my_dir/config.cfg
+if [ -e ./config.cfg ]; then
+  my_dir="$(dirname "$0")"
+  source $my_dir/config.cfg
+else
+  echo "Fichier de configuration absent !"
+  exit
+fi
 
 if [ "$installdepuisdomaine" = "yes" ]; then
  wgetparams="-e use_proxy=yes -e http_proxy=$proxy_params"
