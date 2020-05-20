@@ -1,6 +1,6 @@
 #!/bin/bash
 # version 2.3.9
-# Dernière modification : 14/05/2020-2 (amélioration invocation script PostInstall)
+# Dernière modification : 20/05/2020 (amélioration invocation script PostInstall)
 
 
 # Testé & validé pour les distributions suivantes :
@@ -108,8 +108,14 @@ if [ "$version" == "unsupported" ]; then
   exit
 fi
 
-my_dir="$(dirname "$0")"
-source $my_dir/config.cfg
+if [ -e ./config.cfg ]; then
+  my_dir="$(dirname "$0")"
+  source $my_dir/config.cfg
+else
+  echo "Fichier de configuration absent !"
+  exit
+fi
+
 chmod +x $second_dir/*.sh $second_dir/apps/*.sh $second_dir/Esubuntu-master/*.sh
 if [ $config_photocopieuse = "o" ] || [ $config_photocopieuse = "O" ]; then
 	$second_dir/setup_photocopieuse.sh
