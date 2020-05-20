@@ -46,7 +46,7 @@ fi
 my_dir="$(dirname "$0")"
 source $my_dir/config.cfg
 
-if [ "$installdepuisdomaine" ="yes"]; then
+if [ "$installdepuisdomaine" = "yes" ]; then
  $wgetparams="-e use_proxy=yes -e http_proxy=$proxy_params"
 else
  $wgetparams=""
