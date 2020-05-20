@@ -47,9 +47,9 @@ my_dir="$(dirname "$0")"
 source $my_dir/config.cfg
 
 if [ "$installdepuisdomaine" = "yes" ]; then
- $wgetparams="-e use_proxy=yes -e http_proxy=$proxy_params"
+ wgetparams="-e use_proxy=yes -e http_proxy=$proxy_params"
 else
- $wgetparams=""
+ wgetparams=""
 fi
 
 # désactiver mode intéractif pour automatiser l'installation de wireshark
