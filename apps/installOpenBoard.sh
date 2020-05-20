@@ -18,5 +18,5 @@ elif [ "$1" = "bionic" ]; then
 	sudo apt install libavformat-ffmpeg56
 	wget https://github.com/OpenBoard-org/OpenBoard/releases/download/v1.5.4/openboard_ubuntu_16.04_1.5.4_amd64.deb
 	sudo gdebi openboard_ubuntu_16.04_1.5.4_amd64.deb
-	mv /etc/apt/sources.list.back /etc/apt/sources.list.back
+	mv /etc/apt/sources.list.back /etc/apt/sources.list
 fi
