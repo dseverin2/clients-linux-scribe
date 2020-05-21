@@ -1,6 +1,6 @@
 #!/bin/bash
-# version 2.3.9
-# Dernière modification : 20/05/2020 (amélioration invocation script PostInstall)
+# version 2.4.0
+# Dernière modification : 21/05/2020 (mise à jour invocation script PostInstall)
 
 
 # Testé & validé pour les distributions suivantes :
@@ -595,28 +595,6 @@ if [ "$postinstallbase" = "yes" ]; then
 	chmod +x ubuntu-et-variantes-postinstall.sh ; ./ubuntu-et-variantes-postinstall.sh ; rm -f ubuntu-et-variantes-postinstall.sh ;
 fi
 
-if [ "$postinstalladditionnel" = "yes" ]; then 
-	if [ "$version" = "bionic" ]; then
-		if [ -e $second_dir/Ubuntu18.04_Bionic_Postinstall.sh ] ; then # Pour 18.04 uniquement
-			cp $second_dir/Ubuntu18.04_Bionic_Postinstall.sh .
-		else
-			 wget --no-check-certificate https://github.com/simbd/Scripts_Ubuntu/blob/master/Ubuntu18.04_Bionic_Postinstall.sh
-		fi
-		chmod +x Ubuntu18.04_Bionic_Postinstall.sh ; ./Ubuntu18.04_Bionic_Postinstall.sh ; rm -f Ubuntu*.sh ;
-	elif [ "$version" = "focal" ]; then
-		if [ -e $second_dir/Postinstall_Ubuntu-20.04LTS_FocalFossa.sh ] ; then # Pour 20.04 uniquement, on doit lancer avec l'admin local (obligation imposée par le script de PostInstall)
-			cp $second_dir/Postinstall_Ubuntu-20.04LTS_FocalFossa.sh .
-		else
-			 sudo -u $localadmin wget --no-check-certificate https://github.com/simbd/Ubuntu_20.04LTS_PostInstall/archive/master.zip
-			 sudo -u $localadmin unzip master.zip -d .
-			 sudo -u $localadmin rm -f master.zip
-		fi
-		sudo -u $localadmin mv Ubuntu_20.04LTS_PostInstall-master/* .
-		sudo -u $localadmin chmod +x Postinstall_Ubuntu-20.04LTS_FocalFossa.sh ; sudo -u $localadmin ./Postinstall_Ubuntu-20.04LTS_FocalFossa.sh
-		sudo -u $localadmin rm -f Postinstall_Ubuntu-20.04LTS_FocalFossa.sh Config_Function.sh Description_logiciel.fr README.md Zenity_default_choice.sh Ubuntu_20.04LTS_PostInstall-master;
-	fi
-fi
-
 echo "INSTALLATION DU GESTIONNAIRE DE RACCOURCIS"
 apt-get install xbindkeys xbindkeys-config -y
 
@@ -630,6 +608,26 @@ apt-get install -y exfat-utils exfat-fuse
 ########################################################################
 apt-get -y autoremove --purge ; apt-get -y clean
 # clear
+
+if [ "$postinstalladditionnel" = "yes" ]; then 
+	if [ "$version" = "bionic" ] || [ "$version" = "focal" ]; then
+		if [ -e $second_dir/Postinstall_Ubuntu-20.04LTS_FocalFossa.sh ] ; then # Pour 20.04 uniquement, on doit lancer avec l'admin local (obligation imposée par le script de PostInstall)
+			cp $second_dir/Postinstall_Ubuntu-20.04LTS_FocalFossa.sh .
+		else
+			 sudo -u $localadmin wget --no-check-certificate https://github.com/simbd/Ubuntu_20.04LTS_PostInstall/archive/master.zip
+			 sudo -u $localadmin unzip master.zip -d .
+			 sudo -u $localadmin rm -f master.zip
+		fi
+		sudo -u $localadmin mv Ubuntu_20.04LTS_PostInstall-master/* .
+		sudo -u $localadmin chmod +x Postinstall_Ubuntu-20.04LTS_FocalFossa.sh ; sudo -u $localadmin ./Postinstall_Ubuntu-20.04LTS_FocalFossa.sh
+		sudo -u $localadmin rm -f Postinstall_Ubuntu-20.04LTS_FocalFossa.sh Config_Function.sh Description_logiciel.fr README.md Zenity_default_choice.sh Ubuntu_20.04LTS_PostInstall-master;
+		########################################################################
+		#nettoyage station avant clonage
+		########################################################################
+		apt-get -y autoremove --purge ; apt-get -y clean
+		# clear
+	fi
+fi
 
 ########################################################################
 #FIN
