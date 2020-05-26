@@ -1,0 +1,23 @@
+﻿- Si vous voulez changer les wallpapers par défaut, il vous suffit de remplacer les fichiers jpg dans le
+ répertoire du dossier /usr/share/wallpaper 
+(donc des postes clients)
+
+
+
+- Si vous souhaitez que les wallpaper soit centralisé (donc pas stocké dans les postes clients), il vous 
+suffit d'indiquer le nouveau chemin 
+dans les 3 fichiers "Admin.txt", "Eleve.txt" et "Prof.txt"
+(ce chemin doit bien évidemment être accessible depuis un poste client)
+
+
+
+- Si vous souhaitez utiliser un proxy authentifiant avec le fichier .pac, renommez le en "proxy_etab.pac"
+(actuellement nommé NON_UTILISE.proxy_etab.pac)
+
+
+
+- Si vous souhaitez modifier la config de Firefox de façon centralisé => linux/firefox.js !
+
+
+
+

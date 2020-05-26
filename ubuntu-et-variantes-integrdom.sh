@@ -1,6 +1,6 @@
 #!/bin/bash
 # version 2.4.0
-# Dernière modification : 21/05/2020 (mise à jour invocation script PostInstall)
+# Dernière modification : 26/05/2020 (mise à jour invocation script PostInstall)
 
 
 # Testé & validé pour les distributions suivantes :
@@ -78,36 +78,6 @@ then
   exit 
 fi 
 
-# Pour identifier le numéro de la version (14.04, 16.04...)
-. /etc/lsb-release
-
-# Affectation à la variable "version" suivant la variante utilisé
-version=unsupported
-if [ "$DISTRIB_RELEASE" = "14.04" ] || [ "$DISTRIB_RELEASE" = "17" ] || [ "$DISTRIB_RELEASE" = "17.3" ] ; then
-  version=trusty # Ubuntu 14.04 / Linux Mint 17/17.3
-fi
-
-if [ "$DISTRIB_RELEASE" = "16.04" ] || [ "$DISTRIB_RELEASE" = "18" ] || [ "$DISTRIB_RELEASE" = "18.3" ] || [ "$(echo "$DISTRIB_RELEASE" | cut -c -3)" = "0.4" ] ; then
-  version=xenial # Ubuntu 16.04 / Linux Mint 18/18.3 / Elementary OS 0.4.x
-fi
-
-if [ "$DISTRIB_RELEASE" = "18.04" ] || [ "$DISTRIB_RELEASE" = "19" ] || [ "$DISTRIB_RELEASE" = "5.0" ] ; then 
-  version=bionic # Ubuntu 18.04 / Mint 19 / Elementary OS 5.0
-fi
-
-if [ "$DISTRIB_RELEASE" = "20.04" ] || [ "$DISTRIB_RELEASE" = "20" ] || [ "$DISTRIB_RELEASE" = "6.0" ] ; then 
-  version=focal # Ubuntu 20.04 / Mint 20 / Elementary OS 6.0
-fi
-
-########################################################################
-# Vérification de version
-########################################################################
-
-if [ "$version" == "unsupported" ]; then
-  echo "Désolé, vous n'êtes pas sur une version compatible !"
-  exit
-fi
-
 # Verification de la présence des fichiers contenant les fonctions et variables communes
 if [ -e ./esub_functions.sh ]; then
   my_dir="$(dirname "$0")"
@@ -117,12 +87,15 @@ else
   exit
 fi
 
+# Récupération de la version d'ubuntu
+getversion
+
 # Création du fichier de log
 initlog
 ecrirelog "Fichiers de configuration... OK\nVersion trouvée : $version... OK"
 
 # Définition des droits sur les scripts
-chmod +x $second_dir/*.sh ./Esubuntu-master/*.sh
+chmod +x $second_dir/*.sh
 
 if [ $config_photocopieuse = "yes" ]; then
 	ecrirelog "\n" "***************************\n" "Installation photocopieuse" "***************************"
@@ -195,44 +168,22 @@ port=$proxy_def_port
 
 	#Paramétrage du Proxy pour le système
 	######################################################################
-	grep "http_proxy=http://$proxy_def_ip:$proxy_def_port" /etc/environment > /dev/null
-	if [ $? != 0 ]; then
-	  echo "http_proxy=http://$proxy_def_ip:$proxy_def_port/
-	https_proxy=http://$proxy_def_ip:$proxy_def_port/
-	ftp_proxy=http://$proxy_def_ip:$proxy_def_port/
-	no_proxy=\"$proxy_env_noproxy\"" >> /etc/environment
-	fi
+	addtoend /etc/environment "http_proxy=http://$proxy_def_ip:$proxy_def_port/" "https_proxy=http://$proxy_def_ip:$proxy_def_port/" "ftp_proxy=http://$proxy_def_ip:$proxy_def_port/" "no_proxy=\"$proxy_env_noproxy\""
 
 	#Paramétrage du Proxy pour apt
 	######################################################################
-	grep "http://$proxy_def_ip:$proxy_def_port" /etc/apt/apt.conf.d/20proxy > /dev/null
-	if [ $? != 0 ]; then
-		echo "Acquire::http::proxy \"http://$proxy_def_ip:$proxy_def_port/\";
-		Acquire::ftp::proxy \"ftp://$proxy_def_ip:$proxy_def_port/\";
-		Acquire::https::proxy \"https://$proxy_def_ip:$proxy_def_port/\";" > /etc/apt/apt.conf.d/20proxy
-	fi
+	echo "Acquire::http::proxy \"http://$proxy_def_ip:$proxy_def_port/\";
+	Acquire::ftp::proxy \"ftp://$proxy_def_ip:$proxy_def_port/\";
+	Acquire::https::proxy \"https://$proxy_def_ip:$proxy_def_port/\";" > /etc/apt/apt.conf.d/20proxy
 
 	#Permettre d'utiliser la commande add-apt-repository derrière un Proxy
 	######################################################################
-	grep "Defaults env_keep = https_proxy" /etc/sudoers > /dev/null
-	if [ $? != 0 ]; then
-		echo "Defaults env_keep = https_proxy" >> /etc/sudoers
-	fi
-
-
+	addtoend /etc/sudoers "Defaults env_keep = https_proxy"
 fi
 
 # Modification pour ne pas avoir de problème lors du rafraichissement des dépots avec un proxy
 # cette ligne peut être commentée/ignorée si vous n'utilisez pas de proxy ou avec la 14.04.
-grep "Acquire::http::No-Cache true;" /etc/apt/apt.conf > /dev/null
-if [ $? != 0 ]; then
-	echo "Acquire::http::No-Cache true;" >> /etc/apt/apt.conf
-fi
-
-grep "Acquire::http::Pipeline-Depth 0;" /etc/apt/apt.conf > /dev/null
-if [ $? != 0 ]; then
-	echo "Acquire::http::Pipeline-Depth 0;" >> /etc/apt/apt.conf
-fi
+addtoend /etc/apt/apt.conf "Acquire::http::No-Cache true;" "Acquire::http::Pipeline-Depth 0;"
 
 # Vérification que le système est bien à jour
 apt update ; apt full-upgrade -y
@@ -245,45 +196,28 @@ apt install -y net-tools
 ####################################################
 if [ "$esubuntu" = "yes" ] ; then 
 	# Téléchargement des paquets
-	## Précision : en raison des problèmes que pose l'https pour le téléchargement dans les établissements, l'archive est ré-hebergé sur un ftp free :
-	if [ -e $second_dir/Esubuntu-master.zip ]; then
-		cp $second_dir/Esubuntu-master.zip .
-		unzip Esubuntu-master.zip ; rm -r Esubuntu-master.zip 
-	else  
-		wget --no-check-certificate https://github.com/dseverin2/clients-linux-scribe/archive/master.zip #(pose problème lors des tests)
-		if [ -e master.zip ]; then
-			echo "Esubuntu-master récupéré sur github"
-			unzip master.zip
-			mv clients-linux-scribe-master/Esubuntu-master .
-			rm -fr clients-linux-scribe-master master.zip
-		else
-			wget http://nux87.free.fr/pour_script_integrdom/master.7z
-			7z x master.7z ; rm -r master.7z 
-			echo "Esubuntu-master récupéré sur nux87.free.fr"
-		fi
+	wget --no-check-certificate https://github.com/dseverin2/esubuntu/archive/master.zip
+	if [ -e master.zip ]; then
+		writelog "Esubuntu-master récupéré sur github"
+		unzip master.zip
+		rm -fr master.zip
+	else
+		writelog "Esubuntu-master n'a pas pu être récupéré. Interruption de l'installation"
+		exit
 	fi
 
 	# Déplacement/extraction de l'archive + lancement par la suite
-
-	chmod -R +x Esubuntu-master
-	cp config.cfg Esubuntu-master/
-	./Esubuntu-master/install_esubuntu.sh
+	chmod -R +x ./esubuntu-master
+	cp config.cfg esub_functions.sh ./esubuntu-master/
+	writelog "Modification des droits et copie des fichiers de configuration... OK"
+	./esubuntu-master/install_esubuntu.sh
 
 	# Mise en place des wallpapers pour les élèves, profs, admin 
-	if [ -e $second_dir/wallpaper.zip ]; then
-		cp $second_dir/wallpaper.zip .
-	else  
-		wget https://github.com/dane-lyon/fichier-de-config/raw/master/wallpaper.zip
-		if [ -e wallpaper.zip ]; then
-			echo "wallpaper.zip récupéré sur github"
-		else
-			wget http://nux87.free.fr/esu_ubuntu/wallpaper.zip
-			echo "wallpaper.zip récupéré sur nux87.free.fr"
-		fi
+	if [ -e /usr/share/wallpaper ]; then
+		rm -fr /usr/share/wallpaper
 	fi
-	
-	unzip wallpaper.zip ; rm -r wallpaper.zip
-	mv wallpaper /usr/share/
+	mv -fr ./wallpaper /usr/share/
+	writelog "Copie des wallpapers... OK"
 fi
 
 ########################################################################
@@ -291,6 +225,7 @@ fi
 ########################################################################
 apt install -y ntpdate ;
 ntpdate $scribe_def_ip
+writelog "Mise à jour de la station d'heure à partir du serveur Scribe... OK"
 
 ########################################################################
 #installation des paquets nécessaires
@@ -298,7 +233,8 @@ ntpdate $scribe_def_ip
 #unattended-upgrades pour forcer les mises à jour de sécurité à se faire
 ########################################################################
 apt install -y ldap-auth-client libpam-mount cifs-utils nscd numlockx unattended-upgrades
-
+writelog "Installation des paquets de sécurité, de montage samba et numlockx... OK"
+	
 ########################################################################
 # activation auto des mises à jour de sécurité
 ########################################################################
@@ -339,6 +275,7 @@ nss_netgroup=netgroup: nis
 #application de la conf nsswitch
 ########################################################################
 auth-client-config -t nss -p open_ldap
+writelog "Application de la configuration nsswitch... OK"
 
 ########################################################################
 #modules PAM mkhomdir pour pam-auth-update
@@ -351,25 +288,19 @@ Session:
        optional                        pam_mkhomedir.so silent" > /usr/share/pam-configs/mkhomedir
 
 
-grep "auth    required     pam_group.so use_first_pass"  /etc/pam.d/common-auth  >/dev/null
-if [ $? != 0 ]; then
-  echo  "auth    required     pam_group.so use_first_pass" >> /etc/pam.d/common-auth
-fi
+addtoend /etc/pam.d/common-auth "auth    required     pam_group.so use_first_pass"
+
 
 ########################################################################
 # mise en place de la conf pam.d
 ########################################################################
 pam-auth-update consolekit ldap libpam-mount unix mkhomedir my_groups --force
+writelog "Application de la configuration pam.d... OK"
 
 ########################################################################
 # mise en place des groupes pour les users ldap dans /etc/security/group.conf
 ########################################################################
-grep "*;*;*;Al0000-2400;floppy,audio,cdrom,video,plugdev,scanner,dialout" /etc/security/group.conf  >/dev/null; 
-
-if [ $? != 0 ] ; then 
-  echo "*;*;*;Al0000-2400;floppy,audio,cdrom,video,plugdev,scanner,dialout" >> /etc/security/group.conf 
-  else echo "group.conf ok"
-fi
+addtoend /etc/security/group.conf "*;*;*;Al0000-2400;floppy,audio,cdrom,video,plugdev,scanner,dialout"
 
 ########################################################################
 #on remet debconf dans sa conf initiale
@@ -381,31 +312,28 @@ export DEBIAN_PRIORITY="high"
 #paramétrage du script de démontage du netlogon pour lightdm 
 ########################################################################
 if [ "$(which lightdm)" = "/usr/sbin/lightdm" ] ; then #Si lightDM présent
-  touch /etc/lightdm/logonscript.sh
-  grep "if mount | grep -q \"/tmp/netlogon\" ; then umount /tmp/netlogon ;fi" /etc/lightdm/logonscript.sh  >/dev/null
-  if [ $? != 0 ] ; then
-    echo "if mount | grep -q \"/tmp/netlogon\" ; then umount /tmp/netlogon ;fi" >> /etc/lightdm/logonscript.sh
-  fi
-  chmod +x /etc/lightdm/logonscript.sh
+	touch /etc/lightdm/logonscript.sh
+	addtoend /etc/lightdm/logonscript.sh "if mount | grep -q \"/tmp/netlogon\" ; then umount /tmp/netlogon ;fi"
+	chmod +x /etc/lightdm/logonscript.sh
 
-  touch /etc/lightdm/logoffscript.sh
-  echo "sleep 2 \
-  umount -f /tmp/netlogon \ 
-  umount -f \$HOME
-  " > /etc/lightdm/logoffscript.sh
-  chmod +x /etc/lightdm/logoffscript.sh
+	touch /etc/lightdm/logoffscript.sh
+	echo "sleep 2 \
+	umount -f /tmp/netlogon \ 
+	umount -f \$HOME
+	" > /etc/lightdm/logoffscript.sh
+	chmod +x /etc/lightdm/logoffscript.sh
 
-  ########################################################################
-  #paramétrage du lightdm.conf
-  #activation du pavé numérique par greeter-setup-script=/usr/bin/numlockx on
-  ########################################################################
-  echo "[SeatDefaults]
-      allow-guest=false
-      greeter-show-manual-login=true
-      greeter-hide-users=true
-      session-setup-script=/etc/lightdm/logonscript.sh
-      session-cleanup-script=/etc/lightdm/logoffscript.sh
-      greeter-setup-script=/usr/bin/numlockx on" > /usr/share/lightdm/lightdm.conf.d/50-no-guest.conf
+	########################################################################
+	#paramétrage du lightdm.conf
+	#activation du pavé numérique par greeter-setup-script=/usr/bin/numlockx on
+	########################################################################
+	echo "[SeatDefaults]
+	  allow-guest=false
+	  greeter-show-manual-login=true
+	  greeter-hide-users=true
+	  session-setup-script=/etc/lightdm/logonscript.sh
+	  session-cleanup-script=/etc/lightdm/logoffscript.sh
+	  greeter-setup-script=/usr/bin/numlockx on" > /usr/share/lightdm/lightdm.conf.d/50-no-guest.conf
 fi
 
 # echo "GVFS_DISABLE_FUSE=1" >> /etc/environment
@@ -489,15 +417,7 @@ fi
 ########################################################################
 #/etc/profile
 ########################################################################
-grep "export LC_ALL=fr_FR.utf8" /etc/profile > /dev/null
-if [ $? != 0 ]; then
-  echo "
-export LC_ALL=fr_FR.utf8
-export LANG=fr_FR.utf8
-export LANGUAGE=fr_FR.utf8
-" >> /etc/profile
-fi
-
+addtoend /etc/profile "export LC_ALL=fr_FR.utf8" "export LANG=fr_FR.utf8" "export LANGUAGE=fr_FR.utf8"
 
 ########################################################################
 #ne pas créer les dossiers par défaut dans home
@@ -536,11 +456,7 @@ echo "enabled=0" > /etc/default/apport
 apt purge -y indicator-messages 
 
 # Changement page d'accueil firefox
-grep "$pagedemarragepardefaut" /usr/lib/firefox/defaults/pref/channel-prefs.js > /dev/null
-if [ $? != 0 ]; then
-  echo "user_pref(\"browser.startup.homepage\", \"$pagedemarragepardefaut\");" >> /usr/lib/firefox/defaults/pref/channel-prefs.js
-fi
-
+addtoend /usr/lib/firefox/defaults/pref/channel-prefs.js "$pagedemarragepardefaut" 
 
 # Logiciels utiles
 apt install -y vim htop
@@ -550,28 +466,23 @@ apt install -y vim htop
 
 # Lecture DVD sur Ubuntu 14.04
 if [ "$version" = "trusty" ] ; then
-  apt install -y libdvdread4 && bash /usr/share/doc/libdvdread4/install-css.sh
+	apt install -y libdvdread4 && bash /usr/share/doc/libdvdread4/install-css.sh
 fi
 
 # Résolution problème dans certains cas uniquement pour Trusty (exemple pour lancer gedit directement avec : sudo gedit)
 if [ "$version" = "trusty" ] ; then
-  echo 'Defaults        env_keep += "DISPLAY XAUTHORITY"' >> /etc/sudoers
+	addtoend /etc/sudoers 'Defaults        env_keep += "DISPLAY XAUTHORITY"'
 fi
 
 # Spécifique base 16.04 ou 18.04 : pour le fonctionnement du dossier /etc/skel 
 if [ "$version" = "xenial" ] || [ "$version" = "bionic" ]  || [ "$version" = "focal" ] ; then
-  sed -i "30i\session optional        pam_mkhomedir.so" /etc/pam.d/common-session
+	sed -i "30i\session optional        pam_mkhomedir.so" /etc/pam.d/common-session
 fi
 
 if [ "$version" = "bionic" ] || [ "$version" = "focal" ] ; then
-  # Création de raccourci sur le bureau + dans dossier utilisateur (pour la 18.04 uniquement) pour l'accès aux partages (commun+perso+lespartages)
-	if [ -e /$second_dir/skel.tar.gz ]; then  
-		cp $second_dir/skel.tar.gz .
-	else
-		wget http://nux87.free.fr/pour_script_integrdom/skel.tar.gz
-	fi
-  tar -xzf skel.tar.gz -C /etc/
-  rm -f skel.tar.gz
+	# Création de raccourci sur le bureau + dans dossier utilisateur (pour la 18.04 uniquement) pour l'accès aux partages (commun+perso+lespartages)
+	tar -xzf skel.tar.gz -C /etc/
+	rm -f skel.tar.gz
 fi
 
 # Suppression de notification de mise à niveau 
@@ -579,11 +490,7 @@ sed -r -i 's/Prompt=lts/Prompt=never/g' /etc/update-manager/release-upgrades
 
 # Enchainer sur un script de Postinstallation
 if [ "$postinstallbase" = "yes" ]; then 
-	if [ -e $second_dir/ubuntu-et-variantes-postinstall.sh  ] ; then # Pour 14.04/16.04/18.04/20.04
-		cp $second_dir/ubuntu-et-variantes-postinstall.sh .
-	else
-	  wget --no-check-certificate https://raw.githubusercontent.com/dane-lyon/clients-linux-scribe/master/ubuntu-et-variantes-postinstall.sh 
-	fi
+	mv ./$second_dir/ubuntu-et-variantes-postinstall.sh .
 	chmod +x ubuntu-et-variantes-postinstall.sh ; ./ubuntu-et-variantes-postinstall.sh ; rm -f ubuntu-et-variantes-postinstall.sh ;
 fi
 
@@ -595,37 +502,27 @@ apt-get install xbindkeys xbindkeys-config -y
 echo "Gestion des partitions exfat"
 apt-get install -y exfat-utils exfat-fuse
 
+
+if [ "$postinstalladditionnel" = "yes" ]; then 
+	if [ "$version" = "bionic" ] || [ "$version" = "focal" ]; then
+		sudo -u $localadmin wget --no-check-certificate https://github.com/simbd/Ubuntu_20.04LTS_PostInstall/archive/master.zip
+		sudo -u $localadmin unzip master.zip -d .
+		sudo -u $localadmin chmod +x Ubuntu_20.04LTS_PostInstall-master/*.sh ; sudo -u $localadmin ./Ubuntu_20.04LTS_PostInstall-master/Postinstall_Ubuntu-20.04LTS_FocalFossa.sh
+		sudo -u $localadmin rm -fr master.zip Ubuntu_20.04LTS_PostInstall-master;
+		writelog "Script de postInstallation additionnel terminé"
+	fi
+fi
+
 ########################################################################
 #nettoyage station avant clonage
 ########################################################################
 apt-get -y autoremove --purge ; apt-get -y clean
 # clear
 
-if [ "$postinstalladditionnel" = "yes" ]; then 
-	if [ "$version" = "bionic" ] || [ "$version" = "focal" ]; then
-		if [ -e $second_dir/Postinstall_Ubuntu-20.04LTS_FocalFossa.sh ] ; then # Pour 20.04 uniquement, on doit lancer avec l'admin local (obligation imposée par le script de PostInstall)
-			cp $second_dir/Postinstall_Ubuntu-20.04LTS_FocalFossa.sh .
-		else
-			 sudo -u $localadmin wget --no-check-certificate https://github.com/simbd/Ubuntu_20.04LTS_PostInstall/archive/master.zip
-			 sudo -u $localadmin unzip master.zip -d .
-			 sudo -u $localadmin rm -f master.zip
-		fi
-		sudo -u $localadmin mv Ubuntu_20.04LTS_PostInstall-master/* .
-		sudo -u $localadmin chmod +x Postinstall_Ubuntu-20.04LTS_FocalFossa.sh ; sudo -u $localadmin ./Postinstall_Ubuntu-20.04LTS_FocalFossa.sh
-		sudo -u $localadmin rm -f Postinstall_Ubuntu-20.04LTS_FocalFossa.sh Config_Function.sh Description_logiciel.fr README.md Zenity_default_choice.sh Ubuntu_20.04LTS_PostInstall-master;
-		########################################################################
-		#nettoyage station avant clonage
-		########################################################################
-		apt-get -y autoremove --purge ; apt-get -y clean
-		# clear
-	fi
-fi
-
 ########################################################################
 #FIN
 ########################################################################
-echo "C'est fini ! Un reboot est nécessaire..."
-read -p "Voulez-vous redémarrer immédiatement ? [O/n] " rep_reboot
-if [ "$rep_reboot" = "O" ] || [ "$rep_reboot" = "o" ] || [ "$rep_reboot" = "" ] ; then
+writelog "C'est fini ! Redémarrage"
+if [ "$reboot" = "yes" ]; then
   reboot
 fi

@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Liste des fonctions utilisées :
+# addtoend Ajoute les lignes données en paramètres à la fin du fichier donné en 1er paramètre si elles ne sont pas déjà présentes.
 # initlog Initialise le fichier de log avec la date du jour
 # writelog Ecrit les éléments donnés en paramètres à la suite du fichier de log
 # getversion Récupère la version d'ubuntu utilisée et interrompt le script si elle n'est pas compatible
@@ -32,7 +33,10 @@ function writelog {
 }
 
 # Affectation à la variable "version" suivant la variante utilisé
-function getversion {
+function getversion {	
+	# Pour identifier le numéro de la version (14.04, 16.04...)
+	. /etc/lsb-release
+	
 	version=unsupported
 	if [ "$DISTRIB_RELEASE" = "14.04" ] || [ "$DISTRIB_RELEASE" = "17" ] || [ "$DISTRIB_RELEASE" = "17.3" ] ; then
 	  version=trusty # Ubuntu 14.04 / Linux Mint 17/17.3
