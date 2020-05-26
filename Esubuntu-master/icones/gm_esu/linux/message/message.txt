@@ -1,7 +1,0 @@
-Bienvenue
-Ceci est un message qui affiche a l ouverture de session 
-pouvant servire a faire passer
-une information 
-
-----------------------------------------------------------------------
-
