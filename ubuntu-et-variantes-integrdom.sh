@@ -92,30 +92,30 @@ getversion
 
 # Création du fichier de log
 initlog
-ecrirelog "Fichiers de configuration... OK\nVersion trouvée : $version... OK"
+writelog "Fichiers de configuration... OK\nVersion trouvée : $version... OK"
 
 # Définition des droits sur les scripts
 chmod +x $second_dir/*.sh
 
 if [ $config_photocopieuse = "yes" ]; then
-	ecrirelog "\n" "***************************\n" "Installation photocopieuse" "***************************"
-	$second_dir/setup_photocopieuse.sh
-	ecrirelog "***************************\n"
+	writelog "\n" "***************************\n" "Installation photocopieuse" "***************************"
+	$second_dir/setup_photocopieuse.sh 2>> $logfile
+	writelog "***************************\n"
 fi
 
 # Réparation des éventuelles erreurs de paquets post first install
-apt --fix-broken install -y
+apt --fix-broken install -y  2>> $logfile
 
 #############################################
 # Modification du /etc/wgetrc.
 #############################################
-addtoend /etc/wgetrc "" "https_proxy = $proxy_wgetrc" "http_proxy = $proxy_wgetrc" "ftp_proxy = $proxy_wgetrc" "use_proxy=on" "proxy-user = $scribeuserapt" "proxy-password = $scribepass"
+addtoend /etc/wgetrc "" "https_proxy = $proxy_wgetrc" "http_proxy = $proxy_wgetrc" "ftp_proxy = $proxy_wgetrc" "use_proxy=on" "proxy-user = $scribeuserapt" "proxy-password = $scribepass"  2>> $logfile
 
 ###################################################
 # cron d'extinction automatique à lancer ?
 ###################################################
 if [ "$extinction" != "" ]; then
-	echo "0 $extinction * * * root /sbin/shutdown -h now" > /etc/cron.d/prog_extinction
+	echo "0 $extinction * * * root /sbin/shutdown -h now" > /etc/cron.d/prog_extinction  2>> $logfile
 fi
 
 ########################################################################
@@ -164,11 +164,11 @@ port=$proxy_def_port
 	" >> /usr/share/glib-2.0/schemas/my-defaults.gschema.override
 	fi
 
-	  glib-compile-schemas /usr/share/glib-2.0/schemas
+	  glib-compile-schemas /usr/share/glib-2.0/schemas 2>> $logfile
 
 	#Paramétrage du Proxy pour le système
 	######################################################################
-	addtoend /etc/environment "http_proxy=http://$proxy_def_ip:$proxy_def_port/" "https_proxy=http://$proxy_def_ip:$proxy_def_port/" "ftp_proxy=http://$proxy_def_ip:$proxy_def_port/" "no_proxy=\"$proxy_env_noproxy\""
+	addtoend /etc/environment "http_proxy=http://$proxy_def_ip:$proxy_def_port/" "https_proxy=http://$proxy_def_ip:$proxy_def_port/" "ftp_proxy=http://$proxy_def_ip:$proxy_def_port/" "no_proxy=\"$proxy_env_noproxy\"" 2>> $logfile
 
 	#Paramétrage du Proxy pour apt
 	######################################################################
@@ -178,25 +178,25 @@ port=$proxy_def_port
 
 	#Permettre d'utiliser la commande add-apt-repository derrière un Proxy
 	######################################################################
-	addtoend /etc/sudoers "Defaults env_keep = https_proxy"
+	addtoend /etc/sudoers "Defaults env_keep = https_proxy" 2>> $logfile
 fi
 
 # Modification pour ne pas avoir de problème lors du rafraichissement des dépots avec un proxy
 # cette ligne peut être commentée/ignorée si vous n'utilisez pas de proxy ou avec la 14.04.
-addtoend /etc/apt/apt.conf "Acquire::http::No-Cache true;" "Acquire::http::Pipeline-Depth 0;"
+addtoend /etc/apt/apt.conf "Acquire::http::No-Cache true;" "Acquire::http::Pipeline-Depth 0;" 2>> $logfile
 
 # Vérification que le système est bien à jour
-apt update ; apt full-upgrade -y
+apt update 2>> $logfile; apt full-upgrade -y 2>> $logfile
 
 # Ajout de Net-tools pour ifconfig en 18.04 et futures versions
-apt install -y net-tools
+apt install -y net-tools 2>> $logfile
 
 ####################################################
 # Téléchargement + Mise en place de Esubuntu (si activé)
 ####################################################
 if [ "$esubuntu" = "yes" ] ; then 
 	# Téléchargement des paquets
-	wget --no-check-certificate https://github.com/dseverin2/esubuntu/archive/master.zip
+	wget --no-check-certificate https://github.com/dseverin2/esubuntu/archive/master.zip 2>> $logfile
 	if [ -e master.zip ]; then
 		writelog "Esubuntu-master récupéré sur github"
 		unzip master.zip
@@ -207,24 +207,24 @@ if [ "$esubuntu" = "yes" ] ; then
 	fi
 
 	# Déplacement/extraction de l'archive + lancement par la suite
-	chmod -R +x ./esubuntu-master
-	cp config.cfg esub_functions.sh ./esubuntu-master/
+	chmod -R +x ./esubuntu-master 2>> $logfile
+	cp config.cfg esub_functions.sh ./esubuntu-master/ 2>> $logfile
 	writelog "Modification des droits et copie des fichiers de configuration... OK"
-	./esubuntu-master/install_esubuntu.sh
+	./esubuntu-master/install_esubuntu.sh 2>> $logfile
 
 	# Mise en place des wallpapers pour les élèves, profs, admin 
 	if [ -e /usr/share/wallpaper ]; then
-		rm -fr /usr/share/wallpaper
+		rm -fr /usr/share/wallpaper 2>> $logfile
 	fi
-	mv -fr ./wallpaper /usr/share/
+	mv -fr ./wallpaper /usr/share/ 2>> $logfile
 	writelog "Copie des wallpapers... OK"
 fi
 
 ########################################################################
 #Mettre la station à l'heure à partir du serveur Scribe
 ########################################################################
-apt install -y ntpdate ;
-ntpdate $scribe_def_ip
+apt install -y ntpdate 2>> $logfile;
+ntpdate $scribe_def_ip 2>> $logfile
 writelog "Mise à jour de la station d'heure à partir du serveur Scribe... OK"
 
 ########################################################################
@@ -232,7 +232,7 @@ writelog "Mise à jour de la station d'heure à partir du serveur Scribe... OK"
 #numlockx pour le verrouillage du pavé numérique
 #unattended-upgrades pour forcer les mises à jour de sécurité à se faire
 ########################################################################
-apt install -y ldap-auth-client libpam-mount cifs-utils nscd numlockx unattended-upgrades
+apt install -y ldap-auth-client libpam-mount cifs-utils nscd numlockx unattended-upgrades 2>> $logfile
 writelog "Installation des paquets de sécurité, de montage samba et numlockx... OK"
 	
 ########################################################################
@@ -274,7 +274,7 @@ nss_netgroup=netgroup: nis
 ########################################################################
 #application de la conf nsswitch
 ########################################################################
-auth-client-config -t nss -p open_ldap
+auth-client-config -t nss -p open_ldap 2>> $logfile
 writelog "Application de la configuration nsswitch... OK"
 
 ########################################################################
@@ -288,19 +288,19 @@ Session:
        optional                        pam_mkhomedir.so silent" > /usr/share/pam-configs/mkhomedir
 
 
-addtoend /etc/pam.d/common-auth "auth    required     pam_group.so use_first_pass"
+addtoend /etc/pam.d/common-auth "auth    required     pam_group.so use_first_pass" 2>> $logfile
 
 
 ########################################################################
 # mise en place de la conf pam.d
 ########################################################################
-pam-auth-update consolekit ldap libpam-mount unix mkhomedir my_groups --force
+pam-auth-update consolekit ldap libpam-mount unix mkhomedir my_groups --force 2>> $logfile
 writelog "Application de la configuration pam.d... OK"
 
 ########################################################################
 # mise en place des groupes pour les users ldap dans /etc/security/group.conf
 ########################################################################
-addtoend /etc/security/group.conf "*;*;*;Al0000-2400;floppy,audio,cdrom,video,plugdev,scanner,dialout"
+addtoend /etc/security/group.conf "*;*;*;Al0000-2400;floppy,audio,cdrom,video,plugdev,scanner,dialout" 2>> $logfile
 
 ########################################################################
 #on remet debconf dans sa conf initiale
@@ -417,7 +417,7 @@ fi
 ########################################################################
 #/etc/profile
 ########################################################################
-addtoend /etc/profile "export LC_ALL=fr_FR.utf8" "export LANG=fr_FR.utf8" "export LANGUAGE=fr_FR.utf8"
+addtoend /etc/profile "export LC_ALL=fr_FR.utf8" "export LANG=fr_FR.utf8" "export LANGUAGE=fr_FR.utf8" 2>> $logfile
 
 ########################################################################
 #ne pas créer les dossiers par défaut dans home
@@ -434,10 +434,10 @@ if [ $? != 0 ]; then
 fi
 
 # Suppression de paquet inutile sous Ubuntu/Unity
-apt purge -y aisleriot gnome-mahjongg ;
+apt purge -y aisleriot gnome-mahjongg  2>> $logfile;
 
 # Pour être sûr que les paquets suivant (parfois présent) ne sont pas installés :
-apt purge -y pidgin transmission-gtk gnome-mines gnome-sudoku blueman abiword gnumeric thunderbird mintwelcome ;
+apt purge -y pidgin transmission-gtk gnome-mines gnome-sudoku blueman abiword gnumeric thunderbird mintwelcome  2>> $logfile;
 
 
 ########################################################################
@@ -453,25 +453,25 @@ echo "enabled=0" > /etc/default/apport
 ########################################################################
 #suppression du menu messages
 ########################################################################
-apt purge -y indicator-messages 
+apt purge -y indicator-messages  2>> $logfile
 
 # Changement page d'accueil firefox
-addtoend /usr/lib/firefox/defaults/pref/channel-prefs.js "$pagedemarragepardefaut" 
+addtoend /usr/lib/firefox/defaults/pref/channel-prefs.js "$pagedemarragepardefaut"  2>> $logfile
 
 # Logiciels utiles
-apt install -y vim htop
+apt install -y vim htop 2>> $logfile
 
 # Lecture DVD sur Ubuntu 16.04 et supérieur ## répondre oui aux question posés...
 #apt install -y libdvd-pkg ; dpkg-reconfigure libdvd-pkg
 
 # Lecture DVD sur Ubuntu 14.04
 if [ "$version" = "trusty" ] ; then
-	apt install -y libdvdread4 && bash /usr/share/doc/libdvdread4/install-css.sh
+	apt install -y libdvdread4 && bash /usr/share/doc/libdvdread4/install-css.sh 2>> $logfile
 fi
 
 # Résolution problème dans certains cas uniquement pour Trusty (exemple pour lancer gedit directement avec : sudo gedit)
 if [ "$version" = "trusty" ] ; then
-	addtoend /etc/sudoers 'Defaults        env_keep += "DISPLAY XAUTHORITY"'
+	addtoend /etc/sudoers 'Defaults        env_keep += "DISPLAY XAUTHORITY"' 2>> $logfile
 fi
 
 # Spécifique base 16.04 ou 18.04 : pour le fonctionnement du dossier /etc/skel 
@@ -481,7 +481,7 @@ fi
 
 if [ "$version" = "bionic" ] || [ "$version" = "focal" ] ; then
 	# Création de raccourci sur le bureau + dans dossier utilisateur (pour la 18.04 uniquement) pour l'accès aux partages (commun+perso+lespartages)
-	tar -xzf skel.tar.gz -C /etc/
+	tar -xzf skel.tar.gz -C /etc/ 2>> $logfile
 	rm -f skel.tar.gz
 fi
 
@@ -490,25 +490,26 @@ sed -r -i 's/Prompt=lts/Prompt=never/g' /etc/update-manager/release-upgrades
 
 # Enchainer sur un script de Postinstallation
 if [ "$postinstallbase" = "yes" ]; then 
-	mv ./$second_dir/ubuntu-et-variantes-postinstall.sh .
-	chmod +x ubuntu-et-variantes-postinstall.sh ; ./ubuntu-et-variantes-postinstall.sh ; rm -f ubuntu-et-variantes-postinstall.sh ;
+	mv ./$second_dir/ubuntu-et-variantes-postinstall.sh . 2>> $logfile
+	chmod +x ubuntu-et-variantes-postinstall.sh 2>> $logfile ; ./ubuntu-et-variantes-postinstall.sh 2>> $logfile ; rm -f ubuntu-et-variantes-postinstall.sh 2>> $logfile ;
 fi
 
 echo "INSTALLATION DU GESTIONNAIRE DE RACCOURCIS"
-apt-get install xbindkeys xbindkeys-config -y
+apt-get install xbindkeys xbindkeys-config -y 2>> $logfile
 
 
 # Installation quelque soit la variante et la version 
 echo "Gestion des partitions exfat"
-apt-get install -y exfat-utils exfat-fuse
+apt-get install -y exfat-utils exfat-fuse 2>> $logfile
 
 
 if [ "$postinstalladditionnel" = "yes" ]; then 
 	if [ "$version" = "bionic" ] || [ "$version" = "focal" ]; then
-		sudo -u $localadmin wget --no-check-certificate https://github.com/simbd/Ubuntu_20.04LTS_PostInstall/archive/master.zip
-		sudo -u $localadmin unzip master.zip -d .
-		sudo -u $localadmin chmod +x Ubuntu_20.04LTS_PostInstall-master/*.sh ; sudo -u $localadmin ./Ubuntu_20.04LTS_PostInstall-master/Postinstall_Ubuntu-20.04LTS_FocalFossa.sh
-		sudo -u $localadmin rm -fr master.zip Ubuntu_20.04LTS_PostInstall-master;
+		sudo -u $localadmin wget --no-check-certificate https://github.com/simbd/Ubuntu_20.04LTS_PostInstall/archive/master.zip 2>> $logfile
+		sudo -u $localadmin unzip master.zip -d . 2>> $logfile
+		sudo -u $localadmin chmod +x Ubuntu_20.04LTS_PostInstall-master/*.sh  2>> $logfile
+		sudo -u $localadmin ./Ubuntu_20.04LTS_PostInstall-master/Postinstall_Ubuntu-20.04LTS_FocalFossa.sh 2>> $logfile
+		sudo -u $localadmin rm -fr master.zip Ubuntu_20.04LTS_PostInstall-master 2>> $logfile;
 		writelog "Script de postInstallation additionnel terminé"
 	fi
 fi
@@ -516,7 +517,7 @@ fi
 ########################################################################
 #nettoyage station avant clonage
 ########################################################################
-apt-get -y autoremove --purge ; apt-get -y clean
+apt-get -y autoremove --purge 2>> $logfile ; apt-get -y clean 2>> $logfile
 # clear
 
 ########################################################################
