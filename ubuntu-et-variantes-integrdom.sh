@@ -108,49 +108,42 @@ if [ "$version" == "unsupported" ]; then
   exit
 fi
 
-if [ -e ./config.cfg ]; then
+# Verification de la présence des fichiers contenant les fonctions et variables communes
+if [ -e ./esub_functions.sh ]; then
   my_dir="$(dirname "$0")"
-  source $my_dir/config.cfg
+  source $my_dir/esub_functions.sh
 else
-  echo "Fichier de configuration absent !"
+  echo "Fichier esub_functions.sh absent ! Interruption de l'installation."
   exit
 fi
 
-chmod +x $second_dir/*.sh $second_dir/apps/*.sh $second_dir/Esubuntu-master/*.sh
-if [ $config_photocopieuse = "o" ] || [ $config_photocopieuse = "O" ]; then
+# Création du fichier de log
+initlog
+ecrirelog "Fichiers de configuration... OK\nVersion trouvée : $version... OK"
+
+# Définition des droits sur les scripts
+chmod +x $second_dir/*.sh ./Esubuntu-master/*.sh
+
+if [ $config_photocopieuse = "yes" ]; then
+	ecrirelog "\n" "***************************\n" "Installation photocopieuse" "***************************"
 	$second_dir/setup_photocopieuse.sh
+	ecrirelog "***************************\n"
 fi
 
+# Réparation des éventuelles erreurs de paquets post first install
 apt --fix-broken install -y
-
-echo "Adresse du serveur Scribe = $scribe_def_ip"
 
 #############################################
 # Modification du /etc/wgetrc.
 #############################################
-grep "https_proxy = $proxy_wgetrc" /etc/wgetrc > /dev/null
-if [ $? != 0 ]; then
-		echo "
-https_proxy = $proxy_wgetrc/
-http_proxy = $proxy_wgetrc/
-ftp_proxy = $proxy_wgetrc/
-use_proxy=on
-proxy-user = $scribeuserapt
-proxy-password = $scribepass" >> /etc/wgetrc
-fi
+addtoend /etc/wgetrc "" "https_proxy = $proxy_wgetrc" "http_proxy = $proxy_wgetrc" "ftp_proxy = $proxy_wgetrc" "use_proxy=on" "proxy-user = $scribeuserapt" "proxy-password = $scribepass"
 
 ###################################################
 # cron d'extinction automatique à lancer ?
 ###################################################
-
 if [ "$extinction" != "" ]; then
 	echo "0 $extinction * * * root /sbin/shutdown -h now" > /etc/cron.d/prog_extinction
 fi
-
-##############################################################################
-### Utilisation du Script Esubuntu ?
-##############################################################################
-
 
 ########################################################################
 #rendre debconf silencieux
@@ -179,14 +172,13 @@ fi
 #Paramétrage des paramètres Proxy pour tout le système
 #######################################################
 if [[ "$proxy_def_ip" != "" ]] || [[ $proxy_def_port != "" ]] ; then
-
-  echo "Paramétrage du proxy $proxy_def_ip:$proxy_def_port" 
-
-#Paramétrage des paramètres Proxy pour Gnome
-#######################################################
-grep "ignore-hosts=$proxy_gnome_noproxy" /usr/share/glib-2.0/schemas/my-defaults.gschema.override > /dev/null
-if [ $? != 0 ]; then
-  echo "[org.gnome.system.proxy]
+	writelog "Paramétrage du proxy $proxy_def_ip:$proxy_def_port" 
+	
+	#Paramétrage des paramètres Proxy pour Gnome
+	#######################################################
+	grep "ignore-hosts=$proxy_gnome_noproxy" /usr/share/glib-2.0/schemas/my-defaults.gschema.override > /dev/null
+	if [ $? != 0 ]; then
+	  echo "[org.gnome.system.proxy]
 mode='manual'
 use-same-proxy=true
 ignore-hosts=$proxy_gnome_noproxy
@@ -196,36 +188,36 @@ port=$proxy_def_port
 [org.gnome.system.proxy.https]
 host='$proxy_def_ip'
 port=$proxy_def_port
-" >> /usr/share/glib-2.0/schemas/my-defaults.gschema.override
-fi
+	" >> /usr/share/glib-2.0/schemas/my-defaults.gschema.override
+	fi
 
-  glib-compile-schemas /usr/share/glib-2.0/schemas
+	  glib-compile-schemas /usr/share/glib-2.0/schemas
 
-#Paramétrage du Proxy pour le système
-######################################################################
-grep "http_proxy=http://$proxy_def_ip:$proxy_def_port" /etc/environment > /dev/null
-if [ $? != 0 ]; then
-  echo "http_proxy=http://$proxy_def_ip:$proxy_def_port/
-https_proxy=http://$proxy_def_ip:$proxy_def_port/
-ftp_proxy=http://$proxy_def_ip:$proxy_def_port/
-no_proxy=\"$proxy_env_noproxy\"" >> /etc/environment
-fi
+	#Paramétrage du Proxy pour le système
+	######################################################################
+	grep "http_proxy=http://$proxy_def_ip:$proxy_def_port" /etc/environment > /dev/null
+	if [ $? != 0 ]; then
+	  echo "http_proxy=http://$proxy_def_ip:$proxy_def_port/
+	https_proxy=http://$proxy_def_ip:$proxy_def_port/
+	ftp_proxy=http://$proxy_def_ip:$proxy_def_port/
+	no_proxy=\"$proxy_env_noproxy\"" >> /etc/environment
+	fi
 
-#Paramétrage du Proxy pour apt
-######################################################################
-grep "http://$proxy_def_ip:$proxy_def_port" /etc/apt/apt.conf.d/20proxy > /dev/null
-if [ $? != 0 ]; then
-	echo "Acquire::http::proxy \"http://$proxy_def_ip:$proxy_def_port/\";
-	Acquire::ftp::proxy \"ftp://$proxy_def_ip:$proxy_def_port/\";
-	Acquire::https::proxy \"https://$proxy_def_ip:$proxy_def_port/\";" > /etc/apt/apt.conf.d/20proxy
-fi
+	#Paramétrage du Proxy pour apt
+	######################################################################
+	grep "http://$proxy_def_ip:$proxy_def_port" /etc/apt/apt.conf.d/20proxy > /dev/null
+	if [ $? != 0 ]; then
+		echo "Acquire::http::proxy \"http://$proxy_def_ip:$proxy_def_port/\";
+		Acquire::ftp::proxy \"ftp://$proxy_def_ip:$proxy_def_port/\";
+		Acquire::https::proxy \"https://$proxy_def_ip:$proxy_def_port/\";" > /etc/apt/apt.conf.d/20proxy
+	fi
 
-#Permettre d'utiliser la commande add-apt-repository derrière un Proxy
-######################################################################
-grep "Defaults env_keep = https_proxy" /etc/sudoers > /dev/null
-if [ $? != 0 ]; then
-	echo "Defaults env_keep = https_proxy" >> /etc/sudoers
-fi
+	#Permettre d'utiliser la commande add-apt-repository derrière un Proxy
+	######################################################################
+	grep "Defaults env_keep = https_proxy" /etc/sudoers > /dev/null
+	if [ $? != 0 ]; then
+		echo "Defaults env_keep = https_proxy" >> /etc/sudoers
+	fi
 
 
 fi
