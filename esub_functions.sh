@@ -3,7 +3,7 @@
 # Liste des fonctions utilisées :
 # addtoend Ajoute les lignes données en paramètres à la fin du fichier donné en 1er paramètre si elles ne sont pas déjà présentes.
 # initlog Initialise le fichier de log avec la date du jour
-# writelog Ecrit les éléments donnés en paramètres à la suite du fichier de log
+# writelog Ecrit les éléments donnés en paramètres à la suite du fichier de log (Si le 1er argument est INITBLOC, insère ******* au préalable. Si le 1er argument est ENDBLOC, insère ******)
 # getversion Récupère la version d'ubuntu utilisée et interrompt le script si elle n'est pas compatible
 
 
@@ -25,11 +25,25 @@ function initlog {
 
 # Ecriture des paramètres dans le fichier de log
 function writelog {
-	for param in "$@" 
-	do 
-		echo -e "$param"
-		echo -e "$param" >> $logfile
-	done
+	nbParams=$#
+	dernierParam=${!nbParams} 
+	
+	if [ "$1" = "ENDBLOC" ]; then
+		echo "************************ END *************************" >> $logfile
+		echo "" >> $logfile
+	else
+		if [ "$1" = "INITBLOC" ]; then
+			echo "" >> $logfile
+			echo "************************ INIT *************************" >> $logfile
+		fi
+		for param in "$@" 
+		do 
+			if [ ! "$param" = "INITBLOC" ]; then
+				echo -e "$param"
+				echo -e "$param" >> $logfile
+			fi
+		done
+	fi
 }
 
 # Affectation à la variable "version" suivant la variante utilisé
