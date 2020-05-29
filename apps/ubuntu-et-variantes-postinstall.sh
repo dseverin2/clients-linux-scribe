@@ -67,7 +67,7 @@ add-apt-repository "deb http://archive.canonical.com/ubuntu $(lsb_release -sc) p
 apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys CB2DE8E5
 
 # Vérification que le système est à jour
-apt-get update ; apt-get -y dist-upgrade
+apt-get update ; apt-get -y full-upgrade; apt-get -y dist-upgrade
 
 # Installation d'onlyoffice
 #apt-get install onlyoffice-desktopeditors
@@ -254,12 +254,12 @@ if [ "$version" = "bionic" ] || [ "$version" = "focal" ] ; then
   # Openboard
 ./installOpenBoard.sh $version
   # Openshot-qt, Gshutdown, X-Cas, Planner, extension ooohg, winff, optgeo, ghostscript
-  apt install openshot-qt gshutdown xcas planner ooohg winff winff-qt optgeo ghostscript -y #gshutdown équivalent à poweroff
+  apt-get -y install openshot-qt gshutdown xcas planner ooohg winff winff-qt optgeo ghostscript #gshutdown équivalent à poweroff
   # GanttProject
-  apt install openjdk-8-jre oenjdk-11-jre java-11-amazon-corretto-jdk bellsoft-java11-runtime
+  apt-get -y install openjdk-8-jre oenjdk-11-jre java-11-amazon-corretto-jdk bellsoft-java11-runtime
   wget $wgetparams --no-check-certificate https://dl.ganttproject.biz/ganttproject-2.8.11/ganttproject_2.8.11-r2396-1_all.deb && dpkg -i ganttproject* ; apt install -fy ; rm ganttproject*
   # mBlock
-  apt install libgconf-2-4 -y ; wget http://mblock.makeblock.com/mBlock4.0/mBlock_4.0.4_amd64.deb ; dpkg -i mBlock*.deb ; apt install -fy ; rm mBlock*.deb      
+  apt-get -y install libgconf-2-4; wget http://mblock.makeblock.com/mBlock4.0/mBlock_4.0.4_amd64.deb ; dpkg -i mBlock*.deb ; apt install -fy ; rm mBlock*.deb      
   # Xia (alias ImageActive)
   echo "deb http://repository.crdp.ac-versailles.fr/debian xia main" | tee /etc/apt/sources.list.d/xia.list
   wget $wgetparams -q http://repository.crdp.ac-versailles.fr/crdp.gpg -O - | apt-key add - ; apt update ; apt install xia -y
