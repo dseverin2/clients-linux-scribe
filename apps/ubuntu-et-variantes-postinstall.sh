@@ -50,13 +50,9 @@ writelog "Vérification que le système est à jour"
 apt-get update ; apt-get -y full-upgrade; apt-get -y dist-upgrade
 
 writelog "Installation d'onlyoffice"
-wget $wgetparams --no-check-certificate https://download.onlyoffice.com/install/desktop/editors/linux/onlyoffice-desktopeditors_amd64.deb
-if [ -e onlyoffice-desktopeditors_amd64.deb ]
-	then
-		echo "onlyoffice-desktopeditors_amd64.deb récupéré avec succès"
-	else
-		cp $second_dir/onlyoffice-desktopeditors_amd64.deb .
-  fi
+if [ ! -e onlyoffice-desktopeditors_amd64.deb ]
+	wget $wgetparams --no-check-certificate https://download.onlyoffice.com/install/desktop/editors/linux/onlyoffice-desktopeditors_amd64.deb
+fi
 dpkg -i onlyoffice-desktopeditors_amd64.deb ; apt-get -fy install ; rm -f onlyoffice-desktopeditors_amd64.deb
 
 writelog "Installation des logiciels de TBI"
@@ -82,8 +78,10 @@ if [ "$version" = "trusty" ] ; then
 
 	writelog "---Google Earth"
 	apt-get -y install libfontconfig1:i386 libx11-6:i386 libxrender1:i386 libxext6:i386 libgl1-mesa-glx:i386 libglu1-mesa:i386 libglib2.0-0:i386 libsm6:i386
-	wget $wgetparams  https://dl.google.com/dl/earth/client/current/google-earth-stable_current_i386.deb --no-check-certificate; 
-	dpkg -i google-earth-stable_current_i386.deb ; apt-get -fy install ; rm -f google-earth-stable_current_i386.deb   
+	if [ ! -e ./google-earth-stable_current_i386.deb ]; then
+		wget $wgetparams  https://dl.google.com/dl/earth/client/current/google-earth-stable_current_i386.deb --no-check-certificate; 
+	fi
+	dpkg -i google-earth-stable_current_i386.deb ; apt-get -fy install
 	writelog "ENDBLOC"
 fi
 
@@ -98,10 +96,16 @@ if [ "$version" = "xenial" ] ; then
 	add-apt-repository -y ppa:libreoffice/ppa ; apt update ; apt upgrade -y
 
 	writelog "---Google Earth"
-	wget $wgetparams --no-check-certificate https://dl.google.com/dl/earth/client/current/google-earth-stable_current_amd64.deb 
-	wget $wgetparams --no-check-certificate http://ftp.fr.debian.org/debian/pool/main/l/lsb/lsb-core_4.1+Debian13+nmu1_amd64.deb
-	wget $wgetparams --no-check-certificate http://ftp.fr.debian.org/debian/pool/main/l/lsb/lsb-security_4.1+Debian13+nmu1_amd64.deb 
-	dpkg -i lsb*.deb ; dpkg -i google-earth*.deb ; apt install -fy ; rm -f lsb*.deb && rm -f google-earth*.deb
+	if [ ! -e ./google-earth-stable_current_amd64.deb ]; then
+		wget $wgetparams --no-check-certificate https://dl.google.com/dl/earth/client/current/google-earth-stable_current_amd64.deb 
+	fi
+	if [ ! -e ./lsb-core_4.1+Debian13+nmu1_amd64.deb ]; then
+		wget $wgetparams --no-check-certificate http://ftp.fr.debian.org/debian/pool/main/l/lsb/lsb-core_4.1+Debian13+nmu1_amd64.deb
+	fi
+	if [ ! -e ./lsb-security_4.1+Debian13+nmu1_amd64.deb ]; then
+		wget $wgetparams --no-check-certificate http://ftp.fr.debian.org/debian/pool/main/l/lsb/lsb-security_4.1+Debian13+nmu1_amd64.deb 
+	fi
+	dpkg -i lsb*.deb ; dpkg -i google-earth*.deb ; apt install -fy
 
 	writelog "---Celestia"
 	wget $wgetparams --no-check-certificate https://gitlab.com/simbd/Scripts_Ubuntu/-/blob/7925144bf30ed4c353b9676521d591dc35c97dde/Celestia_pour_Bionic.sh
@@ -122,7 +126,9 @@ if [ "$version" = "bionic" ] ; then
 	apt-get install -y idle-python3.6 x265
 
 	writelog "---Google Earth Pro x64" 
-	wget $wgetparams --no-check-certificate https://dl.google.com/dl/earth/client/current/google-earth-pro-stable_current_amd64.deb ; dpkg -i google-earth-pro-stable_current_amd64.deb ; apt install -fy
+	if [ ! -e ./google-earth-pro-stable_current_amd64.deb ]; then
+		wget $wgetparams --no-check-certificate https://dl.google.com/dl/earth/client/current/google-earth-pro-stable_current_amd64.deb ; dpkg -i google-earth-pro-stable_current_amd64.deb ; apt install -fy
+	fi
 	rm /etc/apt/sources.list.d/google-earth* ; rm google-earth-pro* #dépot google retiré volontairement
 
 	writelog "---Celestia"
@@ -144,10 +150,12 @@ fi
 #########################################
 if [ "$version" = "focal" ] ; then
 	writelog "INITBLOC" "Focal 20.04" "---idle, x265"
-	apt-get install -y idle-python3.7 x265
+	apt-get install -y idle-python3.6 x265
 
 	writelog "---Google Earth Pro x64" 
-	wget $wgetparams --no-check-certificate https://dl.google.com/dl/earth/client/current/google-earth-pro-stable_current_amd64.deb ; dpkg -i google-earth-pro-stable_current_amd64.deb ; apt install -fy
+	if [ ! -e ./google-earth-pro-stable_current_amd64.deb ]; then
+		wget $wgetparams --no-check-certificate https://dl.google.com/dl/earth/client/current/google-earth-pro-stable_current_amd64.deb ; dpkg -i google-earth-pro-stable_current_amd64.deb ; apt install -fy
+	fi
 	rm /etc/apt/sources.list.d/google-earth* ; rm google-earth-pro* #dépot google retiré volontairement
 
 	writelog "---Celestia"
@@ -168,7 +176,9 @@ fi
 
 if [ "$version" != "bionic" ] && [ "$version" != "focal"] ; then  # Installation spécifique pour 14.04 ou 16.04
 	writelog "Drivers imprimantes pour les version < 18.04"
-	wget $wgetparams --no-check-certificate http://www.openprinting.org/download/printdriver/debian/dists/lsb3.2/contrib/binary-amd64/openprinting-gutenprint_5.2.7-1lsb3.2_amd64.deb
+	if [ ! -e ./openprinting-gutenprint_5.2.7-1lsb3.2_amd64.deb ]; then
+		wget $wgetparams --no-check-certificate http://www.openprinting.org/download/printdriver/debian/dists/lsb3.2/contrib/binary-amd64/openprinting-gutenprint_5.2.7-1lsb3.2_amd64.deb
+	fi
 	dpkg -i openprinting-gutenprint_5.2.7-1lsb3.2_amd64.deb ; apt-get -fy install ; rm openprinting-gutenprint*
 
 	writelog "Gdevelop (PPA pas encore actif pour la 18.04)"
@@ -224,12 +234,10 @@ writelog "ENDBLOC"
 writelog "INITBLOC" "[ Programmation ]"
 apt-get -y install ghex geany imagemagick gcolor2
 apt-get -y install python3-pil.imagetk python3-pil traceroute python3-tk #python3-sympy
-if [ -e $second_dir/scratch-desktop_3.3.0_amd64.deb ]; then
-	cp $second_dir/scratch-desktop_3.3.0_amd64.deb .
-else
+if [ ! -e ./scratch-desktop_3.3.0_amd64.deb ]; then
 	wget $wgetparams https://github.com/redshaderobotics/scratch3.0-linux/releases/download/3.3.0/scratch-desktop_3.3.0_amd64.deb 
 fi
-dpkg -i scratch-desktop_3.3.0_amd64.deb ; apt install -fy ; rm scratch-desktop_3.3.0_amd64.deb 
+dpkg -i scratch-desktop_3.3.0_amd64.deb ; apt install -fy
 writelog "ENDBLOC"
 
 writelog "INITBLOC" "[ Serveur ]"
@@ -251,10 +259,17 @@ if [ "$version" = "bionic" ] || [ "$version" = "focal" ] ; then
 	
 	writelog "---GanttProject"
 	apt-get -y install openjdk-8-jre oenjdk-11-jre java-11-amazon-corretto-jdk bellsoft-java11-runtime
-	wget $wgetparams --no-check-certificate https://dl.ganttproject.biz/ganttproject-2.8.11/ganttproject_2.8.11-r2396-1_all.deb && dpkg -i ganttproject* ; apt install -fy ; rm ganttproject*
+	if [ ! -e ./ganttproject_2.8.11-r2396-1_all.deb ]; then
+		wget $wgetparams --no-check-certificate https://dl.ganttproject.biz/ganttproject-2.8.11/ganttproject_2.8.11-r2396-1_all.deb
+	fi
+	dpkg -i ganttproject* ; apt install -fy
 	
 	writelog "---mBlock"
-	apt-get -y install libgconf-2-4; wget http://mblock.makeblock.com/mBlock4.0/mBlock_4.0.4_amd64.deb ; dpkg -i mBlock*.deb ; apt install -fy ; rm mBlock*.deb      
+	apt-get -y install libgconf-2-4; 
+	if [ ! -e ./mBlock_4.0.4_amd64.deb ]; then
+		wget $wgetparams --no-check-certificate http://mblock.makeblock.com/mBlock4.0/mBlock_4.0.4_amd64.deb; 
+	fi
+	dpkg -i mBlock*.deb ; apt install -fy ;
 	
 	writelog "---Xia (alias ImageActive)"
 	echo "deb http://repository.crdp.ac-versailles.fr/debian xia main" | sudo tee /etc/apt/sources.list.d/xia.list
@@ -265,11 +280,15 @@ if [ "$version" = "bionic" ] || [ "$version" = "focal" ] ; then
 	apt install --no-install-recommends marble -y
 	
 	writelog "---OpenMeca"
-	wget $wgetparams --no-check-certificate http://d.a.d.a.pagesperso-orange.fr/openmeca-64b.deb && dpkg -i openmeca-64b.deb ; apt install -fy ; rm openmeca*
+	if [ ! -e ./openmeca-64b.deb ]; then
+		wget $wgetparams --no-check-certificate http://d.a.d.a.pagesperso-orange.fr/openmeca-64b.deb && dpkg -i openmeca-64b.deb ; apt install -fy
+	fi
 	
 	writelog "---BlueGriffon"
-	wget $wgetparams --no-check-certificate http://bluegriffon.org/freshmeat/3.0.1/bluegriffon-3.0.1.Ubuntu16.04-x86_64.deb && dpkg -i bluegriffon*.deb ; apt install -fy ; rm bluegriffon*
-
+	if [ ! -e ./bluegriffon-3.0.1.Ubuntu16.04-x86_64.deb ]; then
+		wget $wgetparams --no-check-certificate http://bluegriffon.org/freshmeat/3.0.1/bluegriffon-3.0.1.Ubuntu16.04-x86_64.deb && dpkg -i bluegriffon*.deb ; apt install -fy
+	fi
+	
 	writelog "---Geogebra Classic"
 	if [ -e $second_dir/installGeogebra6.sh ]; then
 		mv $second_dir/installGeogebra6.sh $second_dir/installWPS.sh $second_dir/installVeyon.sh .
