@@ -21,7 +21,7 @@ else
 	exit
 fi
 
-thislog=/home/$administrateur/Bureau/basicpostinstall.log
+thislog=/home/$localadmin/Bureau/basicpostinstall.log
 templog=""
 if [ "$logfile" != "" ]; then
 	templog=$logfile
@@ -50,7 +50,7 @@ writelog "Vérification que le système est à jour"
 apt-get update ; apt-get -y full-upgrade; apt-get -y dist-upgrade
 
 writelog "Installation d'onlyoffice"
-if [ ! -e onlyoffice-desktopeditors_amd64.deb ]
+if [ ! -e onlyoffice-desktopeditors_amd64.deb ]; then
 	wget $wgetparams --no-check-certificate https://download.onlyoffice.com/install/desktop/editors/linux/onlyoffice-desktopeditors_amd64.deb
 fi
 dpkg -i onlyoffice-desktopeditors_amd64.deb ; apt-get -fy install ; rm -f onlyoffice-desktopeditors_amd64.deb
@@ -251,9 +251,6 @@ writelog "ENDBLOC"
 ### cf : https://forum-dane.ac-lyon.fr/forum/viewforum.php?f=44
 if [ "$version" = "bionic" ] || [ "$version" = "focal" ] ; then
 	writelog "INITBLOC" "Suppléments de logiciels pour Bionic et Focal"
-	writelog "---Openboard"
-	./installOpenBoard.sh $version
-	
 	writelog "---Openshot-qt, Gshutdown, X-Cas, Planner, extension ooohg, winff, optgeo, ghostscript"
 	apt-get -y install openshot-qt gshutdown xcas planner ooohg winff winff-qt optgeo ghostscript #gshutdown équivalent à poweroff
 	
@@ -280,8 +277,11 @@ if [ "$version" = "bionic" ] || [ "$version" = "focal" ] ; then
 	apt install --no-install-recommends marble -y
 	
 	writelog "---OpenMeca"
+	apt-get install libqt5help5 libqt5svg5 libqt5opengl5 libqt5widgets5 libqt5gui5 libqt5xml5 libqt5core5a
+	
 	if [ ! -e ./openmeca-64b.deb ]; then
-		wget $wgetparams --no-check-certificate http://d.a.d.a.pagesperso-orange.fr/openmeca-64b.deb && dpkg -i openmeca-64b.deb ; apt install -fy
+		wget $wgetparams --no-check-certificate http://www.yakuru.fr/~openmeca/openmeca_2.x_amd64.deb 
+		dpkg -i openmeca*amd64.deb ; apt install -fy
 	fi
 	
 	writelog "---BlueGriffon"
@@ -289,17 +289,28 @@ if [ "$version" = "bionic" ] || [ "$version" = "focal" ] ; then
 		wget $wgetparams --no-check-certificate http://bluegriffon.org/freshmeat/3.0.1/bluegriffon-3.0.1.Ubuntu16.04-x86_64.deb && dpkg -i bluegriffon*.deb ; apt install -fy
 	fi
 	
-	writelog "---Geogebra Classic"
+	writelog "---SCRIPTS SUPPLEMENTAIRES"
 	if [ -e $second_dir/installGeogebra6.sh ]; then
-		mv $second_dir/installGeogebra6.sh $second_dir/installWPS.sh $second_dir/installVeyon.sh .
+		scriptpath=$second_dir/
+	elif [ -e ./installGeogebra6.sh ]; then
+		scriptpath=./
+	else
+		scriptpath=""
+		writelog "------ SCRIPTS ABSENTS"
 	fi
-	./installGeogebra6.sh
-	
-	writelog "---WPS Office + French"
-	./installWPS.sh
-	
-	writelog "---Veyon"
-	./installVeyon.sh
+	if [ "$scriptpath" != "" ]; then
+		writelog "------Geogebra Classic"
+		"$scriptpath"installGeogebra6.sh
+		
+		writelog "------WPS Office + French"
+		"$scriptpath"installWPS.sh
+		
+		writelog "------Veyon"
+		"$scriptpath"installVeyon.sh
+		
+		writelog "------Openboard"
+		"$scriptpath"installOpenBoard.sh $version
+	fi
 	writelog "ENDBLOC"
 fi
 
