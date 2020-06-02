@@ -1,6 +1,6 @@
 #!/bin/bash
 # version 2.4.0
-# Dernière modification : 28/05/2020 (Remplacement des comments par des writelog)
+# Dernière modification : 02/06/2020 (Spécification LinuxMint pour mintwelcome & Récupération auth-client-config pour Focal)
 
 
 # Testé & validé pour les distributions suivantes :
@@ -57,6 +57,7 @@
 # - Suppression de l'écran de démarrage d'Ubuntu avec Gnome de la 18.04
 # - Mise en place d'un fichier de configuration centralisé
 # - Ajout de la possibilité de paramétrer une photocopieuse à code
+# - Récupération de auth-client-config pour Focal Fossa
 
 # --------------------------------------------------------------------------------------------------------------------
 
@@ -293,8 +294,15 @@ nss_netgroup=netgroup: nis
 ########################################################################
 #application de la conf nsswitch
 ########################################################################
-writelog "Application de la configuration nsswitch"
-auth-client-config -t nss -p open_ldap 2>> $logfile
+authclientconfigprefix=""
+if [ "$version" = "focal" ]; then
+	writelog "Récupération et installation de auth-client-config"
+	wget --no-check-certificate http://archive.ubuntu.com/ubuntu/pool/universe/a/auth-client-config/auth-client-config_0.9ubuntu1.tar.gz 2>> $logfile
+	unzip auth-client-config_0.9ubuntu1.tar.gz
+	authclientconfigprefix="./auth-client-config_0.9ubuntu1/"
+fi
+writelog "Application de la configuration nsswitch depuis $authclientconfigprefix auth-client-config"
+"$authclientconfigprefix"auth-client-config -t nss -p open_ldap 2>> $logfile
 
 ########################################################################
 #modules PAM mkhomdir pour pam-auth-update
@@ -470,7 +478,13 @@ if [ $? != 0 ]; then
 fi
 
 writelog "Suppression de paquet inutile sous Ubuntu/Unity"
-apt purge -y aisleriot gnome-mahjongg pidgin transmission-gtk gnome-mines gnome-sudoku blueman abiword gnumeric thunderbird mintwelcome 2>> $logfile;
+apt purge -y aisleriot gnome-mahjongg pidgin transmission-gtk gnome-mines gnome-sudoku blueman abiword gnumeric thunderbird 2>> $logfile;
+
+grep "LinuxMint" /etc/lsb-release > /dev/null
+if [ $? != 0 ]; then
+	writelog "Suppression de MintWelcome (sous Mint)"
+	apt purge -y mintwelcome 2>> $logfile;
+fi
 
 writelog "Suppression de l'envoi des rapport d'erreurs"
 echo "enabled=0" > /etc/default/apport
