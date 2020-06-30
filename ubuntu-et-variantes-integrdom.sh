@@ -1,6 +1,8 @@
 #!/bin/bash
-# version 2.4.0
-# Dernière modification : 02/06/2020 (Spécification LinuxMint pour mintwelcome & Récupération auth-client-config pour Focal)
+# version 2.5.0
+# Dernières modifications : 
+# - 30/06/2020 (Paramétrage auth-client-config)
+# - 02/06/2020 (Spécification LinuxMint pour mintwelcome & Récupération auth-client-config pour Focal)
 
 
 # Testé & validé pour les distributions suivantes :
@@ -259,6 +261,21 @@ echo "APT::Periodic::Update-Package-Lists \"1\";
 APT::Periodic::Unattended-Upgrade \"1\";" > /etc/apt/apt.conf.d/20auto-upgrades
 
 ########################################################################
+# Récupération et installation de auth-client-config (20.04)
+########################################################################
+if [ "$version" = "focal" ]; then
+	writelog "Récupération et installation de auth-client-config"
+	auth_client_version="auth-client-config_0.9ubuntu1"
+	wget --no-check-certificate http://archive.ubuntu.com/ubuntu/pool/universe/a/auth-client-config/"$auth_client_version".tar.gz 2>> $logfile
+	tar zxvf "$auth_client_version".tar.gz
+	current_path=$(pwd)
+	cd ./"$auth_client_version"
+	install.py -prefix=/usr --config-prefix=/etc
+	cd $current_path
+	rm -fr "$auth_client_version"*
+fi
+
+########################################################################
 # Configuration du fichier pour le LDAP /etc/ldap.conf
 ########################################################################
 writelog "Configuration du fichier pour le LDAP /etc/ldap.conf"
@@ -294,15 +311,9 @@ nss_netgroup=netgroup: nis
 ########################################################################
 #application de la conf nsswitch
 ########################################################################
-authclientconfigprefix=""
-if [ "$version" = "focal" ]; then
-	writelog "Récupération et installation de auth-client-config"
-	wget --no-check-certificate http://archive.ubuntu.com/ubuntu/pool/universe/a/auth-client-config/auth-client-config_0.9ubuntu1.tar.gz 2>> $logfile
-	unzip auth-client-config_0.9ubuntu1.tar.gz
-	authclientconfigprefix="./auth-client-config_0.9ubuntu1/"
-fi
-writelog "Application de la configuration nsswitch depuis $authclientconfigprefix auth-client-config"
-"$authclientconfigprefix"auth-client-config -t nss -p open_ldap 2>> $logfile
+
+writelog "Application de la configuration nsswitch depuis auth-client-config"
+auth-client-config -t nss -p open_ldap 2>> $logfile
 
 ########################################################################
 #modules PAM mkhomdir pour pam-auth-update
