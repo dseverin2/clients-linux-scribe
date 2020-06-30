@@ -1,7 +1,6 @@
 #!/bin/bash
-# Script original de Mathieu Anapotelivoua
-# Modification et optimisation de Didier SEVERIN (25/03/20)
-# Version 2.0
+# Script de Didier SEVERIN (28/06/20)
+# Version 3.0
 
 # Ce script compile un driver contenant le code pin de l'utilisateur courant (s'il en a un défini dans le fichier csv)
 # Pour ce faire il copie le driver original en remplaçant les lignes de définition des codes pin par défaut
@@ -12,41 +11,35 @@
 # yyyyyy désigne l'identifiant local de l'utilisateur
 # zzzzzz désigne le code pin de l'utilisateur 
 
-# Definition du mode TEST / SCRIBE
-testmode=0
-if [ $testmode == 1 ]; then
-	echo 'MODE : Test en Local'
-	basedirectory='.'
-	baseppddirectory='.'
+# Definition des fichiers locaux
+basedirectory='/usr/bin/recup_pin'
+baseppddirectory='/etc/cups/ppd'
+pinfile=~/mypin.txt
+code1="1"
+code2="2"
+
+# Verification de l'existence du fichier contenant le code pin
+if [ ! -e $pinfile ]; then
+	while [ $code1 != $code2 ];	do 		# S'il n'existe pas on demande le code pin avec validation
+		code1=$(zenity --entry --text="Entrez votre code de photocopieuse")
+		code2=$(zenity --entry --text="Saisissez à nouveau votre code de photocopieuse")
+		if [ $code1 != $code2 ]; then
+			zenity --info --text="Les codes saisis ne correspondent pas"
+		fi
+	done
+	echo $code1 > $pinfile 				# On sauvegarde le code pin saisi dans le fichier ~/mypin.txt 
+	usercode=$code1
 else
-	echo 'MODE : Déploiement sur Scribe'
-	basedirectory='/usr/bin/recup_pin'
-	baseppddirectory='/etc/cups/ppd'
+	mapfile -O 1 -t tableau < $pinfile	# Si le fichier existe, on récupère le code pin
+	usercode=$(echo "${tableau[1]}")
 fi
 
-# Identité par défaut
-defaultcode="0000"
-usercode=$defaultcode
-defaultuser="null"
-founduser=$defaultuser
-
 # Définition des fichiers SCRIBE
-pin_list_csv=$basedirectory/id_prof_photocop.csv
 driver_original=$basedirectory/DRIVER_ORIGINAL.PPD
 driver_compile=$baseppddirectory/PHOTOCOPIEUSE_SDP.ppd
 
-echo 'USER : '$USER
-# Parsing des lignes du fichier csv
-while IFS=',' read nom prenom login pin trash; do 	# Si l'utilisateur a un code pin photocopieuse...
-	if [ $USER = $login ] ; then					# On stocke le code pin correspondant dans usercode
-		usercode=$pin
-		founduser=$login 
-		break
-	fi
-done < $pin_list_csv
-
 # Compilation du driver en y insérant le code pin (si
-if [ $founduser != $defaultuser ]; then 
+if [ $usercode != "" ]; then 
 	echo 'PIN :  '$usercode
 
 	# Comptage du nombre de ligne dans le driver original
