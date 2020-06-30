@@ -1,7 +1,7 @@
 #!/bin/bash
-# Script original de Didier SEVERIN (15/05/20)
+# Script original de Didier SEVERIN (30/06/20)
 # Académie de la Réunion
-# Version 1.0
+# Version 2.0
 
 # Definition des fichiers et répertoires de travail
 driverfile="/etc/cups/ppd/PHOTOCOPIEUSE_SDP.ppd"
@@ -16,7 +16,6 @@ chown root:root $scriptfile
 # Définition des droits
 chmod 0755 /etc/cups/ppd/
 chmod -R 0755 $binarydir
-chmod 0744 $binarydir/id_prof_photocop.csv
 chmod 0744 $binarydir/DRIVER_ORIGINAL.PPD
 
 # Copie du driver original
