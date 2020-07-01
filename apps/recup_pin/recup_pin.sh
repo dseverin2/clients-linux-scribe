@@ -18,13 +18,18 @@ pinfile=~/mypin.txt
 code1="1"
 code2="2"
 
+# Création d'un fichier pin vide pour les élèves
+if [ "$GROUPS" == "10002" ]; then
+	touch $pinfile
+fi
+
 # Verification de l'existence du fichier contenant le code pin
 if [ ! -e $pinfile ]; then
 	while [ $code1 != $code2 ];	do 		# S'il n'existe pas on demande le code pin avec validation
-		code1=$(zenity --entry --text="Entrez votre code de photocopieuse")
-		code2=$(zenity --entry --text="Saisissez à nouveau votre code de photocopieuse")
+		code1=$(zenity --entry --text="Entrez votre code de photocopieuse" 2> /dev/null)
+		code2=$(zenity --entry --text="Saisissez à nouveau votre code de photocopieuse" 2> /dev/null)
 		if [ $code1 != $code2 ]; then
-			zenity --info --text="Les codes saisis ne correspondent pas"
+			zenity --info --text="Les codes saisis ne correspondent pas" 2> /dev/null
 		fi
 	done
 	echo $code1 > $pinfile 				# On sauvegarde le code pin saisi dans le fichier ~/mypin.txt 
