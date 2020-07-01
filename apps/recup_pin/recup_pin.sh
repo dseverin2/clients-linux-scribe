@@ -20,7 +20,9 @@ code2="2"
 
 # Création d'un fichier pin vide pour les élèves
 if [ "$GROUPS" == "10002" ]; then
-	touch $pinfile
+	if [ ! -e $pinfile ]; then
+		touch $pinfile
+	fi
 fi
 
 # Verification de l'existence du fichier contenant le code pin
