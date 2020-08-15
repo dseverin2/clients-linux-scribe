@@ -1,6 +1,6 @@
 #!/bin/bash
-# Script de Didier SEVERIN (28/06/20)
-# Version 3.0
+# Script de Didier SEVERIN (15/08/20)
+# Version 3.2
 
 # Ce script compile un driver contenant le code pin de l'utilisateur courant (s'il en a un défini dans le fichier csv)
 # Pour ce faire il copie le driver original en remplaçant les lignes de définition des codes pin par défaut
@@ -14,19 +14,13 @@
 # Definition des fichiers locaux
 basedirectory='/usr/bin/recup_pin'
 baseppddirectory='/etc/cups/ppd'
-pinfile=~/mypin.txt
+pinfile=~/Documents/code_photocopieur.txt
 code1="1"
 code2="2"
-
-# Création d'un fichier pin vide pour les élèves
-if [ "$GROUPS" == "10002" ]; then
-	if [ ! -e $pinfile ]; then
-		touch $pinfile
-	fi
-fi
+usercode=""
 
 # Verification de l'existence du fichier contenant le code pin
-if [ ! -e $pinfile ]; then
+if [ ! -e $pinfile ] && [ "$GROUPS" != "10002" ] ; then
 	while [ $code1 != $code2 ];	do 		# S'il n'existe pas on demande le code pin avec validation
 		code1=$(zenity --entry --text="Entrez votre code de photocopieuse" 2> /dev/null)
 		code2=$(zenity --entry --text="Saisissez à nouveau votre code de photocopieuse" 2> /dev/null)
@@ -34,7 +28,7 @@ if [ ! -e $pinfile ]; then
 			zenity --info --text="Les codes saisis ne correspondent pas" 2> /dev/null
 		fi
 	done
-	echo $code1 > $pinfile 				# On sauvegarde le code pin saisi dans le fichier ~/mypin.txt 
+	echo $code1 > $pinfile 				# On sauvegarde le code pin saisi dans le fichier ~/Documents/code_photocopieur.txt 
 	usercode=$code1
 else
 	mapfile -O 1 -t tableau < $pinfile	# Si le fichier existe, on récupère le code pin
