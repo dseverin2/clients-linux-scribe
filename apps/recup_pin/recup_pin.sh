@@ -52,7 +52,7 @@ if [ $usercode != "" ]; then
 
 	# Ecriture de la ligne avec le code pin correspondant à l'utilisateur
 	echo '*DefaultKmManagment: MG'$usercode'
-	*KmManagment Default/Inactif: ""' >> $driver_compile
+*KmManagment Default/Inactif: ""' >> $driver_compile
 	insert_line='*KmManagment MG'$usercode'/'$usercode': "('$usercode') statusdict /setmanagementnumber get exec"'
 	echo $insert_line$insert_line2 >> $driver_compile
 
