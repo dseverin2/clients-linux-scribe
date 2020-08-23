@@ -1,6 +1,6 @@
 #!/bin/bash
-# Script de Didier SEVERIN (15/08/20)
-# Version 3.2
+# Script de Didier SEVERIN (23/08/20)
+# Version 3.3
 
 # Ce script compile un driver contenant le code pin de l'utilisateur courant (s'il en a un défini dans le fichier csv)
 # Pour ce faire il copie le driver original en remplaçant les lignes de définition des codes pin par défaut
@@ -19,27 +19,29 @@ code1="1"
 code2="2"
 usercode=""
 
-# Verification de l'existence du fichier contenant le code pin
-if [ ! -e $pinfile ] && [ "$GROUPS" != "10002" ] ; then
-	while [ $code1 != $code2 ];	do 		# S'il n'existe pas on demande le code pin avec validation
-		code1=$(zenity --entry --text="Entrez votre code de photocopieuse" 2> /dev/null)
-		code2=$(zenity --entry --text="Saisissez à nouveau votre code de photocopieuse" 2> /dev/null)
-		if [ $code1 != $code2 ]; then
-			zenity --info --text="Les codes saisis ne correspondent pas" 2> /dev/null
-		fi
-	done
-	echo $code1 > $pinfile 				# On sauvegarde le code pin saisi dans le fichier ~/Documents/code_photocopieur.txt 
-	usercode=$code1
-else
-	mapfile -O 1 -t tableau < $pinfile	# Si le fichier existe, on récupère le code pin
-	usercode=$(echo "${tableau[1]}")
-fi
-
 # Définition des fichiers SCRIBE
 driver_original=$basedirectory/DRIVER_ORIGINAL.PPD
 driver_compile=$baseppddirectory/PHOTOCOPIEUSE_SDP.ppd
 
-# Compilation du driver en y insérant le code pin (si
+# Verification de l'existence du fichier contenant le code pin pour les users non élèves
+if [ "$GROUPS" != "10002" ]; then
+	if [ ! -e $pinfile ] ; then
+		while [ $code1 != $code2 ];	do 		# S'il n'existe pas on demande le code pin avec validation
+			code1=$(zenity --entry --text="Entrez votre code de photocopieuse" 2> /dev/null)
+			code2=$(zenity --entry --text="Saisissez à nouveau votre code de photocopieuse" 2> /dev/null)
+			if [ $code1 != $code2 ]; then
+				zenity --info --text="Les codes saisis ne correspondent pas" 2> /dev/null
+			fi
+		done
+		echo $code1 > $pinfile 				# On sauvegarde le code pin saisi dans le fichier ~/Documents/code_photocopieur.txt 
+		usercode=$code1
+	else
+		mapfile -O 1 -t tableau < $pinfile	# Si le fichier existe, on récupère le code pin
+		usercode=$(echo "${tableau[1]}")
+	fi
+fi
+
+# Compilation du driver en y insérant le code pin (si la variable usercode non vide)
 if [ $usercode != "" ]; then 
 	echo 'PIN :  '$usercode
 
