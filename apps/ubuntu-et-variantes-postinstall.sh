@@ -37,24 +37,24 @@ if [ "$installdepuisdomaine" = "yes" ]; then
 else
 	wgetparams=""
 fi
-wgetparams=""
+
 writelog "Paramètres de wget : $wgetparams"
 
 # désactiver mode intéractif pour automatiser l'installation de wireshark
 export DEBIAN_FRONTEND="noninteractive"
 
 writelog "Ajout dépot partenaire"
-apt install software-properties-common -fy 
+apt install software-properties-common -y 
 apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys CB2DE8E5
 
 writelog "Vérification que le système est à jour"
 apt-get update ; apt-get -y full-upgrade; apt-get -y dist-upgrade
 
 writelog "Installation de gdebi"
-apt install gdebi-core -fy
+apt install gdebi-core -y
 
 writelog "Installation de geany"
-apt install geany -fy
+apt install geany -y
 
 writelog "Installation d'onlyoffice"
 if [ ! -e onlyoffice-desktopeditors_amd64.deb ]; then
@@ -278,7 +278,7 @@ if [ "$version" = "bionic" ] || [ "$version" = "focal" ] ; then
 	writelog "---Xia (alias ImageActive)"
 	echo "deb http://repository.crdp.ac-versailles.fr/debian xia main" | sudo tee /etc/apt/sources.list.d/xia.list
 	wget $wgetparams -q http://repository.crdp.ac-versailles.fr/crdp.gpg -O - | sudo apt-key add -; 
-	apt-get update; apt-get install xia
+	apt-get update; apt-get install xia -y
 	
 	writelog "---Marble (avec le moins de dépendance KDE possible)"
 	apt install --no-install-recommends marble -y
