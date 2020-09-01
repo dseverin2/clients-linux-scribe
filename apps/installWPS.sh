@@ -10,9 +10,12 @@ unzip WPS\ Office/winfonts.zip -d /usr/share/fonts/winfonts/
 rm -fr msfonts-config2.zip
 
 #INSTALLATION DE WPS
+build="9615"
+version="11.1.0."$build
+
 # Logiciel
-wget http://wdl1.pcfg.cache.wpscdn.com/wpsdl/wpsoffice/download/linux/9505/wps-office_11.1.0.9505.XA_amd64.deb
-dpkg -i wps-office_11.1.0.9505.XA_amd64.deb
+wget http://wdl1.pcfg.cache.wpscdn.com/wpsdl/wpsoffice/download/linux/$build/wps-office_$version.XA_amd64.deb
+dpkg -i wps-office_$version.XA_amd64.deb
 # Dictionnaire FR
 wget https://github.com/wps-community/wps_community_website/raw/master/root/download/dicts/fr_FR.zip
 unzip -u fr_FR.zip -d /opt/kingsoft/wps-office/office6/dicts/spellcheck/
@@ -21,4 +24,4 @@ sudo apt install p7zip p7zip-full -y
 wget https://github.com/timxx/wps-office-mui/raw/master/mui/fr_FR.7z
 7z x fr_FR.7z -o/opt/kingsoft/wps-office/office6/mui/
 rm -fr /opt/kingsoft/wps-office/office6/mui/en_US /opt/kingsoft/wps-office/office6/mui/ug_CN
-rm -f wps-office_11.1.0.9505.XA_amd64.deb fr_FR.zip fr_FR.7z
+rm -f wps-office_$version.XA_amd64.deb fr_FR.zip fr_FR.7z
