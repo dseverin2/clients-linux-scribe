@@ -1,5 +1,5 @@
 #!/bin/bash
-# version 2.1 (28/05/20)
+# version 2.2 (01/09/20)
 
 # Ce script sert à installer des logiciels supplémentaires utiles pour les collèges & lyçées
 # Ce script est utilisable pour Ubuntu et variantes en 14.04, 16.04, 18.04, 20.04
@@ -21,7 +21,7 @@ else
 	exit
 fi
 
-thislog=/home/$localadmin/Bureau/basicpostinstall.log
+thislog=/home/$localadmin/basicpostinstall.log
 templog=""
 if [ "$logfile" != "" ]; then
 	templog=$logfile
@@ -37,6 +37,7 @@ if [ "$installdepuisdomaine" = "yes" ]; then
 else
 	wgetparams=""
 fi
+wgetparams=""
 writelog "Paramètres de wget : $wgetparams"
 
 # désactiver mode intéractif pour automatiser l'installation de wireshark
@@ -65,6 +66,10 @@ if [ "$ebeam" = "yes" ]; then
 	writelog "---Ebeam"
 	TBI/installEbeam.sh
 fi
+
+writelog "Installation de Scratux"
+chmod +x install*.sh
+./installScratux.sh
 
 #########################################
 # Paquets uniquement pour Trusty (14.04)
