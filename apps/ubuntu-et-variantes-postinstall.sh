@@ -282,16 +282,16 @@ if [ "$version" = "bionic" ] || [ "$version" = "focal" ] ; then
 	apt install --no-install-recommends marble -y
 	
 	writelog "---OpenMeca"
-	apt-get install libqt5help5 libqt5svg5 libqt5opengl5 libqt5widgets5 libqt5gui5 libqt5xml5 libqt5core5a
-	
+	apt-get install libqt5help5 libqt5svg5 libqt5opengl5 libqt5widgets5 libqt5gui5 libqt5xml5 libqt5core5a libboost-all-dev libqwt-qt5-6 libqglviewer2-qt5
 	if [ ! -e ./openmeca-64b.deb ]; then
-		wget $wgetparams --no-check-certificate http://www.yakuru.fr/~openmeca/openmeca_2.x_amd64.deb 
+		wget $wgetparams --no-check-certificate https://openmeca.site/site/dl/openmeca_2.x_amd64.deb
 		dpkg -i openmeca*amd64.deb ; apt install -fy
 	fi
 	
 	writelog "---BlueGriffon"
-	if [ ! -e ./bluegriffon-3.0.1.Ubuntu16.04-x86_64.deb ]; then
-		wget $wgetparams --no-check-certificate http://bluegriffon.org/freshmeat/3.0.1/bluegriffon-3.0.1.Ubuntu16.04-x86_64.deb && dpkg -i bluegriffon*.deb ; apt install -fy
+	installfilename=bluegriffon-3.1.Ubuntu18.04-x86_64.deb
+	if [ ! -e ./$installfilename ]; then
+		wget $wgetparams --no-check-certificate http://bluegriffon.org/freshmeat/3.1/$installfilename && dpkg -i bluegriffon*.deb ; apt install -fy
 	fi
 	
 	writelog "---SCRIPTS SUPPLEMENTAIRES"
