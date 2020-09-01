@@ -284,7 +284,7 @@ if [ "$version" = "bionic" ] || [ "$version" = "focal" ] ; then
 	apt install --no-install-recommends marble -y
 	
 	writelog "---OpenMeca"
-	apt-get install libqt5help5 libqt5svg5 libqt5opengl5 libqt5widgets5 libqt5gui5 libqt5xml5 libqt5core5a libboost-all-dev libqwt-qt5-6 libqglviewer2-qt5
+	apt-get install libqt5help5 libqt5svg5 libqt5opengl5 libqt5widgets5 libqt5gui5 libqt5xml5 libqt5core5a libboost-all-dev libqwt-qt5-6 libqglviewer2-qt5 -fy
 	if [ ! -e ./openmeca-64b.deb ]; then
 		wget $wgetparams --no-check-certificate https://openmeca.site/site/dl/openmeca_2.x_amd64.deb
 		dpkg -i openmeca*amd64.deb ; apt install -fy
