@@ -44,11 +44,17 @@ writelog "Paramètres de wget : $wgetparams"
 export DEBIAN_FRONTEND="noninteractive"
 
 writelog "Ajout dépot partenaire"
-add-apt-repository "deb http://archive.canonical.com/ubuntu $(lsb_release -sc) partner" 
+apt install software-properties-common -fy 
 apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys CB2DE8E5
 
 writelog "Vérification que le système est à jour"
 apt-get update ; apt-get -y full-upgrade; apt-get -y dist-upgrade
+
+writelog "Installation de gdebi"
+apt install gdebi-core -fy
+
+writelog "Installation de geany"
+apt install geany -fy
 
 writelog "Installation d'onlyoffice"
 if [ ! -e onlyoffice-desktopeditors_amd64.deb ]; then
@@ -239,10 +245,6 @@ writelog "ENDBLOC"
 writelog "INITBLOC" "[ Programmation ]"
 apt-get -y install ghex geany imagemagick gcolor2
 apt-get -y install python3-pil.imagetk python3-pil traceroute python3-tk #python3-sympy
-if [ ! -e ./scratch-desktop_3.3.0_amd64.deb ]; then
-	wget $wgetparams https://github.com/redshaderobotics/scratch3.0-linux/releases/download/3.3.0/scratch-desktop_3.3.0_amd64.deb 
-fi
-dpkg -i scratch-desktop_3.3.0_amd64.deb ; apt install -fy
 writelog "ENDBLOC"
 
 writelog "INITBLOC" "[ Serveur ]"
@@ -317,6 +319,8 @@ if [ "$version" = "bionic" ] || [ "$version" = "focal" ] ; then
 		"$scriptpath"installOpenBoard.sh $version
 	fi
 	writelog "ENDBLOC"
+
+	apt --fix-broken install
 fi
 
 #=======================================================================================================#
@@ -335,7 +339,7 @@ fi
 # Concerne Ubuntu / Unity
 ################################
 if [ "$(which unity)" = "/usr/bin/unity" ] ; then  # si Ubuntu/Unity alors :
-	writelog "[ Paquet AddOns ] d'Unity"
+	writelog "[ Paquet AddOns ] d\'Unity"
 	apt-get -y install ubuntu-restricted-extras ubuntu-restricted-addons unity-tweak-tool
 	apt-get -y install nautilus-image-converter nautilus-script-audio-convert
 fi
