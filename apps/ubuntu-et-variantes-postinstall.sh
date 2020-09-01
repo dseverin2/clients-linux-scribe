@@ -185,7 +185,7 @@ fi
 
 #=======================================================================================================#
 
-if [ "$version" != "bionic" ] && [ "$version" != "focal"] ; then  # Installation spécifique pour 14.04 ou 16.04
+if [ "$version" != "bionic" ] && [ "$version" != "focal" ] ; then  # Installation spécifique pour 14.04 ou 16.04
 	writelog "Drivers imprimantes pour les version < 18.04"
 	if [ ! -e ./openprinting-gutenprint_5.2.7-1lsb3.2_amd64.deb ]; then
 		wget $wgetparams --no-check-certificate http://www.openprinting.org/download/printdriver/debian/dists/lsb3.2/contrib/binary-amd64/openprinting-gutenprint_5.2.7-1lsb3.2_amd64.deb
