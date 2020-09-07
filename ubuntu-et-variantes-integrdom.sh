@@ -155,7 +155,7 @@ if [[ "$proxy_def_ip" != "" ]] || [[ $proxy_def_port != "" ]] ; then
 	#Paramétrage des paramètres Proxy pour Gnome
 	#######################################################
 	writelog "---Inscription du proxy dans le schéma de gnome"
-	grep "ignore-hosts=$proxy_gnome_noproxy" /usr/share/glib-2.0/schemas/my-defaults.gschema.override > /dev/null
+	grep "host='$proxy_def_ip'" /usr/share/glib-2.0/schemas/my-defaults.gschema.override > /dev/null
 	if [ $? != 0 ]; then
 	  echo "[org.gnome.system.proxy]
 mode='manual'
