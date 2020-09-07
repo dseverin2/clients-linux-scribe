@@ -1,6 +1,7 @@
 #!/bin/bash
 # version 2.5.0
-# Dernières modifications : 
+# Dernières modifications :
+# - 07/09/2020 (Correction d'un bug lié au wallpapers) 
 # - 30/06/2020 (Paramétrage auth-client-config)
 # - 02/06/2020 (Spécification LinuxMint pour mintwelcome & Récupération auth-client-config pour Focal)
 
@@ -127,14 +128,14 @@ fi
 ########################################################################
 #rendre debconf silencieux
 ########################################################################
-export DEBIAN_FRONTEND="noninteractive"
-export DEBIAN_PRIORITY="critical"
+export DEBIAN_FRONTEND="noninteractive" 2>> $logfile
+export DEBIAN_PRIORITY="critical" 2>> $logfile
 
 ########################################################################
 #suppression de l'applet switch-user pour ne pas voir les derniers connectés # Uniquement pour Ubuntu / Unity
 #paramétrage d'un laucher unity par défaut : nautilus, firefox, libreoffice, calculatrice, éditeur de texte et capture d'écran
 ########################################################################
-if [ "$(which unity)" = "/usr/bin/unity" ] ; then  # si Ubuntu/Unity alors :
+if [ "$(which unity)" = "/usr/bin/unity" ]; then  # si Ubuntu/Unity alors :
 	writelog "3b-Suppression de l'applet switch-user et paramétrage du launcher unity par défaut"
 	echo "[com.canonical.indicator.session]
 user-show-menu=false
@@ -149,7 +150,7 @@ fi
 #######################################################
 #Paramétrage des paramètres Proxy pour tout le système
 #######################################################
-if [[ "$proxy_def_ip" != "" ]] || [[ $proxy_def_port != "" ]] ; then
+if [[ "$proxy_def_ip" != "" ]] || [[ $proxy_def_port != "" ]]; then
 	writelog "INITBLOC" "Paramétrage du proxy $proxy_def_ip:$proxy_def_port" 
 	
 	#Paramétrage des paramètres Proxy pour Gnome
@@ -181,8 +182,8 @@ port=$proxy_def_port
 	######################################################################
 	writelog "---Inscription du proxy pour apt"
 	echo "Acquire::http::proxy \"http://$proxy_def_ip:$proxy_def_port/\";
-	Acquire::ftp::proxy \"ftp://$proxy_def_ip:$proxy_def_port/\";
-	Acquire::https::proxy \"https://$proxy_def_ip:$proxy_def_port/\";" > /etc/apt/apt.conf.d/20proxy
+Acquire::ftp::proxy \"ftp://$proxy_def_ip:$proxy_def_port/\";
+Acquire::https::proxy \"https://$proxy_def_ip:$proxy_def_port/\";" > /etc/apt/apt.conf.d/20proxy
 
 	#Permettre d'utiliser la commande add-apt-repository derrière un Proxy
 	######################################################################
@@ -209,13 +210,13 @@ apt install -y net-tools 2>> $logfile
 ####################################################
 # Téléchargement + Mise en place de Esubuntu (si activé)
 ####################################################
-if [ "$esubuntu" = "yes" ] ; then 
+if [ "$esubuntu" = "yes" ]; then 
 	writelog "INITBLOC" "Installation d'ESUBUNTU"
 	# Téléchargement des paquets
 	wget --no-check-certificate https://github.com/dseverin2/esubuntu/archive/master.zip 2>> $logfile
 	if [ -e master.zip ]; then
 		writelog "---Esubuntu-master récupéré sur github"
-		unzip master.zip
+		unzip -o master.zip
 		rm -fr master.zip
 	else
 		writelog "---Esubuntu-master n'a pas pu être récupéré. Interruption de l'installation"
@@ -225,7 +226,7 @@ if [ "$esubuntu" = "yes" ] ; then
 	# Déplacement/extraction de l'archive + lancement par la suite
 	writelog "---Modification des droits et copie des fichiers de configuration"
 	chmod -R +x ./esubuntu-master 2>> $logfile
-	cp config.cfg esub_functions.sh ./esubuntu-master/ 2>> $logfile
+	cp -fr config.cfg esub_functions.sh ./esubuntu-master/ 2>> $logfile
 	writelog "---Lancement du script d'installation"
 	./esubuntu-master/install_esubuntu.sh 2>> $logfile
 
@@ -263,6 +264,7 @@ APT::Periodic::Unattended-Upgrade \"1\";" > /etc/apt/apt.conf.d/20auto-upgrades
 ########################################################################
 # Récupération et installation de auth-client-config (20.04)
 ########################################################################
+# TESTER avec apt install ldap-auth-client	
 if [ "$version" = "focal" ]; then
 	writelog "Récupération et installation de auth-client-config"
 	auth_client_version="auth-client-config_0.9ubuntu1"
@@ -352,15 +354,15 @@ export DEBIAN_PRIORITY="high"
 ########################################################################
 #paramétrage du script de démontage du netlogon pour lightdm 
 ########################################################################
-if [ "$(which lightdm)" = "/usr/sbin/lightdm" ] ; then #Si lightDM présent
+if [ "$(which lightdm)" = "/usr/sbin/lightdm" ]; then #Si lightDM présent
 	writelog "INITBLOC" "Paramétrage du script de démontage du netlogon pour lightdm"
 	touch /etc/lightdm/logonscript.sh
 	addtoend /etc/lightdm/logonscript.sh "if mount | grep -q \"/tmp/netlogon\" ; then umount /tmp/netlogon ;fi"
 	chmod +x /etc/lightdm/logonscript.sh
 
 	touch /etc/lightdm/logoffscript.sh
-	echo "sleep 2 \
-umount -f /tmp/netlogon \ 
+	echo "sleep 2
+umount -f /tmp/netlogon
 umount -f \$HOME
 " > /etc/lightdm/logoffscript.sh
 	chmod +x /etc/lightdm/logoffscript.sh
@@ -384,50 +386,50 @@ fi
 
 
 # Modification ancien gestionnaire de session MDM
-if [ "$(which mdm)" = "/usr/sbin/mdm" ] ; then # si MDM est installé (ancienne version de Mint <17.2)
+if [ "$(which mdm)" = "/usr/sbin/mdm" ]; then # si MDM est installé (ancienne version de Mint <17.2)
 	writelog "Modification de l'ancien gestionnaire de session MDM (pour Mint <17.2)"
-	cp /etc/mdm/mdm.conf /etc/mdm/mdm_old.conf #backup du fichier de config de mdm
-	wget --no-check-certificate https://raw.githubusercontent.com/dane-lyon/fichier-de-config/master/mdm.conf ; mv -f mdm.conf /etc/mdm/ ; 
+	cp -f /etc/mdm/mdm.conf /etc/mdm/mdm_old.conf #backup du fichier de config de mdm
+	wget --no-check-certificate https://raw.githubusercontent.com/dane-lyon/fichier-de-config/master/mdm.conf 2>> $logfile ; mv -f mdm.conf /etc/mdm/ 2>> $logfile ; 
 fi
 
 # Si Ubuntu Mate
-if [ "$(which caja)" = "/usr/bin/caja" ] ; then
+if [ "$(which caja)" = "/usr/bin/caja" ]; then
 	writelog "Epuration du gestionnaire de session caja (pour Ubuntu Mate)"
-	apt purge -y hexchat transmission-gtk ubuntu-mate-welcome cheese pidgin rhythmbox
-	snap remove ubuntu-mate-welcome
+	apt purge -y hexchat transmission-gtk ubuntu-mate-welcome cheese pidgin rhythmbox 2>> $logfile
+	snap remove ubuntu-mate-welcome 2>> $logfile
 fi
 
 # Si Lubuntu (lxde)
-if [ "$(which pcmanfm)" = "/usr/bin/pcmanfm" ] ; then
+if [ "$(which pcmanfm)" = "/usr/bin/pcmanfm" ]; then
 	writelog "Epuration du gestionnaire de session pcmanfm (pour Lubuntu LXDE)"
-	apt purge -y abiword gnumeric pidgin transmission-gtk sylpheed audacious guvcview ;
+	apt purge -y abiword gnumeric pidgin transmission-gtk sylpheed audacious guvcview ; 2>> $logfile
 fi
 
 ########################################################################
 # Spécifique Gnome Shell
 ########################################################################
-if [ "$(which gnome-shell)" = "/usr/bin/gnome-shell" ] ; then  # si GS installé
+if [ "$(which gnome-shell)" = "/usr/bin/gnome-shell" ]; then  # si GS installé
 	writelog "INITBLOC" "Paramétrage de Gnome Shell"
 	# Désactiver userlist pour GDM
 	echo "user-db:user
-	system-db:gdm
-	file-db:/usr/share/gdm/greeter-dconf-defaults" > /etc/dconf/profile/gdm
+system-db:gdm
+file-db:/usr/share/gdm/greeter-dconf-defaults" > /etc/dconf/profile/gdm
 
 	writelog "---Suppression de la liste des utilisateurs au login"
-	mkdir /etc/dconf/db/gdm.d
+	mkdir /etc/dconf/db/gdm.d 2>> $logfile
 	echo "[org/gnome/login-screen]
-	# Do not show the user list
-	disable-user-list=true" > /etc/dconf/db/gdm.d/00-login-screen
+# Do not show the user list
+disable-user-list=true" > /etc/dconf/db/gdm.d/00-login-screen
 
 	writelog "---Application des modifications"
-	dconf update
+	dconf update 2>> $logfile
 
 	writelog "---Suppression des icônes Amazon"
-	apt purge -y ubuntu-web-launchers gnome-initial-setup
+	apt purge -y ubuntu-web-launchers gnome-initial-setup 2>> $logfile
 
 	writelog "Remplacement des snaps par défauts par la version apt (plus rapide)"
-	snap remove gnome-calculator gnome-characters gnome-logs gnome-system-monitor
-	apt install gnome-calculator gnome-characters gnome-logs gnome-system-monitor -y 
+	snap remove gnome-calculator gnome-characters gnome-logs gnome-system-monitor 2>> $logfile
+	apt install gnome-calculator gnome-characters gnome-logs gnome-system-monitor -y  2>> $logfile
 	
 	writelog "ENDBLOC"
 fi
@@ -439,11 +441,8 @@ fi
 writelog "INITBLOC" "Paramétrage pour remplir pam_mount.conf" "---/media/Serveur_Scribe"
 eclairng="<volume user=\"*\" fstype=\"cifs\" server=\"$scribe_def_ip\" path=\"eclairng\" mountpoint=\"/media/Serveur_Scribe\" />"
 grep "/media/Serveur_Scribe" /etc/security/pam_mount.conf.xml  >/dev/null
-if [ $? != 0 ]
-then
+if [ $? != 0 ]; then
   sed -i "/<\!-- Volume definitions -->/a\ $eclairng" /etc/security/pam_mount.conf.xml
-else
-  echo "eclairng déjà présent"
 fi
 
 writelog "---~/Documents => Perso (scribe)"
@@ -517,21 +516,21 @@ writelog "Gestion lecture de DVD"
 #apt install -y libdvd-pkg ; dpkg-reconfigure libdvd-pkg
 
 # Lecture DVD sur Ubuntu 14.04
-if [ "$version" = "trusty" ] ; then
+if [ "$version" = "trusty" ]; then
 	apt install -y libdvdread4 && bash /usr/share/doc/libdvdread4/install-css.sh 2>> $logfile
 fi
 
 # Résolution problème dans certains cas uniquement pour Trusty (exemple pour lancer gedit directement avec : sudo gedit)
-if [ "$version" = "trusty" ] ; then
+if [ "$version" = "trusty" ]; then
 	addtoend /etc/sudoers 'Defaults        env_keep += "DISPLAY XAUTHORITY"' 2>> $logfile
 fi
 
 # Spécifique base 16.04 ou 18.04 : pour le fonctionnement du dossier /etc/skel 
-if [ "$version" = "xenial" ] || [ "$version" = "bionic" ]  || [ "$version" = "focal" ] ; then
+if [ "$version" = "xenial" ] || [ "$version" = "bionic" ]  || [ "$version" = "focal" ]; then
 	sed -i "30i\session optional        pam_mkhomedir.so" /etc/pam.d/common-session
 fi
 
-if [ "$version" = "bionic" ] || [ "$version" = "focal" ] ; then
+if [ "$version" = "bionic" ] || [ "$version" = "focal" ]; then
 	writelog "Création de raccourci sur le bureau + dans dossier utilisateur"
 	# (pour la 18.04 uniquement) pour l'accès aux partages (commun+perso+lespartages)
 	tar -xzf skel.tar.gz -C /etc/ 2>> $logfile
@@ -560,7 +559,7 @@ if [ "$postinstalladditionnel" = "yes" ]; then
 	if [ "$version" = "bionic" ] || [ "$version" = "focal" ]; then
 		writelog "INITBLOC" "PostInstallation avancée"
 		sudo -u $localadmin wget --no-check-certificate https://github.com/simbd/Ubuntu_20.04LTS_PostInstall/archive/master.zip 2>> $logfile
-		sudo -u $localadmin unzip master.zip -d . 2>> $logfile
+		sudo -u $localadmin unzip -o master.zip -d . 2>> $logfile
 		sudo -u $localadmin chmod +x Ubuntu_20.04LTS_PostInstall-master/*.sh  2>> $logfile
 		sudo -u $localadmin ./Ubuntu_20.04LTS_PostInstall-master/Postinstall_Ubuntu-20.04LTS_FocalFossa.sh 2>> $logfile
 		sudo -u $localadmin rm -fr master.zip Ubuntu_20.04LTS_PostInstall-master 2>> $logfile;
