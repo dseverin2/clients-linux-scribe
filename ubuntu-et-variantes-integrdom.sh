@@ -315,6 +315,7 @@ nss_netgroup=netgroup: nis
 ########################################################################
 
 writelog "Application de la configuration nsswitch depuis auth-client-config"
+apt install auth-client-config -y
 auth-client-config -t nss -p open_ldap 2>> $logfile
 
 ########################################################################
