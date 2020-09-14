@@ -143,8 +143,7 @@ user-show-menu=false
 disable-user-switching=true
 disable-lock-screen=true
 [com.canonical.Unity.Launcher]
-favorites=[ 'nautilus-home.desktop', 'firefox.desktop','libreoffice-startcenter.desktop', 'gcalctool.desktop','gedit.desktop','gnome-screenshot.desktop' ]
-" > /usr/share/glib-2.0/schemas/my-defaults.gschema.override
+favorites=[ 'nautilus-home.desktop', 'firefox.desktop','libreoffice-startcenter.desktop', 'gcalctool.desktop','gedit.desktop','gnome-screenshot.desktop' ]" > /usr/share/glib-2.0/schemas/my-defaults.gschema.override 2>> $logfile
 fi
 
 #######################################################
@@ -167,8 +166,7 @@ host='$proxy_def_ip'
 port=$proxy_def_port
 [org.gnome.system.proxy.https]
 host='$proxy_def_ip'
-port=$proxy_def_port
-	" >> /usr/share/glib-2.0/schemas/my-defaults.gschema.override
+port=$proxy_def_port" >> /usr/share/glib-2.0/schemas/my-defaults.gschema.override 2>> $logfile
 	fi
 
 	  glib-compile-schemas /usr/share/glib-2.0/schemas 2>> $logfile
@@ -183,7 +181,7 @@ port=$proxy_def_port
 	writelog "---Inscription du proxy pour apt"
 	echo "Acquire::http::proxy \"http://$proxy_def_ip:$proxy_def_port/\";
 Acquire::ftp::proxy \"ftp://$proxy_def_ip:$proxy_def_port/\";
-Acquire::https::proxy \"https://$proxy_def_ip:$proxy_def_port/\";" > /etc/apt/apt.conf.d/20proxy
+Acquire::https::proxy \"https://$proxy_def_ip:$proxy_def_port/\";" > /etc/apt/apt.conf.d/20proxy 2>>$logfile
 
 	#Permettre d'utiliser la commande add-apt-repository derrière un Proxy
 	######################################################################
@@ -259,23 +257,7 @@ apt install -y ldap-auth-client libpam-mount cifs-utils nscd numlockx unattended
 ########################################################################
 writelog "Activation automatique des mises à jour de sécurité"
 echo "APT::Periodic::Update-Package-Lists \"1\";
-APT::Periodic::Unattended-Upgrade \"1\";" > /etc/apt/apt.conf.d/20auto-upgrades
-
-########################################################################
-# Récupération et installation de auth-client-config (20.04)
-########################################################################
-# TESTER avec apt install ldap-auth-client	
-if [ "$version" = "focal" ]; then
-	writelog "Récupération et installation de auth-client-config"
-	auth_client_version="auth-client-config_0.9ubuntu1"
-	wget --no-check-certificate http://archive.ubuntu.com/ubuntu/pool/universe/a/auth-client-config/"$auth_client_version".tar.gz 2>> $logfile
-	tar zxvf "$auth_client_version".tar.gz
-	current_path=$(pwd)
-	cd ./"$auth_client_version"
-	install.py -prefix=/usr --config-prefix=/etc
-	cd $current_path
-	rm -fr "$auth_client_version"*
-fi
+APT::Periodic::Unattended-Upgrade \"1\";" > /etc/apt/apt.conf.d/20auto-upgrades 2>> $logfile
 
 ########################################################################
 # Configuration du fichier pour le LDAP /etc/ldap.conf
@@ -285,8 +267,7 @@ echo "
 # /etc/ldap.conf
 host $scribe_def_ip
 base o=gouv, c=fr
-nss_override_attribute_value shadowMax 9999
-" > /etc/ldap.conf
+nss_override_attribute_value shadowMax 9999" > /etc/ldap.conf 2>>$logfile
 
 ########################################################################
 # activation des groupes des users du ldap
@@ -297,7 +278,7 @@ Default: yes
 Priority: 900
 Auth-Type: Primary
 Auth:
-        required                        pam_group.so use_first_pass" > /usr/share/pam-configs/my_groups
+        required                        pam_group.so use_first_pass" > /usr/share/pam-configs/my_groups 2>> $logfile
 
 ########################################################################
 #auth ldap
@@ -307,15 +288,14 @@ echo "[open_ldap]
 nss_passwd=passwd:  files ldap
 nss_group=group: files ldap
 nss_shadow=shadow: files ldap
-nss_netgroup=netgroup: nis
-" > /etc/auth-client-config/profile.d/open_ldap
+nss_netgroup=netgroup: nis" > /etc/auth-client-config/profile.d/open_ldap 2>> $logfile
 
 ########################################################################
 #application de la conf nsswitch
 ########################################################################
 
 writelog "Application de la configuration nsswitch depuis auth-client-config"
-apt install auth-client-config -y
+apt install auth-client-config -y 2>> $logfile
 auth-client-config -t nss -p open_ldap 2>> $logfile
 
 ########################################################################
@@ -327,7 +307,7 @@ Default: yes
 Priority: 128
 Session-Type: Additional
 Session:
-       optional                        pam_mkhomedir.so silent" > /usr/share/pam-configs/mkhomedir
+       optional                        pam_mkhomedir.so silent" > /usr/share/pam-configs/mkhomedir 2>> $logfile
 
 
 addtoend /etc/pam.d/common-auth "auth    required     pam_group.so use_first_pass" 2>> $logfile
@@ -357,16 +337,15 @@ export DEBIAN_PRIORITY="high"
 ########################################################################
 if [ "$(which lightdm)" = "/usr/sbin/lightdm" ]; then #Si lightDM présent
 	writelog "INITBLOC" "Paramétrage du script de démontage du netlogon pour lightdm"
-	touch /etc/lightdm/logonscript.sh
-	addtoend /etc/lightdm/logonscript.sh "if mount | grep -q \"/tmp/netlogon\" ; then umount /tmp/netlogon ;fi"
-	chmod +x /etc/lightdm/logonscript.sh
+	touch /etc/lightdm/logonscript.sh 2>> $logfile
+	addtoend /etc/lightdm/logonscript.sh "if mount | grep -q \"/tmp/netlogon\" ; then umount /tmp/netlogon ;fi" 2>> $logfile
+	chmod +x /etc/lightdm/logonscript.sh 2>> $logfile
 
-	touch /etc/lightdm/logoffscript.sh
+	touch /etc/lightdm/logoffscript.sh 2>> $logfile
 	echo "sleep 2
 umount -f /tmp/netlogon
-umount -f \$HOME
-" > /etc/lightdm/logoffscript.sh
-	chmod +x /etc/lightdm/logoffscript.sh
+umount -f \$HOME" > /etc/lightdm/logoffscript.sh 2>> $logfile
+	chmod +x /etc/lightdm/logoffscript.sh 2>> $logfile
 
 	########################################################################
 	#paramétrage du lightdm.conf
@@ -379,7 +358,7 @@ greeter-show-manual-login=true
 greeter-hide-users=true
 session-setup-script=/etc/lightdm/logonscript.sh
 session-cleanup-script=/etc/lightdm/logoffscript.sh
-greeter-setup-script=/usr/bin/numlockx on" > /usr/share/lightdm/lightdm.conf.d/50-no-guest.conf
+greeter-setup-script=/usr/bin/numlockx on" > /usr/share/lightdm/lightdm.conf.d/50-no-guest.conf 2>> $logfile
 	writelog "ENDBLOC"
 fi
 
@@ -389,7 +368,7 @@ fi
 # Modification ancien gestionnaire de session MDM
 if [ "$(which mdm)" = "/usr/sbin/mdm" ]; then # si MDM est installé (ancienne version de Mint <17.2)
 	writelog "Modification de l'ancien gestionnaire de session MDM (pour Mint <17.2)"
-	cp -f /etc/mdm/mdm.conf /etc/mdm/mdm_old.conf #backup du fichier de config de mdm
+	cp -f /etc/mdm/mdm.conf /etc/mdm/mdm_old.conf  2>> $logfile #backup du fichier de config de mdm
 	wget --no-check-certificate https://raw.githubusercontent.com/dane-lyon/fichier-de-config/master/mdm.conf 2>> $logfile ; mv -f mdm.conf /etc/mdm/ 2>> $logfile ; 
 fi
 
@@ -414,7 +393,7 @@ if [ "$(which gnome-shell)" = "/usr/bin/gnome-shell" ]; then  # si GS installé
 	# Désactiver userlist pour GDM
 	echo "user-db:user
 system-db:gdm
-file-db:/usr/share/gdm/greeter-dconf-defaults" > /etc/dconf/profile/gdm
+file-db:/usr/share/gdm/greeter-dconf-defaults" > /etc/dconf/profile/gdm 2>> $logfile
 
 	writelog "---Suppression de la liste des utilisateurs au login"
 	mkdir /etc/dconf/db/gdm.d 2>> $logfile
@@ -443,27 +422,27 @@ writelog "INITBLOC" "Paramétrage pour remplir pam_mount.conf" "---/media/Serveu
 eclairng="<volume user=\"*\" fstype=\"cifs\" server=\"$scribe_def_ip\" path=\"eclairng\" mountpoint=\"/media/Serveur_Scribe\" />"
 grep "/media/Serveur_Scribe" /etc/security/pam_mount.conf.xml  >/dev/null
 if [ $? != 0 ]; then
-  sed -i "/<\!-- Volume definitions -->/a\ $eclairng" /etc/security/pam_mount.conf.xml
+  sed -i "/<\!-- Volume definitions -->/a\ $eclairng" /etc/security/pam_mount.conf.xml 2>> $logfile
 fi
 
 writelog "---~/Documents => Perso (scribe)"
 homes="<volume user=\"*\" fstype=\"cifs\" server=\"$scribe_def_ip\" path=\"perso\" mountpoint=\"~/Documents\" />"
 grep "mountpoint=\"~\"" /etc/security/pam_mount.conf.xml  >/dev/null
 if [ $? != 0 ]; then 
-	sed -i "/<\!-- Volume definitions -->/a\ $homes" /etc/security/pam_mount.conf.xml
+	sed -i "/<\!-- Volume definitions -->/a\ $homes" /etc/security/pam_mount.conf.xml 2>> $logfile
 fi
 
 writelog "---/tmp/netlogon (DomainAdmins)"
 netlogon="<volume user=\"*\" fstype=\"cifs\" server=\"$scribe_def_ip\" path=\"netlogon\" mountpoint=\"/tmp/netlogon\"  sgrp=\"DomainUsers\" />"
 grep "/tmp/netlogon" /etc/security/pam_mount.conf.xml  >/dev/null
 if [ $? != 0 ]; then
-  sed -i "/<\!-- Volume definitions -->/a\ $netlogon" /etc/security/pam_mount.conf.xml
+  sed -i "/<\!-- Volume definitions -->/a\ $netlogon" /etc/security/pam_mount.conf.xml 2>> $logfile
 fi
 
 writelog "---Samba"
 grep "<cifsmount>mount -t cifs //%(SERVER)/%(VOLUME) %(MNTPT) -o \"noexec,nosetuids,mapchars,cifsacl,serverino,nobrl,iocharset=utf8,user=%(USER),uid=%(USERUID)%(before=\\",\\" OPTIONS)\"</cifsmount>" /etc/security/pam_mount.conf.xml  >/dev/null
 if [ $? != 0 ]; then
-  sed -i "/<\!-- pam_mount parameters: Volume-related -->/a\ <cifsmount>mount -t cifs //%(SERVER)/%(VOLUME) %(MNTPT) -o \"noexec,nosetuids,mapchars,cifsacl,serverino,nobrl,iocharset=utf8,user=%(USER),uid=%(USERUID)%(before=\\",\\" OPTIONS),vers=1.0\"</cifsmount>" /etc/security/pam_mount.conf.xml
+  sed -i "/<\!-- pam_mount parameters: Volume-related -->/a\ <cifsmount>mount -t cifs //%(SERVER)/%(VOLUME) %(MNTPT) -o \"noexec,nosetuids,mapchars,cifsacl,serverino,nobrl,iocharset=utf8,user=%(USER),uid=%(USERUID)%(before=\\",\\" OPTIONS),vers=1.0\"</cifsmount>" /etc/security/pam_mount.conf.xml 2>> $logfile
 fi
 writelog "ENDBLOC"
 ########################################################################
@@ -476,7 +455,7 @@ addtoend /etc/profile "export LC_ALL=fr_FR.utf8" "export LANG=fr_FR.utf8" "expor
 #ne pas créer les dossiers par défaut dans home
 ########################################################################
 writelog "Suppression de la création des dossiers par défaut dans home"
-sed -i "s/enabled=True/enabled=False/g" /etc/xdg/user-dirs.conf
+sed -i "s/enabled=True/enabled=False/g" /etc/xdg/user-dirs.conf 2>> $logfile
 
 ########################################################################
 # les profs peuvent sudo
@@ -484,8 +463,8 @@ sed -i "s/enabled=True/enabled=False/g" /etc/xdg/user-dirs.conf
 writelog "Ajout des professeurs (et admin) dans la liste des sudoers"
 grep "%professeurs ALL=(ALL) ALL" /etc/sudoers > /dev/null
 if [ $? != 0 ]; then
-  sed -i "/%admin ALL=(ALL) ALL/a\%professeurs ALL=(ALL) ALL" /etc/sudoers
-  sed -i "/%admin ALL=(ALL) ALL/a\%DomainAdmins ALL=(ALL) ALL" /etc/sudoers
+  sed -i "/%admin ALL=(ALL) ALL/a\%professeurs ALL=(ALL) ALL" /etc/sudoers 2>> $logfile
+  sed -i "/%admin ALL=(ALL) ALL/a\%DomainAdmins ALL=(ALL) ALL" /etc/sudoers 2>> $logfile
 fi
 
 writelog "Suppression de paquet inutile sous Ubuntu/Unity"
@@ -498,7 +477,7 @@ if [ $? != 0 ]; then
 fi
 
 writelog "Suppression de l'envoi des rapport d'erreurs"
-echo "enabled=0" > /etc/default/apport
+echo "enabled=0" > /etc/default/rapport 2>> $logfile
 
 #writelog "suppression de l'applet network-manager"
 #mv /etc/xdg/autostart/nm-applet.desktop /etc/xdg/autostart/nm-applet.old
@@ -528,19 +507,19 @@ fi
 
 # Spécifique base 16.04 ou 18.04 : pour le fonctionnement du dossier /etc/skel 
 if [ "$version" = "xenial" ] || [ "$version" = "bionic" ]  || [ "$version" = "focal" ]; then
-	sed -i "30i\session optional        pam_mkhomedir.so" /etc/pam.d/common-session
+	sed -i "30i\session optional        pam_mkhomedir.so" /etc/pam.d/common-session 2>> $logfile
 fi
 
 if [ "$version" = "bionic" ] || [ "$version" = "focal" ]; then
 	writelog "Création de raccourci sur le bureau + dans dossier utilisateur"
 	# (pour la 18.04 uniquement) pour l'accès aux partages (commun+perso+lespartages)
 	tar -xzf skel.tar.gz -C /etc/ 2>> $logfile
-	rm -f skel.tar.gz
+	rm -f skel.tar.gz 2>> $logfile
 fi
 
 # Suppression de notification de mise à niveau
 writelog "Suppression de notification de mise à niveau" 
-sed -r -i 's/Prompt=lts/Prompt=never/g' /etc/update-manager/release-upgrades
+sed -r -i 's/Prompt=lts/Prompt=never/g' /etc/update-manager/release-upgrades 2>> $logfile
 
 # Enchainer sur un script de Postinstallation
 if [ "$postinstallbase" = "yes" ]; then 
