@@ -91,6 +91,9 @@ else
   exit
 fi
 
+# Verification de l'existence d'une mise à jour des scripts sur le git
+majIntegrdom
+
 # Récupération de la version d'ubuntu
 getversion
 

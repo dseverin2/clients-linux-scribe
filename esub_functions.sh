@@ -15,6 +15,37 @@ else
   exit
 fi
 
+# Test Mise à jour
+function majIntegrdom {
+	wget --no-check-certificate -O /tmp/_VERSION https://raw.githubusercontent.com/dseverin2/clients-linux-scribe/master/_VERSION
+	source /tmp/_VERSION
+	onlineVersion=$versionscript
+	if [ -e ./_VERSION ]; then
+		source $my_dir/_VERSION
+		offlineVersion=$versionscript
+	else
+		offlineVersion=""
+		echo "Fichier _VERSION absent !"
+	fi
+	if [ "$offlineVersion" != "$onlineVersion" ]; then
+		echo "La version en ligne et celle présente sur ce PC sont différentes. Voulez-vous mettre à jour ? o/[N]"
+		read autorisationMaj
+		if [ "$autorisationMaj" == "o" ] || [ "$autorisationMaj" == "O" ]; then
+			echo "Mise à jour du script..."
+			wget --no-check-certificate https://github.com/dseverin2/clients-linux-scribe/archive/master.zip
+			unzip master.zip
+			cp -fr clients-linux-scribe-master/* .
+			rm -fr clients-linux-scribe-master/ master.zip
+			chmod +x *.sh
+			echo "Scripts mis à jour veuillez relancer sudo ./ubuntu-et-variantes-integrdom.sh"
+			exit
+		else
+			echo "Aucune modification apportée aux scripts présents"
+		fi
+	fi
+}
+
+
 # Initialisation du fichier de log (situé sur le bureau de l'admin local)
 function initlog {
 	if [ -e $logfile ]; then
