@@ -1,5 +1,5 @@
 #!/bin/bash
-# Script original de Didier SEVERIN (14/06/20)
+# Script original de Didier SEVERIN (17/09/20)
 echo "EBEAM : installation des dépendances"
 apt-get install libusb-dev yasm libvpx. Libx264. kazam onboard libboost-all-dev libboost-thread-dev
 
