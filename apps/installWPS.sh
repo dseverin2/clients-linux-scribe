@@ -22,5 +22,8 @@ unzip -u fr_FR.zip -o -d /opt/kingsoft/wps-office/office6/dicts/spellcheck/
 sudo apt install p7zip p7zip-full -y
 wget https://github.com/timxx/wps-office-mui/raw/master/mui/fr_FR.7z
 7z x fr_FR.7z -o/opt/kingsoft/wps-office/office6/mui/ -aoa
-rm -fr /opt/kingsoft/wps-office/office6/mui/en_US /opt/kingsoft/wps-office/office6/mui/ug_CN
+#rm -fr /opt/kingsoft/wps-office/office6/mui/en_US 
+#rm -fr /opt/kingsoft/wps-office/office6/mui/ug_CN
+cp -fr /opt/kingsoft/wps-office/office6/mui/fr_FR/* /opt/kingsoft/wps-office/office6/mui/ug_CN/
+cp -fr /opt/kingsoft/wps-office/office6/mui/fr_FR/* /opt/kingsoft/wps-office/office6/mui/en_US/
 rm -f wps-office_$version.XA_amd64.deb fr_FR.zip fr_FR.7z
