@@ -32,13 +32,11 @@ initlog
 # Récupération de la version d'ubuntu
 getversion
 
-if [ "$installdepuisdomaine" = "yes" ]; then
+if $installdepuisdomaine; then
 	wgetparams="-e use_proxy=yes -e http_proxy=$proxy_params"
 else
 	wgetparams=""
 fi
-
-writelog "Paramètres de wget : $wgetparams"
 
 # désactiver mode intéractif pour automatiser l'installation de wireshark
 export DEBIAN_FRONTEND="noninteractive"
@@ -64,11 +62,11 @@ dpkg -i onlyoffice-desktopeditors_amd64.deb ; apt-get -fy install ; rm -f onlyof
 
 writelog "Installation des logiciels de TBI"
 chmod +x TBI/*.sh
-if [ "$activinspire" = "yes" ]; then
+if $activinspire; then
 	writelog "---ActivInspire"
 	TBI/installActivInspire.sh
 fi
-if [ "$ebeam" = "yes" ]; then
+if $ebeam; then
 	writelog "---Ebeam"
 	TBI/installEbeam.sh
 fi
@@ -248,7 +246,7 @@ apt-get -y install python3-pil.imagetk python3-pil traceroute python3-tk #python
 writelog "ENDBLOC"
 
 writelog "INITBLOC" "[ Serveur ]"
-if [ "$ansible" = "yes" ]; then
+if $ansible; then
 	apt-get -y install openssh-server
 fi
 writelog "ENDBLOC"

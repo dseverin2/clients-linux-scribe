@@ -1,5 +1,5 @@
 #!/bin/bash
-# version 3.0.a
+# version 2.5.0
 # Dernières modifications :
 # - 07/09/2020 (Correction d'un bug lié au wallpapers) 
 # - 30/06/2020 (Paramétrage auth-client-config)
@@ -104,24 +104,7 @@ writelog "1-Fichiers de configuration... OK\nVersion trouvée : $version... OK"
 # Définition des droits sur les scripts
 chmod +x $second_dir/*.sh
 
-# Inscription du proxy
-if [ -e ./setproxy.py ]; then
-	python2.7 setproxy.py $proxy_def_ip $proxy_def_port $scribeuserapt $scribepass
-	proxyIsSet=true
-else
-  echo "Fichier setproxy.py absent ! Interruption de l'installation."
-  proxyIsSet=false
-fi
-
-# Paramétrage du proxy pour wget
-if $installdepuisdomaine; then
-	wgetparams="-e use_proxy=yes -e http_proxy=$proxy_params"
-else
-	wgetparams=""
-fi
-writelog "Paramètres de wget : $wgetparams"
-
-if $config_photocopieuse; then
+if [ $config_photocopieuse = "yes" ]; then
 	writelog "INITBLOC" "1b-Installation photocopieuse"
 	$second_dir/setup_photocopieuse.sh 2>> $logfile
 	writelog "ENDBLOC"
@@ -134,10 +117,8 @@ apt --fix-broken install -y  2>> $logfile
 #############################################
 # Modification du /etc/wgetrc.
 #############################################
-if ! $proxyIsSet; then
-	writelog "3-Paramétrage du proxy dans /etc/wgetrc"
-	addtoend /etc/wgetrc "" "https_proxy = $proxy_wgetrc" "http_proxy = $proxy_wgetrc" "ftp_proxy = $proxy_wgetrc" "use_proxy=on" "proxy-user = $scribeuserapt" "proxy-password = $scribepass"  2>> $logfile
-fi
+writelog "3-Paramétrage du proxy dans /etc/wgetrc"
+addtoend /etc/wgetrc "" "https_proxy = $proxy_wgetrc" "http_proxy = $proxy_wgetrc" "ftp_proxy = $proxy_wgetrc" "use_proxy=on" "proxy-user = $scribeuserapt" "proxy-password = $scribepass"  2>> $logfile
 
 ###################################################
 # cron d'extinction automatique à lancer ?
@@ -192,37 +173,30 @@ port=$proxy_def_port" >> /usr/share/glib-2.0/schemas/my-defaults.gschema.overrid
 	fi
 
 	  glib-compile-schemas /usr/share/glib-2.0/schemas 2>> $logfile
-	
-	if ! $proxyIsSet; then
-		#Paramétrage du Proxy pour le système
-		######################################################################
-		writelog "---Inscription du proxy dans /etc/environment"
-		addtoend /etc/environment "http_proxy=http://$proxy_def_ip:$proxy_def_port/" "https_proxy=http://$proxy_def_ip:$proxy_def_port/" "ftp_proxy=http://$proxy_def_ip:$proxy_def_port/" 2>> $logfile	
-		
-		#Paramétrage du Proxy pour apt
-		######################################################################
-		writelog "---Inscription du proxy pour apt"
-		proxyforapt = "$proxy_def_ip:$proxy_def_port"
-		if $proxauth; then
-			proxyforapt= "$scribeuserapt:scribepass@$proxy_def_ip:$proxy_def_port"
-		fi
-		echo "Acquire::http::proxy \"http://$proxy_def_ip:$proxy_def_port/\";
+
+	#Paramétrage du Proxy pour le système
+	######################################################################
+	writelog "---Inscription du proxy dans /etc/environment"
+	addtoend /etc/environment "http_proxy=http://$proxy_def_ip:$proxy_def_port/" "https_proxy=http://$proxy_def_ip:$proxy_def_port/" "ftp_proxy=http://$proxy_def_ip:$proxy_def_port/" "no_proxy=\"$proxy_env_noproxy\"" 2>> $logfile
+
+	#Paramétrage du Proxy pour apt
+	######################################################################
+	writelog "---Inscription du proxy pour apt"
+	echo "Acquire::http::proxy \"http://$proxy_def_ip:$proxy_def_port/\";
 Acquire::ftp::proxy \"ftp://$proxy_def_ip:$proxy_def_port/\";
 Acquire::https::proxy \"https://$proxy_def_ip:$proxy_def_port/\";" > /etc/apt/apt.conf.d/20proxy 2>>$logfile
 
-		# Modification pour ne pas avoir de problème lors du rafraichissement des dépots avec un proxy
-		# cette ligne peut être commentée/ignorée si vous n'utilisez pas de proxy ou avec la 14.04.
-		writelog "---Patch de /etc/apt/apt.conf pour empêcher les erreurs de rafraichissement des dépots"
-		addtoend /etc/apt/apt.conf "Acquire::http::No-Cache true;" "Acquire::http::Pipeline-Depth 0;" 2>> $logfile
-	fi
-	addtoend /etc/environment "no_proxy=\"$proxy_env_noproxy\"" 2>> $logfile
-	
-	
 	#Permettre d'utiliser la commande add-apt-repository derrière un Proxy
 	######################################################################
 	writelog "---Autorisation de ma commande add-apt-repository derrière un proxy"
 	addtoend /etc/sudoers "Defaults env_keep = https_proxy" 2>> $logfile
 fi
+
+# Modification pour ne pas avoir de problème lors du rafraichissement des dépots avec un proxy
+# cette ligne peut être commentée/ignorée si vous n'utilisez pas de proxy ou avec la 14.04.
+writelog "---Patch de /etc/apt/apt.conf pour empêcher les erreurs de rafraichissement des dépots"
+addtoend /etc/apt/apt.conf "Acquire::http::No-Cache true;" "Acquire::http::Pipeline-Depth 0;" 2>> $logfile
+
 writelog "ENDBLOC"
 
 # Vérification que le système est bien à jour
@@ -237,10 +211,10 @@ apt install -y net-tools 2>> $logfile
 ####################################################
 # Téléchargement + Mise en place de Esubuntu (si activé)
 ####################################################
-if $esubuntu; then 
+if [ "$esubuntu" = "yes" ]; then 
 	writelog "INITBLOC" "Installation d'ESUBUNTU"
 	# Téléchargement des paquets
-	wget $wgetparams --no-check-certificate https://github.com/dseverin2/esubuntu/archive/master.zip 2>> $logfile
+	wget --no-check-certificate https://github.com/dseverin2/esubuntu/archive/master.zip 2>> $logfile
 	if [ -e master.zip ]; then
 		writelog "---Esubuntu-master récupéré sur github"
 		unzip -o master.zip
@@ -313,12 +287,6 @@ Auth:
 #auth ldap
 ########################################################################
 writelog "auth ldap"
-if [ "$version" = "focal" ]; then
-	wget $wgetparams --no-check-certificate http://archive.ubuntu.com/ubuntu/pool/universe/a/auth-client-config/auth-client-config_0.9ubuntu1_all.deb 2>> $logfile
-	dpkg -i auth-client.config*.deb
-else
-	apt install auth-client-config -y 2>> $logfile
-fi
 echo "[open_ldap]
 nss_passwd=passwd:  files ldap
 nss_group=group: files ldap
@@ -330,6 +298,7 @@ nss_netgroup=netgroup: nis" > /etc/auth-client-config/profile.d/open_ldap 2>> $l
 ########################################################################
 
 writelog "Application de la configuration nsswitch depuis auth-client-config"
+apt install auth-client-config -y 2>> $logfile
 auth-client-config -t nss -p open_ldap 2>> $logfile
 
 ########################################################################
@@ -403,7 +372,7 @@ fi
 if [ "$(which mdm)" = "/usr/sbin/mdm" ]; then # si MDM est installé (ancienne version de Mint <17.2)
 	writelog "Modification de l'ancien gestionnaire de session MDM (pour Mint <17.2)"
 	cp -f /etc/mdm/mdm.conf /etc/mdm/mdm_old.conf  2>> $logfile #backup du fichier de config de mdm
-	wget $wgetparams --no-check-certificate https://raw.githubusercontent.com/dane-lyon/fichier-de-config/master/mdm.conf 2>> $logfile ; mv -f mdm.conf /etc/mdm/ 2>> $logfile ; 
+	wget --no-check-certificate https://raw.githubusercontent.com/dane-lyon/fichier-de-config/master/mdm.conf 2>> $logfile ; mv -f mdm.conf /etc/mdm/ 2>> $logfile ; 
 fi
 
 # Si Ubuntu Mate
@@ -556,7 +525,7 @@ writelog "Suppression de notification de mise à niveau"
 sed -r -i 's/Prompt=lts/Prompt=never/g' /etc/update-manager/release-upgrades 2>> $logfile
 
 # Enchainer sur un script de Postinstallation
-if $postinstallbase; then 
+if [ "$postinstallbase" = "yes" ]; then 
 	writelog "INITBLOC" "PostInstallation basique"
 	mv ./$second_dir/ubuntu-et-variantes-postinstall.sh . 2>> $logfile
 	chmod +x ubuntu-et-variantes-postinstall.sh 2>> $logfile ; ./ubuntu-et-variantes-postinstall.sh 2>> $logfile ; rm -f ubuntu-et-variantes-postinstall.sh 2>> $logfile ;
@@ -569,10 +538,10 @@ apt-get install xbindkeys xbindkeys-config -y 2>> $logfile
 writelog "Gestion des partitions exfat"
 apt-get install -y exfat-utils exfat-fuse 2>> $logfile
 
-if $postinstalladditionnel; then 
+if [ "$postinstalladditionnel" = "yes" ]; then 
 	if [ "$version" = "bionic" ] || [ "$version" = "focal" ]; then
 		writelog "INITBLOC" "PostInstallation avancée"
-		sudo -u $localadmin wget $wgetparams --no-check-certificate https://github.com/simbd/Ubuntu_20.04LTS_PostInstall/archive/master.zip 2>> $logfile
+		sudo -u $localadmin wget --no-check-certificate https://github.com/simbd/Ubuntu_20.04LTS_PostInstall/archive/master.zip 2>> $logfile
 		sudo -u $localadmin unzip -o master.zip -d . 2>> $logfile
 		sudo -u $localadmin chmod +x Ubuntu_20.04LTS_PostInstall-master/*.sh  2>> $logfile
 		sudo -u $localadmin ./Ubuntu_20.04LTS_PostInstall-master/Postinstall_Ubuntu-20.04LTS_FocalFossa.sh 2>> $logfile
@@ -586,7 +555,7 @@ apt-get -y autoremove --purge 2>> $logfile ; apt-get -y clean 2>> $logfile
 clear
 
 writelog "FIN de l'integration"
-if $reboot; then
+if [ "$reboot" = "yes" ]; then
 	reboot
 else
 	echo "Pensez à redémarrer avant toute nouvelle opération sensible"
