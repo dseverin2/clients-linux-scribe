@@ -104,7 +104,7 @@ writelog "1-Fichiers de configuration... OK\nVersion trouvée : $version... OK"
 # Définition des droits sur les scripts
 chmod +x $second_dir/*.sh
 
-if [ $config_photocopieuse = "yes" ]; then
+if $config_photocopieuse; then
 	writelog "INITBLOC" "1b-Installation photocopieuse"
 	$second_dir/setup_photocopieuse.sh 2>> $logfile
 	writelog "ENDBLOC"
@@ -211,7 +211,7 @@ apt install -y net-tools 2>> $logfile
 ####################################################
 # Téléchargement + Mise en place de Esubuntu (si activé)
 ####################################################
-if [ "$esubuntu" = "yes" ]; then 
+if $esubuntu; then 
 	writelog "INITBLOC" "Installation d'ESUBUNTU"
 	# Téléchargement des paquets
 	wget --no-check-certificate https://github.com/dseverin2/esubuntu/archive/master.zip 2>> $logfile
@@ -525,7 +525,7 @@ writelog "Suppression de notification de mise à niveau"
 sed -r -i 's/Prompt=lts/Prompt=never/g' /etc/update-manager/release-upgrades 2>> $logfile
 
 # Enchainer sur un script de Postinstallation
-if [ "$postinstallbase" = "yes" ]; then 
+if $postinstallbase; then 
 	writelog "INITBLOC" "PostInstallation basique"
 	mv ./$second_dir/ubuntu-et-variantes-postinstall.sh . 2>> $logfile
 	chmod +x ubuntu-et-variantes-postinstall.sh 2>> $logfile ; ./ubuntu-et-variantes-postinstall.sh 2>> $logfile ; rm -f ubuntu-et-variantes-postinstall.sh 2>> $logfile ;
@@ -538,7 +538,7 @@ apt-get install xbindkeys xbindkeys-config -y 2>> $logfile
 writelog "Gestion des partitions exfat"
 apt-get install -y exfat-utils exfat-fuse 2>> $logfile
 
-if [ "$postinstalladditionnel" = "yes" ]; then 
+if $postinstalladditionnel; then 
 	if [ "$version" = "bionic" ] || [ "$version" = "focal" ]; then
 		writelog "INITBLOC" "PostInstallation avancée"
 		sudo -u $localadmin wget --no-check-certificate https://github.com/simbd/Ubuntu_20.04LTS_PostInstall/archive/master.zip 2>> $logfile
@@ -555,7 +555,7 @@ apt-get -y autoremove --purge 2>> $logfile ; apt-get -y clean 2>> $logfile
 clear
 
 writelog "FIN de l'integration"
-if [ "$reboot" = "yes" ]; then
+if $reboot; then
 	reboot
 else
 	echo "Pensez à redémarrer avant toute nouvelle opération sensible"

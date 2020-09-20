@@ -1,6 +1,5 @@
 #!/bin/bash
-# version 2.2 (01/09/20)
-
+# version 2.3 (20/09/20)
 # Ce script sert à installer des logiciels supplémentaires utiles pour les collèges & lyçées
 # Ce script est utilisable pour Ubuntu et variantes en 14.04, 16.04, 18.04, 20.04
 
@@ -82,8 +81,10 @@ if [ "$version" = "trusty" ] ; then
 	writelog "INITBLOC" "Trusty 14.04" "---idle, gstreamer, celestia"
 	apt-get -y install idle-python3.4 gstreamer0.10-plugins-ugly celestia
 
-	writelog "---Backportage LibreOffice"
-	add-apt-repository -y ppa:libreoffice/ppa ; apt-get update ; apt-get -y upgrade
+	if $LibreOffice; then
+		writelog "---Backportage LibreOffice"
+		add-apt-repository -y ppa:libreoffice/ppa ; apt-get update ; apt-get -y upgrade
+	fi
 
 	writelog "---Google Earth"
 	apt-get -y install libfontconfig1:i386 libx11-6:i386 libxrender1:i386 libxext6:i386 libgl1-mesa-glx:i386 libglu1-mesa:i386 libglib2.0-0:i386 libsm6:i386
@@ -98,11 +99,14 @@ fi
 # Paquets uniquement pour Xenial (16.04)
 #########################################
 if [ "$version" = "xenial" ] ; then
-	writelog "INITBLOC" "Xenial 16.04" "---breeze (Libreoffice), idle, x265"
-	apt install -y libreoffice-style-breeze idle-python3.5 x265 ;
-
-	writelog "---Backportage LibreOffice"
-	add-apt-repository -y ppa:libreoffice/ppa ; apt update ; apt upgrade -y
+	if $LibreOffice; then
+		writelog "INITBLOC" "Xenial 16.04" "---breeze (Libreoffice), idle, x265"
+		apt install -y libreoffice-style-breeze 
+		writelog "---Backportage LibreOffice"
+		add-apt-repository -y ppa:libreoffice/ppa ; apt update ; apt upgrade -y
+	fi
+	
+	apt-install idle-python3.5 x265 ;
 
 	writelog "---Google Earth"
 	if [ ! -e ./google-earth-stable_current_amd64.deb ]; then
@@ -205,7 +209,10 @@ writelog "Oracle Java 8"
 add-apt-repository -y ppa:webupd8team/java ; apt-get update ; echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections | apt-get -y install oracle-java8-installer
 
 writelog "INITBLOC" "[ Bureautique ]"
-apt-get -y install libreoffice libreoffice-gtk libreoffice-l10n-fr freeplane scribus gnote xournal cups-pdf
+if $LibreOffice; then
+	apt-get -y install libreoffice libreoffice-gtk libreoffice-l10n-fr 
+fi
+apt-get -y install freeplane scribus gnote xournal cups-pdf okular
 writelog "ENDBLOC"
 
 writelog "INITBLOC" "[ Web ]"
@@ -231,7 +238,7 @@ apt-get -y install wireshark
 sed -i -e "s/,dialout/,dialout,wireshark/g" /etc/security/group.conf
 
 writelog "INITBLOC" "[ Mathématiques ]"
-apt-get -y install algobox carmetal scilab
+apt-get -y install algobox carmetal scilab geophar
 writelog "ENDBLOC"
 
 
@@ -246,9 +253,8 @@ apt-get -y install python3-pil.imagetk python3-pil traceroute python3-tk #python
 writelog "ENDBLOC"
 
 writelog "INITBLOC" "[ Serveur ]"
-if $ansible; then
-	apt-get -y install openssh-server
-fi
+apt-get -y install openssh-server openssh-client
+
 writelog "ENDBLOC"
 
 
@@ -307,11 +313,20 @@ if [ "$version" = "bionic" ] || [ "$version" = "focal" ] ; then
 		writelog "------Geogebra Classic"
 		"$scriptpath"installGeogebra6.sh
 		
-		writelog "------WPS Office + French"
-		"$scriptpath"installWPS.sh
+		if $WPSOffice; then
+			writelog "------WPS Office + French"
+			"$scriptpath"installWPS.sh
+		fi
 		
-		writelog "------Veyon"
-		"$scriptpath"installVeyon.sh
+		if $OpenOffice; then
+			writelog "------Open Office"
+			"$scriptpath"installWPS.sh
+		fi
+		
+		if $Veyon; then
+			writelog "------Veyon"
+			"$scriptpath"installVeyon.sh
+		fi
 		
 		writelog "------Openboard"
 		"$scriptpath"installOpenBoard.sh $version
