@@ -23,7 +23,7 @@ fi
 if [ ! -e $TMinstallfile ]; then
 	wget https://liquidtelecom.dl.sourceforge.net/project/texmaths/$TMversion/$TMinstallfile
 fi
-unopkg add --shared CmathOOo.oxt TexMaths*.oxt
+/opt/openoffice4/program/unopkg add --shared CmathOOo.oxt TexMaths*.oxt
 wget http://cdeval.free.fr/IMG/ttf/Cmath.ttf -P /usr/share/fonts
 wget http://cdeval.free.fr/IMG/ttf/cmathscr.ttf -P /usr/share/fonts
 wget http://cdeval.free.fr/IMG/ttf/cmathcal.ttf -P /usr/share/fonts
