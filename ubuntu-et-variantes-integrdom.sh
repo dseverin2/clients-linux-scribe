@@ -1,9 +1,9 @@
 #!/bin/bash
 # version 2.5.0
 # Dernières modifications :
+# - 21/09/2020 (Ajout python à l'install)
 # - 07/09/2020 (Correction d'un bug lié au wallpapers) 
 # - 30/06/2020 (Paramétrage auth-client-config)
-# - 02/06/2020 (Spécification LinuxMint pour mintwelcome & Récupération auth-client-config pour Focal)
 
 
 # Testé & validé pour les distributions suivantes :
@@ -81,6 +81,8 @@ then
   echo "Il faut etre root pour executer ce script. ==> sudo "
   exit 
 fi 
+
+apt install python -y
 
 # Verification de la présence des fichiers contenant les fonctions et variables communes
 if [ -e ./esub_functions.sh ]; then
