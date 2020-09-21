@@ -240,6 +240,10 @@ if $esubuntu; then
 	writelog "ENDBLOC"
 fi
 
+wget http://archive.ubuntu.com/ubuntu/pool/universe/a/auth-client-config/auth-client-config_0.9ubuntu1_all.deb
+dpkg -i auth-client-config_0.9ubuntu1_all.deb
+rm -f auth-client-config_0.9ubuntu1_all.deb
+
 ########################################################################
 #Mettre la station à l'heure à partir du serveur Scribe
 ########################################################################
