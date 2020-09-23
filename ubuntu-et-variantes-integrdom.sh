@@ -114,7 +114,7 @@ fi
 
 # Réparation des éventuelles erreurs de paquets post first install
 writelog "2-Réparation des éventuelles erreurs de paquets post first install"
-apt --fix-broken install -y  2>> $logfile
+apt install --fix-broken -y  2>> $logfile
 
 #############################################
 # Modification du /etc/wgetrc.
