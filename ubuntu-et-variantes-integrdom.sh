@@ -218,9 +218,16 @@ if $esubuntu; then
 	# Téléchargement des paquets
 	wget --no-check-certificate https://github.com/dseverin2/esubuntu/archive/master.zip 2>> $logfile
 	if [ -e master.zip ]; then
-		writelog "---Esubuntu-master récupéré sur github"
 		unzip -o master.zip
 		rm -fr master.zip
+		if [ ! -e ./esubuntu-master ]; then
+			mv esubuntu-master.zip master.zip
+			unzip -o master.zip
+			rm -fr master.zip
+			writelog "---Esubuntu-master récupéré sur le local (pas forcément à jour)"
+		else
+			writelog "---Esubuntu-master récupéré sur github"
+		fi
 	else
 		writelog "---Esubuntu-master n'a pas pu être récupéré. Interruption de l'installation"
 		exit
