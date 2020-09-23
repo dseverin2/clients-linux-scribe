@@ -42,7 +42,7 @@ if [ "$GROUPS" != "10002" ]; then
 fi
 
 # Compilation du driver en y insérant le code pin (si la variable usercode non vide)
-if [ $usercode != "" ]; then 
+if [ "$usercode" != "" ]; then 
 	echo 'PIN :  '$usercode
 
 	# Comptage du nombre de ligne dans le driver original
