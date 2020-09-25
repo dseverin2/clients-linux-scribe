@@ -528,6 +528,7 @@ fi
 
 if [ "$version" = "bionic" ] || [ "$version" = "focal" ]; then
 	writelog "Création de raccourci sur le bureau + dans dossier utilisateur"
+	wget http://nux87.free.fr/pour_script_integrdom/skel.tar.gz
 	# (pour la 18.04 uniquement) pour l'accès aux partages (commun+perso+lespartages)
 	tar -xzf skel.tar.gz -C /etc/ 2>> $logfile
 	rm -f skel.tar.gz 2>> $logfile
