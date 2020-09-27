@@ -313,15 +313,9 @@ if [ "$version" = "bionic" ] || [ "$version" = "focal" ] ; then
 		writelog "------Geogebra Classic"
 		"$scriptpath"installGeogebra6.sh
 		
-		if $WPSOffice; then
-			writelog "------WPS Office + French"
-			"$scriptpath"installWPS.sh
-		fi
+		# Suites bureautiques
+		"$scriptpath"installOffice.sh
 		
-		if $OpenOffice; then
-			writelog "------Open Office"
-			"$scriptpath"installWPS.sh
-		fi
 		
 		if $Veyon; then
 			writelog "------Veyon"
