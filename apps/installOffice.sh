@@ -32,7 +32,7 @@ if $WPSOffice; then
 	rm -f wps-office_$version.XA_amd64.deb fr_FR.zip fr_FR.7z
 fi
 
-#INSTALLATION DE Open Office
+#INSTALLATION DE Open Office ou Libre Office
 if $OpenOffice || $LibreOffice; then
 	sudo apt-get remove --purge libreoffice* openoffice* -y
 	sudo apt-get clean -y
@@ -40,10 +40,31 @@ if $OpenOffice || $LibreOffice; then
 	#Open Office
 	OOinstallfile="Apache_OpenOffice_4.1.7_Linux_x86-64_install-deb_fr.tar.gz"
 
-	# Extension CMaths OOo
+	# Extension CMathsOOo
 	CMinstallfile="CmathOOo.oxt"	
 	if [ ! -e $CMinstallfile ]; then
 		wget http://cdeval.free.fr/CmathOOoUpdate/$CMinstallfile
+		mv $CMinstallfile CmathOOO.zip
+		unzip CmathOOO.zip
+		description_original="./CmathOOO/description.xml"
+		description_compile="description.xml"
+		echo "Retrait de la confirmation d'installation de CmathOOO.oxt"
+		# Comptage du nombre de ligne dans le fichier d'extension original
+		nombre_lignes_description_original=$(wc -l $description_original | awk '{print $1}')
+
+		# Copie du début du description original dans le description compilé
+		derniere_ligne_debut_description=$(($(echo $(grep -n "<registration>" $description_original) | cut -d ":" -f 1)-1))
+		head -$derniere_ligne_debut_description $description_original > $description_compile
+
+		# Copie de la fin du description original dans le description compilé
+		premiere_ligne_fin_description=$(echo $(grep -n "</registration>" $description_original) | cut -d ":" -f 1)
+		nombre_lignes_avant_fin=$(($nombre_lignes_description_original-$premiere_ligne_fin_description))
+		tail -$nombre_lignes_avant_fin $description_original >> $description_compile
+
+		# Reconstitution du fichier oxt
+		mv $description_compile $description_original
+		zip -r CmathOOO.zip CmathOOO
+		mv CmathOOO.zip $CMinstallfile
 	fi
 
 	# Extension TexMaths
