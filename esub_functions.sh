@@ -91,7 +91,7 @@ function getversion {
 	  version=xenial # Ubuntu 16.04 / Linux Mint 18/18.3 / Elementary OS 0.4.x
 	fi
 
-	if [ "$DISTRIB_RELEASE" = "18.04" ] || [ "$DISTRIB_RELEASE" = "19" ] || [ "$DISTRIB_RELEASE" = "5.0" ] ; then 
+	if [ "$DISTRIB_RELEASE" = "18.04" ] || [ "$DISTRIB_RELEASE" = "19.3" ] || [ "$DISTRIB_RELEASE" = "5.0" ] ; then 
 	  version=bionic # Ubuntu 18.04 / Mint 19 / Elementary OS 5.0
 	fi
 
