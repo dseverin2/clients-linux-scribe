@@ -34,9 +34,6 @@ fi
 
 #INSTALLATION DE Open Office ou Libre Office
 if $OpenOffice || $LibreOffice; then
-	sudo apt-get remove --purge libreoffice* openoffice* -y
-	sudo apt-get clean -y
-	sudo apt-get autoremove -y
 	#Open Office
 	OOinstallfile="Apache_OpenOffice_4.1.7_Linux_x86-64_install-deb_fr.tar.gz"
 
@@ -76,6 +73,7 @@ if $OpenOffice || $LibreOffice; then
 	
 	if $OpenOffice; then
 		writelog "------Open Office"
+		sudo apt-get remove --purge libreoffice* -y
 		if [ ! -e $OOinstallfile ]; then
 			wget https://liquidtelecom.dl.sourceforge.net/project/openofficeorg.mirror/4.1.7/binaries/fr/$OOinstallfile
 		fi
@@ -85,6 +83,7 @@ if $OpenOffice || $LibreOffice; then
 		unopkgpath="/opt/openoffice4/program"
 	elif $LibreOffice; then
 		writelog "------Libre Office"
+		sudo apt-get remove --purge openoffice* -y
 		apt install libreoffice libreoffice-help-fr libreoffice-l10n-fr libreoffice-pdfimport -y
 		unopkgpath="/usr/bin"
 	fi
@@ -95,4 +94,6 @@ if $OpenOffice || $LibreOffice; then
 	chmod a+r /usr/share/fonts/*
 	fc-cache -f -v
 	rm -fr *.oxt
+	sudo apt-get clean -y
+	sudo apt-get autoremove -y
 fi
