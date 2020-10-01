@@ -1,7 +1,7 @@
 #!/bin/bash
-# Script original de Didier SEVERIN (15/09/20)
+# Script original de Didier SEVERIN (01/10/20)
 # Académie de la Réunion
-# Version 2.1
+# Version 2.2
 #
 # Dernière modification : Récupération du code dans le fichier code_photocopieur.txt dans ~/Documents
 
@@ -18,15 +18,14 @@ chown root:root $scriptfile
 # Définition des droits
 chmod 0755 /etc/cups/ppd/
 chmod -R 0755 $binarydir
-chmod 0744 $binarydir/DRIVER_ORIGINAL.PPD
+chmod 0666 $binarydir/DRIVER_ORIGINAL.PPD
 
 # Copie du driver original
-rm -fr /etc/cups/ppd/PHOTOCOPIEUSE*
-cp $my_dir/recup_pin/DRIVER_ORIGINAL.PPD $driverfile
+cp -f $my_dir/recup_pin/DRIVER_ORIGINAL.PPD $driverfile
 
 # Modification des permissions sur le driver
-chmod 0666 $driverfile
 chown root:lp $driverfile
+chmod 0666 $driverfile
 
 # Ajout du script de configuration automatique au démarrage
 grep "/usr/bin/recup_pin/" /etc/profile > /dev/null
