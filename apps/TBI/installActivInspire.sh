@@ -22,7 +22,7 @@ apt autoremove
 # Rendre ActivInspire fonctionnel
 wget http://security.ubuntu.com/ubuntu/pool/main/i/icu/libicu60_60.2-3ubuntu3.1_amd64.deb
 sudo dpkg -i libicu60_60.2-3ubuntu3.1_amd64.deb
-sudo apt-get install gsettings-ubuntu-schema
+sudo apt-get install gsettings-ubuntu-schemas
 
 # Rendre ActivDriver fonctionnel / Nécessite le downgrade vers 4.19
 #cd /tmp/
