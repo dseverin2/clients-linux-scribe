@@ -52,7 +52,7 @@ apt install gdebi-core -y
 
 writelog "Installation de geany"
 apt install geany -y
-
+apt remove mintwelcome -y
 writelog "Installation d'onlyoffice"
 if [ ! -e onlyoffice-desktopeditors_amd64.deb ]; then
 	wget $wgetparams --no-check-certificate https://download.onlyoffice.com/install/desktop/editors/linux/onlyoffice-desktopeditors_amd64.deb
