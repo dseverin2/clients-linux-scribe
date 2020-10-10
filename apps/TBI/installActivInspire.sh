@@ -9,7 +9,6 @@ echo "deb http://activsoftware.co.uk/linux/repos/ubuntu bionic non-oss" | tee /e
 echo "deb http://activsoftware.co.uk/linux/repos/driver/ubuntu bionic oss non-oss" | tee /etc/apt/sources.list.d/promethean-activdriver.list
 wget http://activsoftware.co.uk/linux/repos/driver/PrometheanLtd.asc
 apt-key add ./PrometheanLtd.asc
-rm -fr ./PrometheanLtd.asc
 
 # Installation de libssl
 wget http://security.ubuntu.com/ubuntu/pool/main/o/openssl1.0/libssl1.0.0_1.0.2n-1ubuntu5.4_amd64.deb
@@ -30,4 +29,7 @@ apt install activdriver activtools -y
 apt install activ-meta-fr -y
 apt install --fix-broken -y
 apt autoremove -y
+
+# Nettoyage
+sudo rm -f libssl*.deb libicu*.deb PrometheanLtd.asc
 
