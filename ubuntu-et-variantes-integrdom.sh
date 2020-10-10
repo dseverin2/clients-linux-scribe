@@ -4,6 +4,7 @@
 # - 21/09/2020 (Ajout python à l'install)
 # - 07/09/2020 (Correction d'un bug lié au wallpapers) 
 # - 30/06/2020 (Paramétrage auth-client-config)
+# - 10/10/2020 (Lecture DVD dans le fichier config)
 
 
 # Testé & validé pour les distributions suivantes :
@@ -509,7 +510,9 @@ apt install -y vim htop 2>> $logfile
 
 writelog "Gestion lecture de DVD"
 # Lecture DVD sur Ubuntu 16.04 et supérieur ## répondre oui aux question posés...
-#apt install -y libdvd-pkg ; dpkg-reconfigure libdvd-pkg
+if $lectureDVD; then
+	apt install -y libdvd-pkg ; dpkg-reconfigure libdvd-pkg
+fi
 
 # Lecture DVD sur Ubuntu 14.04
 if [ "$version" = "trusty" ]; then
