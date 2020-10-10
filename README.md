@@ -13,14 +13,7 @@ Les clients supportés/testés avec les scripts sont les suivants :
 
 Ce script d'intégration n'est PAS compatible avec des distributions comme : Debian, Fedora, Solus, Manjaro
 
-NB : Ce script intègre désormais Esubuntu (il vous posera la question au lancement du script si vous voulez l'utiliser ou pas, plus de précision ici : https://github.com/dane-lyon/clients-linux-scribe/blob/master/Esubuntu.md
 
-Avant de lancer ce script, assurez-vous d'avoir installé toutes vos applications, puis vous pouvez cloner vos postes
-avec la solution libre [OSCAR](http://oscar.crdp-lyon.fr/wiki/)
-
-  - Télécharger le script le script d'intégration :
-	
-	<code>wget https://raw.githubusercontent.com/dane-lyon/clients-linux-scribe/master/ubuntu-et-variantes-integrdom.sh</code>
 
   - Se placer dans le répertoire courant puis lancer les commandes :
 	
