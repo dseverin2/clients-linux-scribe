@@ -241,6 +241,7 @@ if $esubuntu; then
 	cp -fr config.cfg esub_functions.sh ./esubuntu-master/ 2>> $logfile
 	writelog "---Lancement du script d'installation"
 	./esubuntu-master/install_esubuntu.sh 2>> $logfile
+	rm -fr ./esubuntu-master
 
 	# Mise en place des wallpapers pour les élèves, profs, admin 
 	writelog "Copie des wallpapers"
