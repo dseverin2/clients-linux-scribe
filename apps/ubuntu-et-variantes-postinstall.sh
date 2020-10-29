@@ -1,5 +1,5 @@
 #!/bin/bash
-# version 2.3 (20/09/20)
+# version 2.4 (30/10/20)
 # Ce script sert à installer des logiciels supplémentaires utiles pour les collèges & lyçées
 # Ce script est utilisable pour Ubuntu et variantes en 14.04, 16.04, 18.04, 20.04
 
@@ -13,14 +13,15 @@ fi
 
 # Verification de la présence des fichiers contenant les fonctions et variables communes
 if [ -e ./esub_functions.sh ]; then
-	my_dir="$(dirname "$0")"
-	source $my_dir/esub_functions.sh
+	source ./esub_functions.sh
+elif if [ -e ../esub_functions.sh ]; then
+	source ../esub_functions.sh
 else
 	echo "Fichier esub_functions.sh absent ! Interruption de l'installation."
 	exit
 fi
 
-thislog=/home/$localadmin/basicpostinstall.log
+thislog=/home/$localadmin/integrdom-basicpostinstall.log
 templog=""
 if [ "$logfile" != "" ]; then
 	templog=$logfile
@@ -30,12 +31,6 @@ initlog
 	
 # Récupération de la version d'ubuntu
 getversion
-
-if $installdepuisdomaine; then
-	wgetparams="-e use_proxy=yes -e http_proxy=$proxy_params"
-else
-	wgetparams=""
-fi
 
 # désactiver mode intéractif pour automatiser l'installation de wireshark
 export DEBIAN_FRONTEND="noninteractive"
@@ -327,7 +322,7 @@ if [ "$version" = "bionic" ] || [ "$version" = "focal" ] ; then
 	fi
 	writelog "ENDBLOC"
 
-	apt --fix-broken install
+	apt install --fix-broken 
 fi
 
 #=======================================================================================================#
