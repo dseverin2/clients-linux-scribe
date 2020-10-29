@@ -3,7 +3,7 @@
 # Didier SEVERIN
 
 # Ajout du dépot application ActivBoard
-echo "deb http://activsoftware.co.uk/linux/repos/ubuntu bionic non-oss" | tee /etc/apt/sources.list.d/promethean-activboard.list
+echo "deb [arch=amd64] http://activsoftware.co.uk/linux/repos/ubuntu bionic non-oss" | tee /etc/apt/sources.list.d/promethean-activboard.list
 
 # Ajout du dépot drivers ActivDriver & ActivTools
 echo "deb http://activsoftware.co.uk/linux/repos/driver/ubuntu bionic oss non-oss" | tee /etc/apt/sources.list.d/promethean-activdriver.list
