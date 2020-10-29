@@ -238,7 +238,6 @@ if $esubuntu; then
 	# Déplacement/extraction de l'archive + lancement par la suite
 	writelog "---Modification des droits et copie des fichiers de configuration"
 	chmod -R +x ./esubuntu-master 2>> $logfile
-	cp -fr config.cfg esub_functions.sh ./esubuntu-master/ 2>> $logfile
 	writelog "---Lancement du script d'installation"
 	./esubuntu-master/install_esubuntu.sh 2>> $logfile
 	rm -fr ./esubuntu-master

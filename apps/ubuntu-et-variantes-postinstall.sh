@@ -322,7 +322,7 @@ if [ "$version" = "bionic" ] || [ "$version" = "focal" ] ; then
 	fi
 	writelog "ENDBLOC"
 
-	apt install --fix-broken 
+	apt install --fix-broken -y 
 fi
 
 #=======================================================================================================#
