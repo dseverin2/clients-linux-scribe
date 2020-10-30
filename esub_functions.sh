@@ -8,8 +8,7 @@
 
 
 if [ -e ./config.cfg ]; then
-  my_dir="$(dirname "$0")"
-  source $my_dir/config.cfg
+  source ./config.cfg
 elif [ -e ../config.cfg ]; then
   source ../config.cfg
 else
@@ -39,8 +38,9 @@ function majIntegrdom {
 			cp -fr clients-linux-scribe-master/* .
 			rm -fr clients-linux-scribe-master/ master.zip
 			chmod +x *.sh
-			echo "Scripts mis à jour veuillez relancer sudo ./ubuntu-et-variantes-integrdom.sh"
-			exit
+			clear
+			echo "Scripts mis à jour relance de ./ubuntu-et-variantes-integrdom.sh"
+			./ubuntu-et-variantes-integrdom.sh
 		else
 			echo "Aucune modification apportée aux scripts présents"
 		fi
