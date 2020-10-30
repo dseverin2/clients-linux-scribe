@@ -1,5 +1,5 @@
 #!/bin/bash
-# version 2.5.0
+# version 2.5.1
 # Dernières modifications :
 # - 21/09/2020 (Ajout python à l'install)
 # - 07/09/2020 (Correction d'un bug lié au wallpapers) 
@@ -217,30 +217,16 @@ apt install -y net-tools 2>> $logfile
 ####################################################
 if $esubuntu; then 
 	writelog "INITBLOC" "Installation d'ESUBUNTU"
-	# Téléchargement des paquets
-	wget --no-check-certificate https://github.com/dseverin2/esubuntu/archive/master.zip 2>> $logfile
-	if [ -e master.zip ]; then
-		unzip -o master.zip
-		rm -fr master.zip
-		if [ ! -e ./esubuntu-master ]; then
-			mv esubuntu-master.zip master.zip
-			unzip -o master.zip
-			rm -fr master.zip
-			writelog "---Esubuntu-master récupéré sur le local (pas forcément à jour)"
-		else
-			writelog "---Esubuntu-master récupéré sur github"
-		fi
-	else
-		writelog "---Esubuntu-master n'a pas pu être récupéré. Interruption de l'installation"
+	if [ ! -e ./esubuntu ]; then
+		writelog "---Le répertoire esubuntu est absent. Interruption de l'installation"
 		exit
 	fi
 
 	# Déplacement/extraction de l'archive + lancement par la suite
 	writelog "---Modification des droits et copie des fichiers de configuration"
-	chmod -R +x ./esubuntu-master 2>> $logfile
+	chmod -R +x ./esubuntu 2>> $logfile
 	writelog "---Lancement du script d'installation"
-	./esubuntu-master/install_esubuntu.sh 2>> $logfile
-	rm -fr ./esubuntu-master
+	./esubuntu/install_esubuntu.sh 2>> $logfile
 
 	# Mise en place des wallpapers pour les élèves, profs, admin 
 	writelog "Copie des wallpapers"

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=reconfigure_cntlm
+Comment=configuration cntlm client.
+Exec=/etc/esubuntu/reconf_cntlm.sh
+GenericName=reconfigure_cntlm
+Terminal=false
+Categories=Education;
+Name[fr_FR]=depannage_internet.desktop

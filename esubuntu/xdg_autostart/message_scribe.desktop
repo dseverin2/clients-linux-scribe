@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=message scribe
+Comment=affiche un message a l'ouverture de session scribe.
+Exec=/etc/esubuntu/message.sh
+GenericName=scribe_message
+Terminal=false
+Categories=Education;
+Name[fr_FR]=message_scribe
