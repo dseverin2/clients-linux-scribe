@@ -10,6 +10,8 @@
 if [ -e ./config.cfg ]; then
   my_dir="$(dirname "$0")"
   source $my_dir/config.cfg
+elif [ -e ../config.cfg ]; then
+  source ../config.cfg
 else
   echo "Fichier config.cfg absent ! Interruption de l'installation."
   exit
