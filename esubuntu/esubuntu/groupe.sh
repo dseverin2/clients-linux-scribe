@@ -13,7 +13,7 @@
 groupe=$GROUPS
 netlogonIcons="/tmp/netlogon/icones"
 logfile="/tmp/esubupkg.log"
-
+if [ -e $logfile ]; then rm -f $logfile; fi
 echo `date` > $logfile
 case $groupe in
 10000)
