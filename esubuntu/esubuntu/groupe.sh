@@ -2,8 +2,8 @@
 
 #### utilitaire pour upkg ####
 # - récupère la valeur du groupe et execute upkg_client si 
-# - ver 2.1
-# - 24 octobre 2020
+# - ver 2.2
+# - 05 novembre 2020
 # - CALPETARD Olivier
 # - SEVERIN Didier
 
@@ -45,7 +45,7 @@ if [ groupe=10000 ] || [ groupe=10001 ] || [ groupe=10002 ]; then
 	
 		if [ -z "$salle" ]; then
 			echo "le pc n'existe pas dans la liste" >> $logfile
-			salle=grp_eole
+			salle=linux-grp_eole
 		else
 			salle=$salle
 			nom=$nom
