@@ -78,12 +78,12 @@ lockPref("autoadmin.global_config_url", "file://$netlogonIcons/'$gm_esu'/linux/f
 		echo "La liste des pc n'existe pas"
 		#on ne tient pas compte des groupes esu par rapport au fichier
 	fi
-	#execution de upkg
-	sudo sh /etc/esubuntu/upkg_client.sh >> $logfile
 else 
 	echo  "Groupe de l'utilisateur incorrect"
 	echo  "Groupe de l'utilisateur incorrect" >> $logfile
 	exit 0
 fi
 
+#execution de upkg
+sudo sh /etc/esubuntu/upkg_client.sh >> $logfile
 exit 0
