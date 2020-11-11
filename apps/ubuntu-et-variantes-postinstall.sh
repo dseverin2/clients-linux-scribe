@@ -14,7 +14,7 @@ fi
 # Verification de la présence des fichiers contenant les fonctions et variables communes
 if [ -e ./esub_functions.sh ]; then
 	source ./esub_functions.sh
-elif if [ -e ../esub_functions.sh ]; then
+elif [ -e ../esub_functions.sh ]; then
 	source ../esub_functions.sh
 else
 	echo "Fichier esub_functions.sh absent ! Interruption de l'installation."
