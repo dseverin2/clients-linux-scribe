@@ -15,6 +15,6 @@ getversion
 
 #18.04
 sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 379CE192D401AB61
-echo "deb https://dl.bintray.com/scratux/stable" $version "main" | sudo tee -a /etc/apt/sources.list
+echo "deb https://dl.bintray.com/scratux/stable" $version "main" | sudo tee -a /etc/apt/sources.list.d/scratux.list
 sudo apt-get update
 sudo apt-get install scratux
