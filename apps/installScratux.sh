@@ -1,11 +1,9 @@
 #!/bin/bash
 # Verification de la présence des fichiers contenant les fonctions et variables communes
 if [ -e ./esub_functions.sh ]; then
-	my_dir="$(dirname "$0")"
-	source $my_dir/esub_functions.sh
+	source ./esub_functions.sh
 elif [ -e ../esub_functions.sh ]; then
-	my_dir="($dirname "..")"
-	source $my_dir/esub_functions.sh
+	source ../esub_functions.sh
 else
 	echo "Fichier esub_functions.sh absent ! Interruption de l'installation."
 	exit
