@@ -22,7 +22,7 @@ function majIntegrdom {
 	source /tmp/_VERSION
 	onlineVersion=$versionscript
 	if [ -e ./_VERSION ]; then
-		source $my_dir/_VERSION
+		source ./_VERSION
 		offlineVersion=$versionscript
 	else
 		offlineVersion=""
