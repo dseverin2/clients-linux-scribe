@@ -12,7 +12,7 @@ apt-get install gsfonts gsfonts-other gsfonts-x11 ttf-mscorefonts-installer t1-x
 #INSTALLATION DE WPS Office
 if $WPSOffice; then
 	writelog "------WPS Office + French"
-	build="9615"
+	build="9719"
 	version="11.1.0."$build
 
 	# Logiciel
