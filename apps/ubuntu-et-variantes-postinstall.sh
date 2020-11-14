@@ -55,19 +55,17 @@ fi
 dpkg -i onlyoffice-desktopeditors_amd64.deb ; apt-get -fy install ; rm -f onlyoffice-desktopeditors_amd64.deb
 
 writelog "Installation des logiciels de TBI"
-chmod +x TBI/*.sh
 if $activinspire; then
 	writelog "---ActivInspire"
-	TBI/installActivInspire.sh
+	source TBI/installActivInspire.sh
 fi
 if $ebeam; then
 	writelog "---Ebeam"
-	TBI/installEbeam.sh
+	source TBI/installEbeam.sh
 fi
 
 writelog "Installation de Scratux"
-chmod +x install*.sh
-./installScratux.sh
+source ./installScratux.sh
 
 #########################################
 # Paquets uniquement pour Trusty (14.04)
@@ -306,19 +304,19 @@ if [ "$version" = "bionic" ] || [ "$version" = "focal" ] ; then
 	fi
 	if [ "$scriptpath" != "" ]; then
 		writelog "------Geogebra Classic"
-		"$scriptpath"installGeogebra6.sh
+		source "$scriptpath"installGeogebra6.sh
 		
 		# Suites bureautiques
-		"$scriptpath"installOffice.sh
+		source "$scriptpath"installOffice.sh
 		
 		
 		if $Veyon; then
 			writelog "------Veyon"
-			"$scriptpath"installVeyon.sh
+			source "$scriptpath"installVeyon.sh
 		fi
 		
 		writelog "------Openboard"
-		"$scriptpath"installOpenBoard.sh $version
+		source "$scriptpath"installOpenBoard.sh
 	fi
 	writelog "ENDBLOC"
 
