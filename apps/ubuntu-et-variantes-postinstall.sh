@@ -270,7 +270,11 @@ if [ "$version" = "bionic" ] || [ "$version" = "focal" ] ; then
 	if [ ! -e ./mBlock_4.0.4_amd64.deb ]; then
 		wget $wgetparams --no-check-certificate http://mblock.makeblock.com/mBlock4.0/mBlock_4.0.4_amd64.deb; 
 	fi
-	dpkg -i mBlock*.deb ; apt install -fy ;
+	if [ ! -e ./mLink-1.2.0-amd64.deb ]; then
+		wget $wgetparams --no-check-certificate https://dl.makeblock.com/mblock5/linux/mLink-1.2.0-amd64.deb
+	fi
+	dpkg -i ./mBlock_4.0.4_amd64.deb ; dpkg -i ./mLink-1.2.0-amd64.deb; apt install -fy ;
+	
 	
 	writelog "---Xia (alias ImageActive)"
 	echo "deb http://repository.crdp.ac-versailles.fr/debian xia main" | sudo tee /etc/apt/sources.list.d/xia.list
