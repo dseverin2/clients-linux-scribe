@@ -286,6 +286,7 @@ if [ "$version" = "bionic" ] || [ "$version" = "focal" ] ; then
 		wget $wgetparams --no-check-certificate https://openmeca.site/site/dl/openmeca_2.x_amd64.deb
 		dpkg -i openmeca*amd64.deb ; apt install -fy
 	fi
+	apt install --fix-broken -y
 	
 	writelog "---BlueGriffon"
 	installfilename=bluegriffon-3.1.Ubuntu18.04-x86_64.deb
