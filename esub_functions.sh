@@ -39,8 +39,7 @@ function majIntegrdom {
 			rm -fr clients-linux-scribe-master/ master.zip
 			chmod +x *.sh
 			clear
-			echo "Scripts mis à jour relance de ./ubuntu-et-variantes-integrdom.sh"
-			./ubuntu-et-variantes-integrdom.sh
+			echo "Scripts mis à jour pensez à vérifier config.cfg avant de relancer ./ubuntu-et-variantes-integrdom.sh"
 		else
 			echo "Aucune modification apportée aux scripts présents"
 		fi
