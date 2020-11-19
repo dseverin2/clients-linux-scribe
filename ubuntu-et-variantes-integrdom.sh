@@ -78,24 +78,22 @@
 #############################################
 # Run using sudo, of course.
 #############################################
-if [ "$UID" -ne "0" ]
-then
-  echo "Il faut etre root pour executer ce script. ==> sudo "
-  exit 
+if [ "$UID" -ne "0" ]; then
+	echo "Il faut etre root pour executer ce script. ==> sudo "
+	exit 
 fi 
-
-writelog "1/42-Installation de net-tools et python"
-apt install net-tools python -y
 
 # Verification de la présence des fichiers contenant les fonctions et variables communes
 if [ -e ./esub_functions.sh ]; then
-  source ./esub_functions.sh
+	source ./esub_functions.sh
 	# Création du fichier de log
 	initlog
+	writelog "1/42-Installation de net-tools et python"
+	apt install net-tools python -y
 	writelog "2/42-Fichiers de configuration... OK"
 else
-  echo "Fichier esub_functions.sh absent ! Interruption de l'installation."
-  exit
+	echo "Fichier esub_functions.sh absent ! Interruption de l'installation."
+	exit
 fi
 
 ### Paramétrage Proxy

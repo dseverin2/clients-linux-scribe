@@ -8,12 +8,12 @@
 
 
 if [ -e ./config.cfg ]; then
-  source ./config.cfg
+	source ./config.cfg
 elif [ -e ../config.cfg ]; then
-  source ../config.cfg
+	source ../config.cfg
 else
-  echo "Fichier config.cfg absent ! Interruption de l'installation."
-  exit
+	echo "Fichier config.cfg absent ! Interruption de l'installation."
+	exit
 fi
 
 # Test Mise à jour
