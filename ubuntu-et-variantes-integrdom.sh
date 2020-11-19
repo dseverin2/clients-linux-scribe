@@ -320,7 +320,7 @@ fi
 # Si Lubuntu (lxde)
 if [ "$(which pcmanfm)" = "/usr/bin/pcmanfm" ]; then
 	writelog "22/42-Epuration du gestionnaire de session pcmanfm (pour Lubuntu LXDE)"
-	apt purge -y abiword gnumeric pidgin transmission-gtk sylpheed audacious guvcview ; 2>> $logfile
+	apt purge -y abiword gnumeric pidgin transmission-gtk sylpheed audacious guvcview 2>> $logfile
 fi
 
 ########################################################################
@@ -480,11 +480,11 @@ apt-get install -y exfat-utils exfat-fuse 2>> $logfile
 if $postinstalladditionnel; then 
 	if [ "$version" = "bionic" ] || [ "$version" = "focal" ]; then
 		writelog "INITBLOC" "40/42-PostInstallation avancée"
-		sudo -u $SUDO_USER wget --no-check-certificate https://github.com/simbd/Ubuntu_20.04LTS_PostInstall/archive/master.zip 2>> $logfile
-		sudo -u $SUDO_USER unzip -o master.zip -d . 2>> $logfile
-		sudo -u $SUDO_USER chmod +x Ubuntu_20.04LTS_PostInstall-master/*.sh  2>> $logfile
-		sudo -u $SUDO_USER ./Ubuntu_20.04LTS_PostInstall-master/Postinstall_Ubuntu-20.04LTS_FocalFossa.sh 2>> $logfile
-		sudo -u $SUDO_USER rm -fr master.zip Ubuntu_20.04LTS_PostInstall-master 2>> $logfile;
+		sudo -u "$SUDO_USER" wget --no-check-certificate https://github.com/simbd/Ubuntu_20.04LTS_PostInstall/archive/master.zip 2>> $logfile
+		sudo -u "$SUDO_USER" unzip -o master.zip -d . 2>> $logfile
+		sudo -u "$SUDO_USER" chmod +x Ubuntu_20.04LTS_PostInstall-master/*.sh  2>> $logfile
+		sudo -u "$SUDO_USER" ./Ubuntu_20.04LTS_PostInstall-master/Postinstall_Ubuntu-20.04LTS_FocalFossa.sh 2>> $logfile
+		sudo -u "$SUDO_USER" rm -fr master.zip Ubuntu_20.04LTS_PostInstall-master 2>> $logfile;
 		writelog "ENDBLOC"
 	fi
 fi
