@@ -30,14 +30,14 @@ function majIntegrdom {
 	fi
 	if [ "$offlineVersion" != "$onlineVersion" ]; then
 		echo "La version en ligne et celle présente sur ce PC sont différentes. Voulez-vous mettre à jour ? o/[N]"
-		read autorisationMaj
+		read -r autorisationMaj
 		if [ "$autorisationMaj" == "o" ] || [ "$autorisationMaj" == "O" ]; then
 			echo "Mise à jour du script..."
 			wget --no-check-certificate https://github.com/dseverin2/clients-linux-scribe/archive/master.zip
 			unzip master.zip
 			cp -fr clients-linux-scribe-master/* .
 			rm -fr clients-linux-scribe-master/ master.zip
-			chmod +x *.sh
+			chmod +x ./*.sh
 			clear
 			echo "Scripts mis à jour pensez à vérifier config.cfg avant de relancer ./ubuntu-et-variantes-integrdom.sh"
 		else
@@ -52,14 +52,11 @@ function initlog {
 	if [ -e $logfile ]; then
 		rm -fr $logfile
 	fi
-	echo `date` > $logfile
+	date > $logfile
 }
 
 # Ecriture des paramètres dans le fichier de log
 function writelog {
-	nbParams=$#
-	dernierParam=${!nbParams} 
-	
 	if [ "$1" = "ENDBLOC" ]; then
 		echo "************************ END *************************" >> $logfile
 		echo "" >> $logfile
@@ -113,9 +110,8 @@ function addtoend {
 		if [ "$1" = "$param" ]; then
 			destfile=$param
 		else
-			grep "$param" $destfile > /dev/null
-			if [ $? != 0 ]; then
-				echo "$param" >> $destfile
+			if ! grep "$param" "$destfile" > /dev/null; then
+				echo "$param" | tee -a "$destfile"
 			fi
 		fi
 	done

@@ -110,10 +110,12 @@ majIntegrdom
 
 # Vérification que le système est bien à jour et sans défaut
 writelog "INITBLOC" "4/42-Mise à jour complète du système"
-apt install --fix-broken -y  2>> $logfile
-apt update 2>> $logfile; 
-apt full-upgrade -y 2>> $logfile
-apt install --fix-broken -y  2>> $logfile
+{
+	apt install --fix-broken -y
+	apt update
+	apt full-upgrade -y
+	apt install --fix-broken -y
+} 2>> $logfile
 writelog "ENDBLOC"
 
 # Récupération de la version d'ubuntu
@@ -139,7 +141,7 @@ export DEBIAN_PRIORITY="critical" 2>> $logfile
 #suppression de l'applet switch-user pour ne pas voir les derniers connectés # Uniquement pour Ubuntu / Unity
 #paramétrage d'un laucher unity par défaut : nautilus, firefox, libreoffice, calculatrice, éditeur de texte et capture d'écran
 ########################################################################
-if [ "$(which unity)" = "/usr/bin/unity" ]; then  # si Ubuntu/Unity alors :
+if [ "$(command -v unity)" = "/usr/bin/unity" ]; then  # si Ubuntu/Unity alors :
 	writelog "3b-Suppression de l'applet switch-user et paramétrage du launcher unity par défaut"
 	echo "[com.canonical.indicator.session]
 user-show-menu=false
@@ -273,18 +275,18 @@ export DEBIAN_PRIORITY="high"
 ########################################################################
 #paramétrage du script de démontage du netlogon pour lightdm 
 ########################################################################
-if [ "$(which lightdm)" = "/usr/sbin/lightdm" ]; then #Si lightDM présent
+if [ "$(command -v lightdm)" = "/usr/sbin/lightdm" ]; then #Si lightDM présent
 	writelog "INITBLOC" "19/42-Paramétrage du script de démontage du netlogon pour lightdm"
-	touch /etc/lightdm/logonscript.sh 2>> $logfile
-	addtoend /etc/lightdm/logonscript.sh "if mount | grep -q \"/tmp/netlogon\" ; then umount /tmp/netlogon ;fi" 2>> $logfile
-	chmod +x /etc/lightdm/logonscript.sh 2>> $logfile
+	{
+		touch /etc/lightdm/logonscript.sh
+		addtoend /etc/lightdm/logonscript.sh "if mount | grep -q \"/tmp/netlogon\" ; then umount /tmp/netlogon ;fi" "xset -dpms && xset s noblank && xset s off"
+		chmod +x /etc/lightdm/logonscript.sh
 
-	touch /etc/lightdm/logoffscript.sh 2>> $logfile
-	echo "sleep 2
-umount -f /tmp/netlogon
-umount -f \$HOME" > /etc/lightdm/logoffscript.sh 2>> $logfile
-	chmod +x /etc/lightdm/logoffscript.sh 2>> $logfile
-
+		touch /etc/lightdm/logoffscript.sh
+		addtoend /etc/lightdm/logoffscript.sh "sleep 2" "umount -f /tmp/netlogon" "umount -f \$HOME" > /etc/lightdm/logoffscript.sh
+		chmod +x /etc/lightdm/logoffscript.sh
+	}  2>> $logfile
+	
 	########################################################################
 	#paramétrage du lightdm.conf
 	#activation du pavé numérique par greeter-setup-script=/usr/bin/numlockx on
@@ -304,21 +306,26 @@ fi
 
 
 # Modification ancien gestionnaire de session MDM
-if [ "$(which mdm)" = "/usr/sbin/mdm" ]; then # si MDM est installé (ancienne version de Mint <17.2)
+if [ "$(command -v mdm)" = "/usr/sbin/mdm" ]; then # si MDM est installé (ancienne version de Mint <17.2)
 	writelog "20/42-Modification de l'ancien gestionnaire de session MDM (pour Mint <17.2)"
-	cp -f /etc/mdm/mdm.conf /etc/mdm/mdm_old.conf  2>> $logfile #backup du fichier de config de mdm
-	wget --no-check-certificate https://raw.githubusercontent.com/dane-lyon/fichier-de-config/master/mdm.conf 2>> $logfile ; mv -f mdm.conf /etc/mdm/ 2>> $logfile ; 
+	{
+		cp -f /etc/mdm/mdm.conf /etc/mdm/mdm_old.conf #backup du fichier de config de mdm
+		wget --no-check-certificate https://raw.githubusercontent.com/dane-lyon/fichier-de-config/master/mdm.conf
+		mv -f mdm.conf /etc/mdm/
+	} 2>> $logfile
 fi
 
 # Si Ubuntu Mate
-if [ "$(which caja)" = "/usr/bin/caja" ]; then
+if [ "$(command -v caja)" = "/usr/bin/caja" ]; then
 	writelog "21/42-Epuration du gestionnaire de session caja (pour Ubuntu Mate)"
-	apt purge -y hexchat transmission-gtk ubuntu-mate-welcome cheese pidgin rhythmbox 2>> $logfile
-	snap remove ubuntu-mate-welcome 2>> $logfile
+	{
+		apt purge -y hexchat transmission-gtk ubuntu-mate-welcome cheese pidgin rhythmbox
+		snap remove ubuntu-mate-welcome
+	} 2>> $logfile
 fi
 
 # Si Lubuntu (lxde)
-if [ "$(which pcmanfm)" = "/usr/bin/pcmanfm" ]; then
+if [ "$(command -v pcmanfm)" = "/usr/bin/pcmanfm" ]; then
 	writelog "22/42-Epuration du gestionnaire de session pcmanfm (pour Lubuntu LXDE)"
 	apt purge -y abiword gnumeric pidgin transmission-gtk sylpheed audacious guvcview 2>> $logfile
 fi
@@ -326,7 +333,7 @@ fi
 ########################################################################
 # Spécifique Gnome Shell
 ########################################################################
-if [ "$(which gnome-shell)" = "/usr/bin/gnome-shell" ]; then  # si GS installé
+if [ "$(command -v gnome-shell)" = "/usr/bin/gnome-shell" ]; then  # si GS installé
 	writelog "INITBLOC" "23/42-Paramétrage de Gnome Shell"
 	# Désactiver userlist pour GDM
 	echo "user-db:user
@@ -358,28 +365,24 @@ fi
 ########################################################################
 writelog "INITBLOC" "24/42-Paramétrage pour remplir pam_mount.conf" "---/media/Serveur_Scribe"
 eclairng="<volume user=\"*\" fstype=\"cifs\" server=\"$scribe_def_ip\" path=\"eclairng\" mountpoint=\"/media/Serveur_Scribe\" />"
-grep "/media/Serveur_Scribe" /etc/security/pam_mount.conf.xml  >/dev/null
-if [ $? != 0 ]; then
+if grep "/media/Serveur_Scribe" /etc/security/pam_mount.conf.xml  >/dev/null; then
   sed -i "/<\!-- Volume definitions -->/a\ $eclairng" /etc/security/pam_mount.conf.xml 2>> $logfile
 fi
 
 writelog "---~/Documents => Perso (scribe)"
 homes="<volume user=\"*\" fstype=\"cifs\" server=\"$scribe_def_ip\" path=\"perso\" mountpoint=\"~/Documents\" />"
-grep "mountpoint=\"~\"" /etc/security/pam_mount.conf.xml  >/dev/null
-if [ $? != 0 ]; then 
+if grep "mountpoint=\"~\"" /etc/security/pam_mount.conf.xml  >/dev/null; then 
 	sed -i "/<\!-- Volume definitions -->/a\ $homes" /etc/security/pam_mount.conf.xml 2>> $logfile
 fi
 
 writelog "---/tmp/netlogon (DomainAdmins)"
 netlogon="<volume user=\"*\" fstype=\"cifs\" server=\"$scribe_def_ip\" path=\"netlogon\" mountpoint=\"/tmp/netlogon\"  sgrp=\"DomainUsers\" />"
-grep "/tmp/netlogon" /etc/security/pam_mount.conf.xml  >/dev/null
-if [ $? != 0 ]; then
+if grep "/tmp/netlogon" /etc/security/pam_mount.conf.xml  >/dev/null; then
   sed -i "/<\!-- Volume definitions -->/a\ $netlogon" /etc/security/pam_mount.conf.xml 2>> $logfile
 fi
 
 writelog "---Samba"
-grep "<cifsmount>mount -t cifs //%(SERVER)/%(VOLUME) %(MNTPT) -o \"noexec,nosetuids,mapchars,cifsacl,serverino,nobrl,iocharset=utf8,user=%(USER),uid=%(USERUID)%(before=\\",\\" OPTIONS)\"</cifsmount>" /etc/security/pam_mount.conf.xml  >/dev/null
-if [ $? != 0 ]; then
+if grep "<cifsmount>mount -t cifs //%(SERVER)/%(VOLUME) %(MNTPT) -o \"noexec,nosetuids,mapchars,cifsacl,serverino,nobrl,iocharset=utf8,user=%(USER),uid=%(USERUID)%(before=\\",\\" OPTIONS)\"</cifsmount>" /etc/security/pam_mount.conf.xml  >/dev/null; then
   sed -i "/<\!-- pam_mount parameters: Volume-related -->/a\ <cifsmount>mount -t cifs //%(SERVER)/%(VOLUME) %(MNTPT) -o \"noexec,nosetuids,mapchars,cifsacl,serverino,nobrl,iocharset=utf8,user=%(USER),uid=%(USERUID)%(before=\\",\\" OPTIONS),vers=1.0\"</cifsmount>" /etc/security/pam_mount.conf.xml 2>> $logfile
 fi
 writelog "ENDBLOC"
@@ -399,8 +402,7 @@ sed -i "s/enabled=True/enabled=False/g" /etc/xdg/user-dirs.conf 2>> $logfile
 # les profs peuvent sudo
 ########################################################################
 writelog "27/42-Ajout des professeurs (et admin) dans la liste des sudoers"
-grep "%professeurs ALL=(ALL) ALL" /etc/sudoers > /dev/null
-if [ $? != 0 ]; then
+if grep "%professeurs ALL=(ALL) ALL" /etc/sudoers > /dev/null; then
   sed -i "/%admin ALL=(ALL) ALL/a\%professeurs ALL=(ALL) ALL" /etc/sudoers 2>> $logfile
   sed -i "/%admin ALL=(ALL) ALL/a\%DomainAdmins ALL=(ALL) ALL" /etc/sudoers 2>> $logfile
 fi
@@ -408,10 +410,9 @@ fi
 writelog "28/42-Suppression de paquet inutile sous Ubuntu/Unity"
 apt purge -y aisleriot gnome-mahjongg pidgin transmission-gtk gnome-mines gnome-sudoku blueman abiword gnumeric thunderbird 2>> $logfile;
 
-grep "LinuxMint" /etc/lsb-release > /dev/null
-if [ $? != 0 ]; then
-	writelog "29/42-Suppression de MintWelcome (sous Mint)"
-	apt purge -y mintwelcome 2>> $logfile;
+if grep "LinuxMint" /etc/lsb-release > /dev/null; then
+	writelog "29/42-Suppression d'applications par défaut (sous Mint)"
+	apt purge -y mintwelcome hexchat hexchat-common libespeak1 libsonic0 libspeechd2 python3-speechd speech-dispatcher speech-dispatcher-audio-plugins gnome-orca adobe-flash-properties-gtk mate-screensaver mate-screensaver-common brltty mono-runtime-common avahi-daemon xscreensaver-data-extra xscreensaver-data xscreensaver-gl-extra xscreensaver-gl java-common icedtea-netx-common pix pix-data onboard warpinator timeshift celluloid caja-sendto 2>> $logfile;
 fi
 
 writelog "30/42-Suppression de l'envoi des rapport d'erreurs"
@@ -466,8 +467,12 @@ sed -r -i 's/Prompt=lts/Prompt=never/g' /etc/update-manager/release-upgrades 2>>
 # Enchainer sur un script de Postinstallation
 if $postinstallbase; then 
 	writelog "INITBLOC" "37/42-PostInstallation basique"
-	mv ./$second_dir/ubuntu-et-variantes-postinstall.sh . 2>> $logfile
-	chmod +x ubuntu-et-variantes-postinstall.sh 2>> $logfile ; ./ubuntu-et-variantes-postinstall.sh 2>> $logfile ; rm -f ubuntu-et-variantes-postinstall.sh 2>> $logfile ;
+	{
+		mv ./$second_dir/ubuntu-et-variantes-postinstall.sh .
+		chmod +x ubuntu-et-variantes-postinstall.sh
+		./ubuntu-et-variantes-postinstall.sh
+		rm -f ubuntu-et-variantes-postinstall.sh
+	} 2>> $logfile
 	writelog "ENDBLOC"
 fi
 
@@ -480,17 +485,22 @@ apt-get install -y exfat-utils exfat-fuse 2>> $logfile
 if $postinstalladditionnel; then 
 	if [ "$version" = "bionic" ] || [ "$version" = "focal" ]; then
 		writelog "INITBLOC" "40/42-PostInstallation avancée"
-		sudo -u "$SUDO_USER" wget --no-check-certificate https://github.com/simbd/Ubuntu_20.04LTS_PostInstall/archive/master.zip 2>> $logfile
-		sudo -u "$SUDO_USER" unzip -o master.zip -d . 2>> $logfile
-		sudo -u "$SUDO_USER" chmod +x Ubuntu_20.04LTS_PostInstall-master/*.sh  2>> $logfile
-		sudo -u "$SUDO_USER" ./Ubuntu_20.04LTS_PostInstall-master/Postinstall_Ubuntu-20.04LTS_FocalFossa.sh 2>> $logfile
-		sudo -u "$SUDO_USER" rm -fr master.zip Ubuntu_20.04LTS_PostInstall-master 2>> $logfile;
+		{
+			sudo -u "$SUDO_USER" wget --no-check-certificate https://github.com/simbd/Ubuntu_20.04LTS_PostInstall/archive/master.zip
+			sudo -u "$SUDO_USER" unzip -o master.zip -d .
+			sudo -u "$SUDO_USER" chmod +x Ubuntu_20.04LTS_PostInstall-master/*.sh
+			sudo -u "$SUDO_USER" ./Ubuntu_20.04LTS_PostInstall-master/Postinstall_Ubuntu-20.04LTS_FocalFossa.sh
+			sudo -u "$SUDO_USER" rm -fr master.zip Ubuntu_20.04LTS_PostInstall-master
+		} 2>> $logfile
 		writelog "ENDBLOC"
 	fi
 fi
 
 writelog "41/42-Nettoyage de la station avant clonage"
-apt-get -y autoremove --purge 2>> $logfile ; apt-get -y clean 2>> $logfile
+{
+	apt-get -y autoremove --purge
+	apt-get -y clean
+} 2>> $logfile
 clear
 
 

@@ -3,36 +3,28 @@
 Ce **script** permet d'intégrer des clients Gnu/Linux dans un environnement Eole-Scribe 2.3, 2.4, 2.5 ou 2.6 
 
 Les clients supportés/testés avec les scripts sont les suivants :
-- Ubuntu (Unity) 14.04, 16.04 et 18.04 (GS)
-- Xubuntu (XFCE) 14.04, 16.04 et 18.04
-- Lubuntu (LXDE) 14.04, 16.04 et (Lxde/LxQt) 18.04 
-- Ubuntu Mate 16.04 et 18.04
-- Ubuntu Budgie 18.04
-- Linux Mint (Cinammon/Mate/Xfce) 17.X, 18.X et 19.X
-- Elementary OS (Pantheon) 0.4, 5.0
+- Ubuntu (Unity) 14.04, 16.04, 18.04 (GS) et 20.04
+- Xubuntu (XFCE) 14.04, 16.04, 18.04 et 20.04
+- Lubuntu (LXDE) 14.04, 16.04, (Lxde/LxQt) 18.04  et 20.04
+- Ubuntu Mate 16.04, 18.04 et 20.04
+- Ubuntu Budgie 18.04 et 20.04
+- UbuntuDDE 20.04
+- Linux Mint (Cinammon/Mate/Xfce) 17.X, 18.X, 19.X et 20.X
+- Elementary OS (Pantheon) 0.4, 5.0, 5.1
 
 Ce script d'intégration n'est PAS compatible avec des distributions comme : Debian, Fedora, Solus, Manjaro
 
-
-
+  - **IMPORTANT : Modifier le fichier config.cfg** :
+	- pensez à créer cet utilisateur dans l'EAD
+	- modifier le proxy et les adresses locales (Par défaut le port est 3129)
+	- le nom de l'utilisateur et son mot de passe (pour l'authentification wget, apt et snap)
+	
   - Se placer dans le répertoire courant puis lancer les commandes :
 	
 	<code>chmod +x ubuntu-et-variantes-integrdom.sh</code>
 
 	<code>sudo ./ubuntu-et-variantes-integrdom.sh</code>
 	
-#### Important : en cas de problème de téléchargement
-
-Si vous avez des difficultés pour télécharger les scripts depuis le serveur scribe (ce qui peux arriver en passant derrière un proxy en établissement), il faut rajouter le proxy en faisant :
-<code>export https_proxy="ip_proxy:port_proxy"</code>
-par exemple si votre serveur Amon est en 172.16.0.252 et avec le port 3128 :
-
-<code>export https_proxy="172.16.0.252:3128"</code>
-
-puis si vous avez le message suivant "Incapable d'établir une connexion SSL", il faut rajouter l'argument suivant : --no-check-certificate, ce qui donne par exemple :
-
-<code>wget https://raw.githubusercontent.com/dane-lyon/clients-linux-scribe/master/ubuntu-et-variantes-integrdom.sh --no-check-certificate</code>
-
 ###**Remarques :** 
 
 #### Script de post-installation
@@ -55,10 +47,6 @@ OU
 ### Client Shell
 
 De plus, il est conseillé que la case "client shell linux" soit cochée pour les utilisateurs dans l'EAD du scribe sinon, dans certains cas, l'authentification ne pourra avoir lieu.
-
-#### Personnalisation des valeurs par défaut
-
-Vous pouvez éditer les valeurs par défaut en début de script afin de les adapter à votre environnement.
 
 #### Personnalisation des menus de l'environnement Unity
 

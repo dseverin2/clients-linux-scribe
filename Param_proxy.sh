@@ -23,8 +23,7 @@ if [[ $proxy_def_ip != "" ]] || [[ $proxy_def_port != "" ]]; then
 	#Paramétrage des paramètres Proxy pour Gnome
 	#######################################################
 	writelog "---Inscription du proxy dans le schéma de gnome"
-	grep "host='$proxy_def_ip'" /usr/share/glib-2.0/schemas/my-defaults.gschema.override > /dev/null
-	if [ $? != 0 ]; then
+	if ! grep "host='$proxy_def_ip'" /usr/share/glib-2.0/schemas/my-defaults.gschema.override > /dev/null; then
 	  echo "[org.gnome.system.proxy]
 mode='manual'
 use-same-proxy=true
@@ -42,7 +41,7 @@ port=$proxy_def_port" > /usr/share/glib-2.0/schemas/my-defaults.gschema.override
 	#Paramétrage du Proxy pour le système
 	######################################################################
 	writelog "---Inscription du proxy dans /etc/environment"
-	cat /etc/environment | grep PATH | tee /etc/environment
+	grep PATH /etc/environment | tee /etc/environment
 	addtoend /etc/environment "http_proxy=http://$proxy_def_ip:$proxy_def_port/" "https_proxy=http://$proxy_def_ip:$proxy_def_port/" "ftp_proxy=http://$proxy_def_ip:$proxy_def_port/" "no_proxy=\"$proxy_env_noproxy\"" 2>> $logfile
 
 	#Paramétrage du Proxy pour apt
