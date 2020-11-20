@@ -13,6 +13,9 @@ writelog "INITBLOC" "Mise en place du proxy"
 # Modification du /etc/wgetrc.
 #############################################
 writelog "0-Paramétrage du proxy dans /etc/wgetrc"
+if grep "use_proxy=on" /etc/wgetrc; then
+	sed '/[ht|f]tps\?_proxy*/d' /etc/wgetrc | tee /etc/wgetrc  # Nettoyage en cas de réintégration directe
+fi
 addtoend /etc/wgetrc "" "https_proxy = $proxy_wgetrc" "http_proxy = $proxy_wgetrc" "ftp_proxy = $proxy_wgetrc" "use_proxy=on" "proxy-user = $scribeuserapt" "proxy-password = $scribepass"  2>> $logfile
 #######################################################
 #Paramétrage des paramètres Proxy pour tout le système
@@ -23,8 +26,7 @@ if [[ $proxy_def_ip != "" ]] || [[ $proxy_def_port != "" ]]; then
 	#Paramétrage des paramètres Proxy pour Gnome
 	#######################################################
 	writelog "---Inscription du proxy dans le schéma de gnome"
-	if ! grep "host='$proxy_def_ip'" /usr/share/glib-2.0/schemas/my-defaults.gschema.override > /dev/null; then
-	  echo "[org.gnome.system.proxy]
+	echo "[org.gnome.system.proxy]
 mode='manual'
 use-same-proxy=true
 ignore-hosts=$proxy_gnome_noproxy
@@ -34,14 +36,13 @@ port=$proxy_def_port
 [org.gnome.system.proxy.https]
 host='$proxy_def_ip'
 port=$proxy_def_port" > /usr/share/glib-2.0/schemas/my-defaults.gschema.override 2>> $logfile
-	fi
 
 	  glib-compile-schemas /usr/share/glib-2.0/schemas 2>> $logfile
 
 	#Paramétrage du Proxy pour le système
 	######################################################################
 	writelog "---Inscription du proxy dans /etc/environment"
-	grep PATH /etc/environment | tee /etc/environment
+	sed '/[h|f|n][a-z]*_proxy*/d' /etc/environment | tee /etc/environment # Nettoyage en cas de réintégration directe
 	addtoend /etc/environment "http_proxy=http://$proxy_def_ip:$proxy_def_port/" "https_proxy=http://$proxy_def_ip:$proxy_def_port/" "ftp_proxy=http://$proxy_def_ip:$proxy_def_port/" "no_proxy=\"$proxy_env_noproxy\"" 2>> $logfile
 
 	#Paramétrage du Proxy pour apt
@@ -54,7 +55,7 @@ Acquire::https::proxy \"https://$scribeuserapt:$scribepass@$proxy_def_ip:$portap
 
 	#Permettre d'utiliser la commande add-apt-repository derrière un Proxy
 	######################################################################
-	writelog "---Autorisation de ma commande add-apt-repository derrière un proxy"
+	writelog "---Autorisation de la commande add-apt-repository derrière un proxy"
 	addtoend /etc/sudoers "Defaults env_keep = https_proxy" 2>> $logfile
 	
 	#Paramétrage du Proxy pour snap
