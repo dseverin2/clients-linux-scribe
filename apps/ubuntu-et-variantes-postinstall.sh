@@ -266,15 +266,7 @@ if [ "$version" = "bionic" ] || [ "$version" = "focal" ] ; then
 	dpkg -i ganttproject* ; apt install -fy
 	
 	writelog "---mBlock"
-	apt-get -y install libgconf-2-4; 
-	if [ ! -e ./mBlock_4.0.4_amd64.deb ]; then
-		wget $wgetparams --no-check-certificate http://mblock.makeblock.com/mBlock4.0/mBlock_4.0.4_amd64.deb; 
-	fi
-	if [ ! -e ./mLink-1.2.0-amd64.deb ]; then
-		wget $wgetparams --no-check-certificate https://dl.makeblock.com/mblock5/linux/mLink-1.2.0-amd64.deb
-	fi
-	dpkg -i ./mBlock_4.0.4_amd64.deb ; dpkg -i ./mLink-1.2.0-amd64.deb; apt install -fy ;
-	
+	source installmBlock.sh	
 	
 	writelog "---Xia (alias ImageActive)"
 	echo "deb http://repository.crdp.ac-versailles.fr/debian xia main" | sudo tee /etc/apt/sources.list.d/xia.list
