@@ -109,7 +109,6 @@ function addtoend {
 	do
 		if [ "$1" = "$param" ]; then
 			destfile=$param
-			echo "" | tee -a "$destfile"
 		else
 			if ! grep "$param" "$destfile" > /dev/null; then
 				echo "$param" | tee -a "$destfile"
