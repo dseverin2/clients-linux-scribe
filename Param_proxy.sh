@@ -16,7 +16,7 @@ writelog "0-Paramétrage du proxy dans /etc/wgetrc"
 if grep "use_proxy=on" /etc/wgetrc; then
 	sed '/[ht|f]tps\?_proxy*/d' /etc/wgetrc | tee /etc/wgetrc  # Nettoyage en cas de réintégration directe
 fi
-addtoend /etc/wgetrc "" "https_proxy = $proxy_wgetrc" "http_proxy = $proxy_wgetrc" "ftp_proxy = $proxy_wgetrc" "use_proxy=on" "proxy-user = $scribeuserapt" "proxy-password = $scribepass"  2>> $logfile
+addtoend /etc/wgetrc "https_proxy = $proxy_wgetrc" "http_proxy = $proxy_wgetrc" "ftp_proxy = $proxy_wgetrc" "use_proxy=on" "proxy-user = $scribeuserapt" "proxy-password = $scribepass"  2>> $logfile
 #######################################################
 #Paramétrage des paramètres Proxy pour tout le système
 #######################################################
