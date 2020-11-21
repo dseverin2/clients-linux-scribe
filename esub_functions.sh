@@ -109,9 +109,18 @@ function addtoend {
 	do
 		if [ "$1" = "$param" ]; then
 			destfile=$param
+			echo AVANT 1
+			cat "$destfile$"
+			echo "" | tee -a "$destfile"
+			echo APRES 1
+			cat "$destfile$"
 		else
 			if ! grep "$param" "$destfile" > /dev/null; then
+				echo AVANT 2
+				cat "$destfile$"
 				echo "$param" | tee -a "$destfile"
+				echo APRES 2
+				cat "$destfile$"
 			fi
 		fi
 	done
