@@ -1,4 +1,4 @@
-﻿// Fichier configuration firefox
+// Fichier configuration firefox
 
 // Si vous utilisez un fichier de configuration de proxy, décommentez ci-dessous (+renommer fichier en quesiton) :
 //pref("network.proxy.autoconfig_url", "file:///tmp/netlogon/icones/posteslinux/proxy_etab.pac");

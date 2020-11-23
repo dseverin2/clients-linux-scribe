@@ -1,4 +1,4 @@
-﻿- Si vous voulez changer les wallpapers par défaut, il vous suffit de remplacer les fichiers jpg dans le
+- Si vous voulez changer les wallpapers par défaut, il vous suffit de remplacer les fichiers jpg dans le
  répertoire du dossier /usr/share/wallpaper 
 (donc des postes clients)
 
