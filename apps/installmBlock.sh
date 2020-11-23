@@ -25,10 +25,7 @@ apt install -fy
 rm -f mBlock_4.0.4_amd64.deb mLink-1.2.0-amd64.deb
 
 # Installation des librairies manquantes
-if grep LinuxMint /etc/lsb-release; then
-	apt-get install libpangoft2-1.0-0 libpangocairo-1.0-0 libpango-1.0-0 -y
-	unzip mBlock.zip -d /opt/makeblock/mBlock
-fi
+unzip mBlock.zip -d /opt/makeblock/mBlock
 
 #Installation des librairies pour arduino
 cd /usr/share/arduino/lib || exit
