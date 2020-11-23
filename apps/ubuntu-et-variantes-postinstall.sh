@@ -72,7 +72,7 @@ source ./installScratux.sh
 #########################################
 if [ "$version" = "trusty" ] ; then
 	writelog "INITBLOC" "Trusty 14.04" "---idle, gstreamer, celestia"
-	apt-get -y install idle-python3.4 gstreamer0.10-plugins-ugly celestia
+	apt-get install -y idle-python3.4 gstreamer0.10-plugins-ugly celestia
 
 	if $LibreOffice; then
 		writelog "---Backportage LibreOffice"
@@ -80,7 +80,7 @@ if [ "$version" = "trusty" ] ; then
 	fi
 
 	writelog "---Google Earth"
-	apt-get -y install libfontconfig1:i386 libx11-6:i386 libxrender1:i386 libxext6:i386 libgl1-mesa-glx:i386 libglu1-mesa:i386 libglib2.0-0:i386 libsm6:i386
+	apt-get install -y libfontconfig1:i386 libx11-6:i386 libxrender1:i386 libxext6:i386 libgl1-mesa-glx:i386 libglu1-mesa:i386 libglib2.0-0:i386 libsm6:i386
 	if [ ! -e ./google-earth-stable_current_i386.deb ]; then
 		wget "$wgetparams"  https://dl.google.com/dl/earth/client/current/google-earth-stable_current_i386.deb --no-check-certificate; 
 	fi
@@ -189,64 +189,74 @@ if [ "$version" != "bionic" ] && [ "$version" != "focal" ] ; then  # Installatio
 
 	writelog "Gdevelop (PPA pas encore actif pour la 18.04)"
 	add-apt-repository -y ppa:florian-rival/gdevelop
-	apt-get update ; apt-get -y install gdevelop
+	apt-get update ; apt-get install -y gdevelop
 fi
 
 writelog "drivers pour les scanners les plus courants"
-apt-get -y install sane
+apt-get install -y sane
 
 writelog "Police d'écriture de Microsoft"
-echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | /usr/bin/debconf-set-selections | apt-get -y install ttf-mscorefonts-installer ;
+echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | /usr/bin/debconf-set-selections | apt-get install -y ttf-mscorefonts-installer ;
 
 writelog "Oracle Java 8"
-add-apt-repository -y ppa:webupd8team/java ; apt-get update ; echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections | apt-get -y install oracle-java8-installer
+add-apt-repository -y ppa:webupd8team/java ; apt-get update ; echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections | apt-get install -y oracle-java8-installer
 
 writelog "INITBLOC" "[ Bureautique ]"
 if $LibreOffice; then
-	apt-get -y install libreoffice libreoffice-gtk libreoffice-l10n-fr 
+	apt-get install -y libreoffice libreoffice-gtk libreoffice-l10n-fr 
 fi
-apt-get -y install freeplane scribus gnote xournal cups-pdf okular
+apt-get install -y freeplane scribus gnote xournal cups-pdf okular
 writelog "ENDBLOC"
 
 writelog "INITBLOC" "[ Web ]"
-apt-get -y install chromium-browser chromium-browser-l10n firefox firefox-locale-fr; 
-apt-get -y install adobe-flashplugin ; #permet d'avoir flash en même temps pour firefox et chromium
+apt-get install -y chromium-browser chromium-browser-l10n; 
+if grep LinuxMint /etc/lsb-release; then
+	printf "Package: firefox*\nPin: release o=Ubuntu\nPin-Priority: 800" | tee /etc/apt/preferences.d/firefox.pref
+	apt remove firefox firefox-locale-fr firefox-locale-en
+	apt clean all
+	apt update
+fi # On remplace les packets firefox de Mint par ceux de Ubuntu (plus récents)
+apt-get install -y firefox firefox-locale-fr
+apt-get install -y adobe-flashplugin ; #permet d'avoir flash en même temps pour firefox et chromium
 writelog "ENDBLOC"
 
 writelog "INITBLOC" "[ Video / Audio ]"
-apt-get -y install imagination openshot audacity vlc x264 ffmpeg2theora flac vorbis-tools lame oggvideotools mplayer ogmrip goobox
+apt-get install -y imagination openshot audacity vlc x264 ffmpeg2theora flac vorbis-tools lame oggvideotools mplayer ogmrip goobox
 writelog "ENDBLOC"
 
 writelog "INITBLOC" "[ Graphisme / Photo ]"
-apt-get -y install blender sweethome3d gimp pinta inkscape gthumb mypaint hugin shutter
+apt-get install -y blender sweethome3d gimp pinta inkscape gthumb mypaint hugin shutter
 writelog "ENDBLOC"
 
 writelog "INITBLOC" "[ Système ]"
-apt-get -y install gparted vim pyrenamer rar unrar htop diodon p7zip-full gdebi
+apt-get install -y gparted vim pyrenamer rar unrar htop diodon p7zip-full gdebi
 writelog "ENDBLOC"
 
 writelog "Wireshark"
 debconf-set-selections <<< "wireshark-common/install-setuid true"
-apt-get -y install wireshark 
+apt-get install -y wireshark 
 sed -i -e "s/,dialout/,dialout,wireshark/g" /etc/security/group.conf
 
 writelog "INITBLOC" "[ Mathématiques ]"
-apt-get -y install algobox carmetal scilab geophar
+apt-get install -y algobox carmetal scilab geophar
 writelog "ENDBLOC"
 
 
 writelog "INITBLOC" "[ Sciences ]"
-apt-get -y install stellarium avogadro 
+apt-get install -y stellarium avogadro python-mecavideo gnuplot -y
 writelog "ENDBLOC"
 
 
 writelog "INITBLOC" "[ Programmation ]"
-apt-get -y install ghex geany imagemagick gcolor2
-apt-get -y install python3-pil.imagetk python3-pil traceroute python3-tk #python3-sympy
+apt-get install -y ghex geany imagemagick gcolor2
+apt-get install -y python3-pil.imagetk python3-pil traceroute python3-tk #python3-sympy
+wget https://github.com/scratux/scratux/releases/download/1.4.1/scratux_1.4.1_amd64.deb /tmp/scratux_1.4.1_amd64.deb
+sudo dpkg -i /tmp/scratux_1.4.1_amd64.deb
+rm -f /tmp/scratux_1.4.1_amd64.deb
 writelog "ENDBLOC"
 
 writelog "INITBLOC" "[ Serveur ]"
-apt-get -y install openssh-server openssh-client
+apt-get install -y openssh-server openssh-client
 
 writelog "ENDBLOC"
 
@@ -256,10 +266,10 @@ writelog "ENDBLOC"
 if [ "$version" = "bionic" ] || [ "$version" = "focal" ] ; then
 	writelog "INITBLOC" "Suppléments de logiciels pour Bionic et Focal"
 	writelog "---Openshot-qt, Gshutdown, X-Cas, Planner, extension ooohg, winff, optgeo, ghostscript"
-	apt-get -y install openshot-qt gshutdown xcas planner ooohg winff winff-qt optgeo ghostscript #gshutdown équivalent à poweroff
+	apt-get install -y openshot-qt gshutdown xcas planner ooohg winff winff-qt optgeo ghostscript #gshutdown équivalent à poweroff
 	
 	writelog "---GanttProject"
-	apt-get -y install openjdk-8-jre oenjdk-11-jre java-11-amazon-corretto-jdk bellsoft-java11-runtime
+	apt-get install -y openjdk-8-jre oenjdk-11-jre java-11-amazon-corretto-jdk bellsoft-java11-runtime
 	if [ ! -e ./ganttproject_2.8.11-r2396-1_all.deb ]; then
 		wget "$wgetparams" --no-check-certificate https://dl.ganttproject.biz/ganttproject-2.8.11/ganttproject_2.8.11-r2396-1_all.deb
 	fi
@@ -337,8 +347,8 @@ fi
 ################################
 if [ "$(command -v unity)" = "/usr/bin/unity" ] ; then  # si Ubuntu/Unity alors :
 	writelog "[ Paquet AddOns ] d\'Unity"
-	apt-get -y install ubuntu-restricted-extras ubuntu-restricted-addons unity-tweak-tool
-	apt-get -y install nautilus-image-converter nautilus-script-audio-convert
+	apt-get install -y ubuntu-restricted-extras ubuntu-restricted-addons unity-tweak-tool
+	apt-get install -y nautilus-image-converter nautilus-script-audio-convert
 fi
 
 ################################
@@ -346,13 +356,13 @@ fi
 ################################
 if [ "$(command -v xfwm4)" = "/usr/bin/xfwm4" ] ; then # si Xubuntu/Xfce alors :
 	writelog "[ Paquet AddOns ] de XFCE"
-	apt-get -y install xubuntu-restricted-extras xubuntu-restricted-addons xfce4-goodies xfwm4-themes
+	apt-get install -y xubuntu-restricted-extras xubuntu-restricted-addons xfce4-goodies xfwm4-themes
 
 	writelog "Customisation XFCE"
 	if [ "$version" = "trusty" ] || [ "$version" = "xenial" ] ; then #ajout ppa pour 14.04 et 16.04 (pas nécessaire pour la 18.04)
 		add-apt-repository -y ppa:docky-core/stable ; apt-get update   
 	fi
-	apt-get -y install plank ; wget "$wgetparams" --no-check-certificate https://dane.ac-lyon.fr/spip/IMG/tar/skel_xub1404.tar
+	apt-get install -y plank ; wget "$wgetparams" --no-check-certificate https://dane.ac-lyon.fr/spip/IMG/tar/skel_xub1404.tar
 	tar xvf skel_xub1404.tar -C /etc ; rm -rf skel_xub1404.tar
 fi
 
@@ -361,7 +371,7 @@ fi
 ################################
 if [ "$(command -v caja)" = "/usr/bin/caja" ] ; then # si Ubuntu Mate 
 	writelog "Paramétrage de Caja (Ubuntu Mate)"
-	apt-get -y install ubuntu-restricted-extras mate-desktop-environment-extras
+	apt-get install -y ubuntu-restricted-extras mate-desktop-environment-extras
 	apt-get -y purge ubuntu-mate-welcome
 fi
 
@@ -370,7 +380,7 @@ fi
 ################################
 if [ "$(command -v pcmanfm)" = "/usr/bin/pcmanfm" ] ; then  # si Lubuntu / Lxde alors :
 	writelog "Paramétrage pcmanfm (LXDE)"
-	apt-get -y install lubuntu-restricted-extras lubuntu-restricted-addons
+	apt-get install -y lubuntu-restricted-extras lubuntu-restricted-addons
 fi
 
 
