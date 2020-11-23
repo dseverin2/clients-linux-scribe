@@ -97,12 +97,14 @@ else
 fi
 
 ### Paramétrage Proxy
-if [ -e ./Param_proxy.sh ]; then
-	source ./Param_proxy.sh
-	writelog "3/42-Paramétrage du proxy... OK"
-else
-	echo "Fichier Param_proxy.sh absent ! Interruption de l'installation."
-	exit
+if $installdepuisdomaine; then
+	if [ -e ./Param_proxy.sh ]; then
+		source ./Param_proxy.sh
+		writelog "3/42-Paramétrage du proxy... OK"
+	else
+		echo "Fichier Param_proxy.sh absent ! Interruption de l'installation."
+		exit
+	fi
 fi
 
 # Verification de l'existence d'une mise à jour des scripts sur le git
@@ -429,17 +431,6 @@ addtoend /usr/lib/firefox/defaults/pref/channel-prefs.js "$pagedemarragepardefau
 
 writelog "33/42-Installation de logiciels basiques"
 apt install -y vim htop 2>> $logfile
-
-writelog "34/42-Gestion lecture de DVD"
-# Lecture DVD sur Ubuntu 16.04 et supérieur ## répondre oui aux question posés...
-if $lectureDVD; then
-	apt install -y libdvd-pkg ; dpkg-reconfigure libdvd-pkg
-fi
-
-# Lecture DVD sur Ubuntu 14.04
-if [ "$version" = "trusty" ]; then
-	apt install -y libdvdread4 && bash /usr/share/doc/libdvdread4/install-css.sh 2>> $logfile
-fi
 
 # Résolution problème dans certains cas uniquement pour Trusty (exemple pour lancer gedit directement avec : sudo gedit)
 if [ "$version" = "trusty" ]; then

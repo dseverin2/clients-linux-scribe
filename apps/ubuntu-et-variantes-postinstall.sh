@@ -50,7 +50,7 @@ apt install geany -y
 apt remove mintwelcome -y
 writelog "Installation d'onlyoffice"
 if [ ! -e onlyoffice-desktopeditors_amd64.deb ]; then
-	wget $wgetparams --no-check-certificate https://download.onlyoffice.com/install/desktop/editors/linux/onlyoffice-desktopeditors_amd64.deb
+	wget "$wgetparams" --no-check-certificate https://download.onlyoffice.com/install/desktop/editors/linux/onlyoffice-desktopeditors_amd64.deb
 fi
 dpkg -i onlyoffice-desktopeditors_amd64.deb ; apt-get -fy install ; rm -f onlyoffice-desktopeditors_amd64.deb
 
@@ -82,7 +82,7 @@ if [ "$version" = "trusty" ] ; then
 	writelog "---Google Earth"
 	apt-get -y install libfontconfig1:i386 libx11-6:i386 libxrender1:i386 libxext6:i386 libgl1-mesa-glx:i386 libglu1-mesa:i386 libglib2.0-0:i386 libsm6:i386
 	if [ ! -e ./google-earth-stable_current_i386.deb ]; then
-		wget $wgetparams  https://dl.google.com/dl/earth/client/current/google-earth-stable_current_i386.deb --no-check-certificate; 
+		wget "$wgetparams"  https://dl.google.com/dl/earth/client/current/google-earth-stable_current_i386.deb --no-check-certificate; 
 	fi
 	dpkg -i google-earth-stable_current_i386.deb ; apt-get -fy install
 	writelog "ENDBLOC"
@@ -103,18 +103,18 @@ if [ "$version" = "xenial" ] ; then
 
 	writelog "---Google Earth"
 	if [ ! -e ./google-earth-stable_current_amd64.deb ]; then
-		wget $wgetparams --no-check-certificate https://dl.google.com/dl/earth/client/current/google-earth-stable_current_amd64.deb 
+		wget "$wgetparams" --no-check-certificate https://dl.google.com/dl/earth/client/current/google-earth-stable_current_amd64.deb 
 	fi
 	if [ ! -e ./lsb-core_4.1+Debian13+nmu1_amd64.deb ]; then
-		wget $wgetparams --no-check-certificate http://ftp.fr.debian.org/debian/pool/main/l/lsb/lsb-core_4.1+Debian13+nmu1_amd64.deb
+		wget "$wgetparams" --no-check-certificate http://ftp.fr.debian.org/debian/pool/main/l/lsb/lsb-core_4.1+Debian13+nmu1_amd64.deb
 	fi
 	if [ ! -e ./lsb-security_4.1+Debian13+nmu1_amd64.deb ]; then
-		wget $wgetparams --no-check-certificate http://ftp.fr.debian.org/debian/pool/main/l/lsb/lsb-security_4.1+Debian13+nmu1_amd64.deb 
+		wget "$wgetparams" --no-check-certificate http://ftp.fr.debian.org/debian/pool/main/l/lsb/lsb-security_4.1+Debian13+nmu1_amd64.deb 
 	fi
 	dpkg -i lsb*.deb ; dpkg -i google-earth*.deb ; apt install -fy
 
 	writelog "---Celestia"
-	wget $wgetparams --no-check-certificate https://gitlab.com/simbd/Scripts_Ubuntu/-/blob/7925144bf30ed4c353b9676521d591dc35c97dde/Celestia_pour_Bionic.sh
+	wget "$wgetparams" --no-check-certificate https://gitlab.com/simbd/Scripts_Ubuntu/-/blob/7925144bf30ed4c353b9676521d591dc35c97dde/Celestia_pour_Bionic.sh
 	if [ -e Celestia_pour_Bionic.sh ]; then
 		echo "Celestia_pour_Bionic.sh récupéré avec succès"
 	else
@@ -133,12 +133,12 @@ if [ "$version" = "bionic" ] ; then
 
 	writelog "---Google Earth Pro x64" 
 	if [ ! -e ./google-earth-pro-stable_current_amd64.deb ]; then
-		wget $wgetparams --no-check-certificate https://dl.google.com/dl/earth/client/current/google-earth-pro-stable_current_amd64.deb ; dpkg -i google-earth-pro-stable_current_amd64.deb ; apt install -fy
+		wget "$wgetparams" --no-check-certificate https://dl.google.com/dl/earth/client/current/google-earth-pro-stable_current_amd64.deb ; dpkg -i google-earth-pro-stable_current_amd64.deb ; apt install -fy
 	fi
 	rm /etc/apt/sources.list.d/google-earth* ; rm google-earth-pro* #dépot google retiré volontairement
 
 	writelog "---Celestia"
-	wget $wgetparams --no-check-certificate https://gitlab.com/simbd/Scripts_Ubuntu/-/blob/7925144bf30ed4c353b9676521d591dc35c97dde/Celestia_pour_Bionic.sh
+	wget "$wgetparams" --no-check-certificate https://gitlab.com/simbd/Scripts_Ubuntu/-/blob/7925144bf30ed4c353b9676521d591dc35c97dde/Celestia_pour_Bionic.sh
 	if [ -e Celestia_pour_Bionic.sh ]; then
 		echo "Celestia_pour_Bionic.sh récupéré avec succès sur github"
 	else
@@ -160,7 +160,7 @@ if [ "$version" = "focal" ] ; then
 
 	writelog "---Google Earth Pro x64" 
 	if [ ! -e ./google-earth-pro-stable_current_amd64.deb ]; then
-		wget $wgetparams --no-check-certificate https://dl.google.com/dl/earth/client/current/google-earth-pro-stable_current_amd64.deb ; dpkg -i google-earth-pro-stable_current_amd64.deb ; apt install -fy
+		wget "$wgetparams" --no-check-certificate https://dl.google.com/dl/earth/client/current/google-earth-pro-stable_current_amd64.deb ; dpkg -i google-earth-pro-stable_current_amd64.deb ; apt install -fy
 	fi
 	rm /etc/apt/sources.list.d/google-earth* ; rm google-earth-pro* #dépot google retiré volontairement
 
@@ -183,7 +183,7 @@ fi
 if [ "$version" != "bionic" ] && [ "$version" != "focal" ] ; then  # Installation spécifique pour 14.04 ou 16.04
 	writelog "Drivers imprimantes pour les version < 18.04"
 	if [ ! -e ./openprinting-gutenprint_5.2.7-1lsb3.2_amd64.deb ]; then
-		wget $wgetparams --no-check-certificate http://www.openprinting.org/download/printdriver/debian/dists/lsb3.2/contrib/binary-amd64/openprinting-gutenprint_5.2.7-1lsb3.2_amd64.deb
+		wget "$wgetparams" --no-check-certificate http://www.openprinting.org/download/printdriver/debian/dists/lsb3.2/contrib/binary-amd64/openprinting-gutenprint_5.2.7-1lsb3.2_amd64.deb
 	fi
 	dpkg -i openprinting-gutenprint_5.2.7-1lsb3.2_amd64.deb ; apt-get -fy install ; rm openprinting-gutenprint*
 
@@ -261,7 +261,7 @@ if [ "$version" = "bionic" ] || [ "$version" = "focal" ] ; then
 	writelog "---GanttProject"
 	apt-get -y install openjdk-8-jre oenjdk-11-jre java-11-amazon-corretto-jdk bellsoft-java11-runtime
 	if [ ! -e ./ganttproject_2.8.11-r2396-1_all.deb ]; then
-		wget $wgetparams --no-check-certificate https://dl.ganttproject.biz/ganttproject-2.8.11/ganttproject_2.8.11-r2396-1_all.deb
+		wget "$wgetparams" --no-check-certificate https://dl.ganttproject.biz/ganttproject-2.8.11/ganttproject_2.8.11-r2396-1_all.deb
 	fi
 	dpkg -i ganttproject* ; apt install -fy
 	
@@ -270,7 +270,7 @@ if [ "$version" = "bionic" ] || [ "$version" = "focal" ] ; then
 	
 	writelog "---Xia (alias ImageActive)"
 	echo "deb http://repository.crdp.ac-versailles.fr/debian xia main" | sudo tee /etc/apt/sources.list.d/xia.list
-	wget $wgetparams -q http://repository.crdp.ac-versailles.fr/crdp.gpg -O - | sudo apt-key add -; 
+	wget "$wgetparams" -q http://repository.crdp.ac-versailles.fr/crdp.gpg -O - | sudo apt-key add -; 
 	apt-get update; apt-get install xia -y
 	
 	writelog "---Marble (avec le moins de dépendance KDE possible)"
@@ -279,7 +279,7 @@ if [ "$version" = "bionic" ] || [ "$version" = "focal" ] ; then
 	writelog "---OpenMeca"
 	apt-get install libqt5help5 libqt5svg5 libqt5opengl5 libqt5widgets5 libqt5gui5 libqt5xml5 libqt5core5a libboost-all-dev libqwt-qt5-6 libqglviewer2-qt5 -fy
 	if [ ! -e ./openmeca-64b.deb ]; then
-		wget $wgetparams --no-check-certificate https://openmeca.site/site/dl/openmeca_2.x_amd64.deb
+		wget "$wgetparams" --no-check-certificate https://openmeca.site/site/dl/openmeca_2.x_amd64.deb
 		dpkg -i openmeca*amd64.deb ; apt install -fy
 	fi
 	apt install --fix-broken -y
@@ -287,7 +287,7 @@ if [ "$version" = "bionic" ] || [ "$version" = "focal" ] ; then
 	writelog "---BlueGriffon"
 	installfilename=bluegriffon-3.1.Ubuntu18.04-x86_64.deb
 	if [ ! -e ./$installfilename ]; then
-		wget $wgetparams --no-check-certificate http://bluegriffon.org/freshmeat/3.1/$installfilename && dpkg -i bluegriffon*.deb ; apt install -fy
+		wget "$wgetparams" --no-check-certificate http://bluegriffon.org/freshmeat/3.1/$installfilename && dpkg -i bluegriffon*.deb ; apt install -fy
 	fi
 	
 	writelog "---SCRIPTS SUPPLEMENTAIRES"
@@ -326,7 +326,7 @@ fi
 ################################
 # Concerne Ubuntu / Gnome
 ################################
-if [ "$(which gnome-shell)" = "/usr/bin/gnome-shell" ] ; then  # si GS install
+if [ "$(command -v gnome-shell)" = "/usr/bin/gnome-shell" ] ; then  # si GS install
 	writelog "[ Paquet AddOns ] de Gnome Shell"
 	apt install -y ubuntu-restricted-extras ubuntu-restricted-addons gnome-tweak-tool
 	#apt install -y nautilus-image-converter nautilus-script-audio-convert
@@ -335,7 +335,7 @@ fi
 ################################
 # Concerne Ubuntu / Unity
 ################################
-if [ "$(which unity)" = "/usr/bin/unity" ] ; then  # si Ubuntu/Unity alors :
+if [ "$(command -v unity)" = "/usr/bin/unity" ] ; then  # si Ubuntu/Unity alors :
 	writelog "[ Paquet AddOns ] d\'Unity"
 	apt-get -y install ubuntu-restricted-extras ubuntu-restricted-addons unity-tweak-tool
 	apt-get -y install nautilus-image-converter nautilus-script-audio-convert
@@ -344,7 +344,7 @@ fi
 ################################
 # Concerne Xubuntu / XFCE
 ################################
-if [ "$(which xfwm4)" = "/usr/bin/xfwm4" ] ; then # si Xubuntu/Xfce alors :
+if [ "$(command -v xfwm4)" = "/usr/bin/xfwm4" ] ; then # si Xubuntu/Xfce alors :
 	writelog "[ Paquet AddOns ] de XFCE"
 	apt-get -y install xubuntu-restricted-extras xubuntu-restricted-addons xfce4-goodies xfwm4-themes
 
@@ -352,14 +352,14 @@ if [ "$(which xfwm4)" = "/usr/bin/xfwm4" ] ; then # si Xubuntu/Xfce alors :
 	if [ "$version" = "trusty" ] || [ "$version" = "xenial" ] ; then #ajout ppa pour 14.04 et 16.04 (pas nécessaire pour la 18.04)
 		add-apt-repository -y ppa:docky-core/stable ; apt-get update   
 	fi
-	apt-get -y install plank ; wget $wgetparams --no-check-certificate https://dane.ac-lyon.fr/spip/IMG/tar/skel_xub1404.tar
+	apt-get -y install plank ; wget "$wgetparams" --no-check-certificate https://dane.ac-lyon.fr/spip/IMG/tar/skel_xub1404.tar
 	tar xvf skel_xub1404.tar -C /etc ; rm -rf skel_xub1404.tar
 fi
 
 ################################
 # Concerne Ubuntu Mate
 ################################
-if [ "$(which caja)" = "/usr/bin/caja" ] ; then # si Ubuntu Mate 
+if [ "$(command -v caja)" = "/usr/bin/caja" ] ; then # si Ubuntu Mate 
 	writelog "Paramétrage de Caja (Ubuntu Mate)"
 	apt-get -y install ubuntu-restricted-extras mate-desktop-environment-extras
 	apt-get -y purge ubuntu-mate-welcome
@@ -368,16 +368,17 @@ fi
 ################################
 # Concerne Lubuntu / LXDE
 ################################
-if [ "$(which pcmanfm)" = "/usr/bin/pcmanfm" ] ; then  # si Lubuntu / Lxde alors :
+if [ "$(command -v pcmanfm)" = "/usr/bin/pcmanfm" ] ; then  # si Lubuntu / Lxde alors :
 	writelog "Paramétrage pcmanfm (LXDE)"
 	apt-get -y install lubuntu-restricted-extras lubuntu-restricted-addons
 fi
 
 
 writelog "Lecture DVD"
-if [ "$version" = "trusty" ] ; then #lecture dvd pour 14.04
-	apt-get install libdvdread4 -y
-	bash /usr/share/doc/libdvdread4/install-css.sh
+
+# Lecture DVD sur Ubuntu 16.04 et supérieur ## répondre oui aux question posés...
+if [ "$version" = "trusty" ]; then
+	apt install -y libdvdread4 && bash /usr/share/doc/libdvdread4/install-css.sh 2>> $logfile
 fi
 
 if [ "$version" = "xenial" ] || [ "$version" = "bionic" ] || [ "$version" = "focal" ]; then #lecture dvd pour 16.04 ou 18.04

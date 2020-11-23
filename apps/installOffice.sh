@@ -23,8 +23,8 @@ if $WPSOffice; then
 	wget http://grammalecte.net/download/fr/hunspell-french-dictionaries-v6.4.1.zip
 	unzip hunspell*.zip	-d ./hunspell/
 	mkdir /opt/kingsoft/wps-office/office6/dicts/spellcheck/fr_FR/
-	echo "[Dictionary]\nDisplayName=Français\nDisplayName[zh_CN]=Français\nDisplayName[en_US]=Français" | tee /opt/kingsoft/wps-office/office6/dicts/spellcheck/fr_FR/dict.conf
-	echo "DisplayName[zh_TW]=Français\nDisplayName[zh_HK]=Français\nDisplayName[zh_MO]=Français\nDisplayName[zh_Hant_CN]=Français\n" | tee -a /opt/kingsoft/wps-office/office6/dicts/spellcheck/fr_FR/dict.conf
+	printf "[Dictionary]\nDisplayName=Français\nDisplayName[zh_CN]=Français\nDisplayName[en_US]=Français" | tee /opt/kingsoft/wps-office/office6/dicts/spellcheck/fr_FR/dict.conf
+	printf "DisplayName[zh_TW]=Français\nDisplayName[zh_HK]=Français\nDisplayName[zh_MO]=Français\nDisplayName[zh_Hant_CN]=Français\n" | tee -a /opt/kingsoft/wps-office/office6/dicts/spellcheck/fr_FR/dict.conf
 	mv -fr ./hunspell/toutesvariantes.aff /opt/kingsoft/wps-office/office6/dicts/spellcheck/fr_FR/main.aff
 	# Interface FR
 	wget -c https://www.linuxtricks.fr/upload/wps-fr.tar.xz
@@ -97,7 +97,7 @@ if $OpenOffice || $LibreOffice; then
 	wget http://cdeval.free.fr/IMG/ttf/cmathcal.ttf -P /usr/share/fonts
 	chmod a+r /usr/share/fonts/*
 	fc-cache -f -v
-	rm -fr *.oxt
+	rm -fr ./*.oxt
 	sudo apt-get clean -y
 	sudo apt-get autoremove -y
 fi
