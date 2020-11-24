@@ -26,6 +26,7 @@ rm -f mBlock_4.0.4_amd64.deb mLink-1.2.0-amd64.deb
 
 # Installation des librairies manquantes
 unzip mBlock.zip -d /opt/makeblock/mBlock
+chmod 777 /opt/makeblock/mBlock/resources/web/tmp/project.sb2
 
 #Installation des librairies pour arduino
 cd /usr/share/arduino/lib || exit
