@@ -144,7 +144,7 @@ export DEBIAN_PRIORITY="critical" 2>> $logfile
 #paramétrage d'un laucher unity par défaut : nautilus, firefox, libreoffice, calculatrice, éditeur de texte et capture d'écran
 ########################################################################
 if [ "$(command -v unity)" = "/usr/bin/unity" ]; then  # si Ubuntu/Unity alors :
-	writelog "3b-Suppression de l'applet switch-user et paramétrage du launcher unity par défaut"
+	writelog "5c-Suppression de l'applet switch-user et paramétrage du launcher unity par défaut"
 	echo "[com.canonical.indicator.session]
 user-show-menu=false
 [org.gnome.desktop.lockdown]
@@ -366,25 +366,25 @@ fi
 #Paramétrage pour remplir pam_mount.conf
 ########################################################################
 writelog "INITBLOC" "24/42-Paramétrage pour remplir pam_mount.conf" "---/media/Serveur_Scribe"
-eclairng="<volume user=\"*\" fstype=\"cifs\" server=\"$scribe_def_ip\" path=\"eclairng\" mountpoint=\"/media/Serveur_Scribe\" />"
-if grep "/media/Serveur_Scribe" /etc/security/pam_mount.conf.xml  >/dev/null; then
+eclairng="<volume user=\"*\" fstype=\"cifs\" server=\"$ip_scribe\" path=\"eclairng\" mountpoint=\"/media/Serveur_Scribe\" />"
+if ! grep "/media/Serveur_Scribe" /etc/security/pam_mount.conf.xml  >/dev/null; then
   sed -i "/<\!-- Volume definitions -->/a\ $eclairng" /etc/security/pam_mount.conf.xml 2>> $logfile
 fi
 
 writelog "---~/Documents => Perso (scribe)"
 homes="<volume user=\"*\" fstype=\"cifs\" server=\"$scribe_def_ip\" path=\"perso\" mountpoint=\"~/Documents\" />"
-if grep "mountpoint=\"~\"" /etc/security/pam_mount.conf.xml  >/dev/null; then 
+if ! grep "mountpoint=\"~\"" /etc/security/pam_mount.conf.xml  >/dev/null; then 
 	sed -i "/<\!-- Volume definitions -->/a\ $homes" /etc/security/pam_mount.conf.xml 2>> $logfile
 fi
 
 writelog "---/tmp/netlogon (DomainAdmins)"
 netlogon="<volume user=\"*\" fstype=\"cifs\" server=\"$scribe_def_ip\" path=\"netlogon\" mountpoint=\"/tmp/netlogon\"  sgrp=\"DomainUsers\" />"
-if grep "/tmp/netlogon" /etc/security/pam_mount.conf.xml  >/dev/null; then
+if ! grep "/tmp/netlogon" /etc/security/pam_mount.conf.xml  >/dev/null; then
   sed -i "/<\!-- Volume definitions -->/a\ $netlogon" /etc/security/pam_mount.conf.xml 2>> $logfile
 fi
 
 writelog "---Samba"
-if grep "<cifsmount>mount -t cifs //%(SERVER)/%(VOLUME) %(MNTPT) -o \"noexec,nosetuids,mapchars,cifsacl,serverino,nobrl,iocharset=utf8,user=%(USER),uid=%(USERUID)%(before=\\",\\" OPTIONS)\"</cifsmount>" /etc/security/pam_mount.conf.xml  >/dev/null; then
+if ! grep "<cifsmount>mount -t cifs //%(SERVER)/%(VOLUME) %(MNTPT) -o \"noexec,nosetuids,mapchars,cifsacl,serverino,nobrl,iocharset=utf8,user=%(USER),uid=%(USERUID)%(before=\\",\\" OPTIONS)\"</cifsmount>" /etc/security/pam_mount.conf.xml  >/dev/null; then
   sed -i "/<\!-- pam_mount parameters: Volume-related -->/a\ <cifsmount>mount -t cifs //%(SERVER)/%(VOLUME) %(MNTPT) -o \"noexec,nosetuids,mapchars,cifsacl,serverino,nobrl,iocharset=utf8,user=%(USER),uid=%(USERUID)%(before=\\",\\" OPTIONS),vers=1.0\"</cifsmount>" /etc/security/pam_mount.conf.xml 2>> $logfile
 fi
 writelog "ENDBLOC"
