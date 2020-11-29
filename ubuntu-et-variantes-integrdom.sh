@@ -1,6 +1,7 @@
 #!/bin/bash
-# version 2.5.4
+# version 2.5.5
 # Dernières modifications :
+# - 01/12/2020 (Ajout d'un menu de configuration YAD)
 # - 19/11/2020 (Modification de l'ordre des installations)
 # - 21/09/2020 (Ajout python à l'install)
 # - 07/09/2020 (Correction d'un bug lié au wallpapers) 
@@ -95,6 +96,9 @@ else
 	echo "Fichier esub_functions.sh absent ! Interruption de l'installation."
 	exit
 fi
+
+# Lancement de la configuration
+if [ -e ./esub_functions.sh ]; then source ./Configurer.sh; fi
 
 ### Paramétrage Proxy
 if $installdepuisdomaine; then
