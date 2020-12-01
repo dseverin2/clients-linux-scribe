@@ -33,15 +33,12 @@ apt autoremove -y
 # Nettoyage
 sudo rm -f libssl*.deb libicu*.deb PrometheanLtd.asc
 
-# Compilation du driver pour les ActivBoard de 1ère et 2ème génération
-read -p "Cet ordinateur sera-t-il connecté à un ActivBoard de 1ère ou 2ème génération ? O/N " reponse
-if [ "$reponse"=="o" ] || [ "$reponse"=="O" ]; then
-  kernelversion=$(uname -r)
-  if [[ $kernelversion == 5*]]; then
-    echo "Modification du Makefile des drivers pour compatibilité avec kernels 5.*"
-    sed -i -e "s/SUBDIRS/M/g" /usr/src/promethean/kernel/Makefile
-  fi
-  echo "Compilation des drivers"
-  cd /usr/src/promethean/kernel/
-  ./b
+# Compilation du driver pour les ActivBoard de 1ère et 2ème génération pour les kernels 5.x
+kernelversion=$(uname -r | awk -F. '{ print $1}')
+if ["$kernelversion" == "5" ]; then
+  echo "Modification du Makefile des drivers pour compatibilité avec kernels 5.*"
+  sed -i -e "s/SUBDIRS/M/g" /usr/src/promethean/kernel/Makefile
 fi
+echo "Compilation des drivers"
+cd /usr/src/promethean/kernel/
+./b
