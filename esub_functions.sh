@@ -93,8 +93,8 @@ function getversion {
 	  version=bionic # Ubuntu 18.04 / Mint 19 / Elementary OS 5.0
 	fi
 
-	if [ "$DISTRIB_RELEASE" = "20.04" ] || [ "$DISTRIB_RELEASE" = "20" ] || [ "$DISTRIB_RELEASE" = "6.0" ] ; then 
-	  version=focal # Ubuntu 20.04 / Mint 20 / Elementary OS 6.0
+	if [ "$DISTRIB_RELEASE" = "20.04" ] || [ "$DISTRIB_RELEASE" = "20" ] || [ "$DISTRIB_RELEASE" = "20.1" ] || [ "$DISTRIB_RELEASE" = "6.0" ] ; then 
+	  version=focal # Ubuntu 20.04 / Mint 20, 20.1 / Elementary OS 6.0
 	fi
 	
 	if [ "$version" == "unsupported" ]; then
