@@ -21,7 +21,7 @@ g_esu=$(cat $HOME/gr_scribe.txt)
 g_classe=$(cat $HOME/gr_classe.txt)
 
 
-if [ $g_esu = "eleves" ]
+if [ "$g_esu" == "eleves" ]
 then
 sed 's/domainUsers//g' $HOME/gr_classe.txt
 echo -e "\t Bureau : $g_esu"
