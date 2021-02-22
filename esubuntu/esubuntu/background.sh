@@ -3,10 +3,10 @@
 #### changement de fond ecran ouverture de session ubuntu ####
 # - récupère la valeur du groupe et attribut en fonction les fond ecran génére par esu
 # - gestion des restriction gsetting
-# - ver 2.1
-# - 28 mai 2020
+# - ver 2.2
+# - 22 février 2021
 # - CALPETARD Olivier
-# - SEVERIN Didier (ajout d'inscription dans un log)
+# - SEVERIN Didier (ajout d'inscription dans un log & refresh des icones)
 
 logfile="/tmp/esubbackground.log"
 
@@ -31,18 +31,22 @@ sleep 3
 case $groupe in
 10000)
 	variable=Admin
+	rm -f /$HOME/Desktop/*.desktop
 	cp /tmp/netlogon/icones/$gm_esu/_Machine/Bureau/*.desktop  /$HOME/Desktop/
-	cp /tmp/netlogon/icones/$gm_esu/administratifs/Bureau/*.desktop  /$HOME/Desktop/
+	cp /tmp/netlogon/icones/$gm_esu/DomainAdmins/Bureau/*.desktop  /$HOME/Desktop/
+	#cp /tmp/netlogon/icones/$gm_esu/administratifs/Bureau/*.desktop  /$HOME/Desktop/
 	chmod +x /$HOME/Desktop/*.desktop
 	;;
 10001)
 	variable=Prof
+	rm -f /$HOME/Desktop/*.desktop
 	cp /tmp/netlogon/icones/$gm_esu/_Machine/Bureau/*.desktop  /$HOME/Desktop/
 	cp /tmp/netlogon/icones/$gm_esu/professeurs/Bureau/*.desktop  /$HOME/Desktop/
 	chmod +x /$HOME/Desktop/*.desktop
 	;;
 10002)
 	variable=Eleve
+	rm -f /$HOME/Desktop/*.desktop
 	cp /tmp/netlogon/icones/$gm_esu/_Machine/Bureau/*.desktop  /$HOME/Desktop/
 	cp /tmp/netlogon/icones/$gm_esu/eleves/Bureau/*.desktop  /$HOME/Desktop/
 	chmod +x /$HOME/Desktop/*.desktop
