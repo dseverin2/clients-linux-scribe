@@ -10,6 +10,7 @@
 
 logfile="/tmp/esubbackground.log"
 
+sudo rm -f $logfile
 echo `date` > $logfile
 groupe=$GROUPS
 
