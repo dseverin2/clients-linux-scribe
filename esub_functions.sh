@@ -89,12 +89,12 @@ function getversion {
 	  version=xenial # Ubuntu 16.04 / Linux Mint 18/18.3 / Elementary OS 0.4.x
 	fi
 
-	if [ "$DISTRIB_RELEASE" = "18.04" ] || [ "$DISTRIB_RELEASE" = "19.3" ] || [ "$DISTRIB_RELEASE" = "5.1" ] ; then 
-	  version=bionic # Ubuntu 18.04 / Mint 19 / Elementary OS 5.0
+	if [ "$DISTRIB_RELEASE" = "18.04" ] || [ "$DISTRIB_RELEASE" = "19.3" ] || [ "$DISTRIB_RELEASE" = "5.1" ]  || [ "$DISTRIB_RELEASE" = "15" ] ; then 
+	  version=bionic # Ubuntu 18.04 / Mint 19 / Elementary OS 5.0 // Zorin OS 15.2 et 15.3
 	fi
 
-	if [ "$DISTRIB_RELEASE" = "20.04" ] || [ "$DISTRIB_RELEASE" = "20" ] || [ "$DISTRIB_RELEASE" = "20.1" ] || [ "$DISTRIB_RELEASE" = "6.0" ] || [ "$DISTRIB_RELEASE" = "15.3" ] || [ "$DISTRIB_RELEASE" = "15.2" ] ; then 
-	  version=focal # Ubuntu 20.04 / Mint 20, 20.1 / Elementary OS 6.0 // Zorin OS 15.2 et 15.3
+	if [ "$DISTRIB_RELEASE" = "20.04" ] || [ "$DISTRIB_RELEASE" = "20" ] || [ "$DISTRIB_RELEASE" = "20.1" ] || [ "$DISTRIB_RELEASE" = "6.0" ] ; then 
+	  version=focal # Ubuntu 20.04 / Mint 20, 20.1 / Elementary OS 6.0
 	fi
 	
 	if [ "$version" == "unsupported" ]; then
