@@ -408,7 +408,7 @@ sed -i "s/enabled=True/enabled=False/g" /etc/xdg/user-dirs.conf 2>> $logfile
 # les profs peuvent sudo
 ########################################################################
 writelog "27/42-Ajout des professeurs (et admin) dans la liste des sudoers"
-if grep "%professeurs ALL=(ALL) ALL" /etc/sudoers > /dev/null; then
+if ! grep "%professeurs ALL=(ALL) ALL" /etc/sudoers > /dev/null; then
   sed -i "/%admin ALL=(ALL) ALL/a\%professeurs ALL=(ALL) ALL" /etc/sudoers 2>> $logfile
   sed -i "/%admin ALL=(ALL) ALL/a\%DomainAdmins ALL=(ALL) ALL" /etc/sudoers 2>> $logfile
 fi
@@ -416,7 +416,7 @@ fi
 writelog "28/42-Suppression de paquet inutile sous Ubuntu/Unity"
 apt purge -y aisleriot gnome-mahjongg pidgin transmission-gtk gnome-mines gnome-sudoku blueman abiword gnumeric thunderbird 2>> $logfile;
 
-if grep "LinuxMint" /etc/lsb-release > /dev/null; then
+if ! grep "LinuxMint" /etc/lsb-release > /dev/null; then
 	writelog "29/42-Suppression d'applications par défaut (sous Mint)"
 	apt purge -y mintwelcome hexchat hexchat-common libespeak1 libsonic0 libspeechd2 python3-speechd speech-dispatcher speech-dispatcher-audio-plugins gnome-orca adobe-flash-properties-gtk mate-screensaver mate-screensaver-common brltty mono-runtime-common avahi-daemon xscreensaver-data-extra xscreensaver-data xscreensaver-gl-extra xscreensaver-gl java-common icedtea-netx-common pix pix-data onboard warpinator timeshift celluloid caja-sendto 2>> $logfile;
 fi
