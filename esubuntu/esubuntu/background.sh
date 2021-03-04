@@ -12,7 +12,7 @@ logfile="/tmp/esubbackground.log"
 
 sudo rm -f $logfile
 echo `date` > $logfile
-groupe=$GROUPS
+#groupe=$GROUPS
 
 #les fichiers se trouvent dans icones$ 
 #lecture du groupe ESU
@@ -29,7 +29,7 @@ sleep 3
 
 #lecture parametres utilisateur
 
-case $groupe in
+case $GROUPS in
 10000)
 	variable=Admin
 	rm -f /$HOME/Desktop/*.desktop
