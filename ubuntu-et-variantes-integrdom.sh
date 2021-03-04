@@ -416,7 +416,7 @@ fi
 writelog "28/42-Suppression de paquet inutile sous Ubuntu/Unity"
 apt purge -y aisleriot gnome-mahjongg pidgin transmission-gtk gnome-mines gnome-sudoku blueman abiword gnumeric thunderbird 2>> $logfile;
 
-if ! grep "LinuxMint" /etc/lsb-release > /dev/null; then
+if grep "LinuxMint" /etc/lsb-release > /dev/null; then
 	writelog "29/42-Suppression d'applications par défaut (sous Mint)"
 	apt purge -y mintwelcome hexchat hexchat-common libespeak1 libsonic0 libspeechd2 python3-speechd speech-dispatcher speech-dispatcher-audio-plugins gnome-orca adobe-flash-properties-gtk mate-screensaver mate-screensaver-common brltty mono-runtime-common avahi-daemon xscreensaver-data-extra xscreensaver-data xscreensaver-gl-extra xscreensaver-gl java-common icedtea-netx-common pix pix-data onboard warpinator timeshift celluloid caja-sendto 2>> $logfile;
 fi
