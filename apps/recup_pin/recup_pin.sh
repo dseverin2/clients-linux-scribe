@@ -41,10 +41,8 @@ if [ "$GROUPS" != "10002" ]; then
 	fi
 fi
 
-# Compilation du driver en y insérant le code pin (si la variable usercode non vide)
-if [ "$usercode" != "" ]; then 
-	echo 'PIN :  '$usercode
-
+# Fonction de création du driver pour les ppd basés sur KmManagment
+kmBasedDriver(){
 	# Comptage du nombre de ligne dans le driver original
 	nombre_lignes_driver_original=$(wc -l $driver_original | awk '{print $1}')
 
@@ -62,6 +60,41 @@ if [ "$usercode" != "" ]; then
 	premiere_ligne_fin_driver=$(echo $(grep -n "*?KmManagment:" $driver_original) | cut -d ":" -f 1)
 	nombre_lignes_avant_fin=$(($nombre_lignes_driver_original-$premiere_ligne_fin_driver+1))
 	tail -$nombre_lignes_avant_fin $driver_original >> $driver_compile
+}
+
+accountBasedDriver(){
+	# Comptage du nombre de ligne dans le driver original
+	nombre_lignes_driver_original=$(wc -l $driver_original | awk '{print $1}')
+
+	# Copie du début du driver original dans le driver compilé jusqu'à la ligne de définition des codes pin
+	derniere_ligne_debut_driver=$(($(echo $(grep -n "*% === Constraints =============================================================" $driver_original) | cut -d ":" -f 1)-1))
+	head -$derniere_ligne_debut_driver $driver_original > $driver_compile
+
+	# Ecriture de la ligne avec le code pin correspondant à l'utilisateur
+	echo '*% **** Account number
+*JCLOpenUI *JCLMXaccount/numero: PickOne
+*OrderDependency: 80 JCLSetup *JCLMXaccount' >> $driver_compile
+	insert_line='*DefaultJCLMXaccount: A'$usercode
+	echo $insert_line >> $driver_compile
+	insert_line2='*JCLMXaccount A'$usercode'/'$usercode': "@PJL SET ACCOUNTNUMBER=<22>'$usercode'<22><0A>"'
+	echo $insert_line2 >> $driver_compile
+	echo "*JCLCloseUI: *JCLMXaccount" >> $driver_compile
+	echo "" >> $driver_compile
+
+	# Copie de la fin du driver original dans le driver compilé (après les lignes de définition des codes pin)
+	premiere_ligne_fin_driver=$(echo $(grep -n "*% === Constraints =============================================================" $driver_original) | cut -d ":" -f 1)
+	nombre_lignes_avant_fin=$(($nombre_lignes_driver_original-$premiere_ligne_fin_driver+1))
+	tail -$nombre_lignes_avant_fin $driver_original >> $driver_compile
+}
+
+# Compilation du driver en y insérant le code pin (si la variable usercode non vide)
+if [ "$usercode" != "" ]; then 
+	echo 'PIN :  '$usercode
+	if grep KmManagment $driver_original; then
+		kmBasedDriver
+	else
+		accountBasedDriver
+	fi
 else
 	# Copie directe du driver original (pour éviter les erreurs d'absence du fichier ppd)
 	cp -f $driver_original $driver_compile
