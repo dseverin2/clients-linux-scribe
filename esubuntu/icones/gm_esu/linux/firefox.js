@@ -5,8 +5,8 @@ pref("network.proxy.autoconfig_url", "file:///tmp/netlogon/icones/posteslinux/pr
 
 
 //pref("network.proxy.share_proxy_settings", true);
-pref("network.proxy.no_proxies_on", "127.0.0.1, localhost , ubuntu.com , 9740787m.esidoc.fr, 172.18.40.2,10.210.9.10,pronote.antoineroussin.ac-reunion.fr,delta-expert.com,valeursenligne.fr");
-pref("browser.startup.homepage", "https://www.startpage.com | http://hubole.ac-reunion.fr");
+pref("network.proxy.no_proxies_on", "127.0.0.1, localhost , ubuntu.com , 9741188y.esidoc.fr, 172.18.248.2, 10.210.98.10, portail.college-boisdenefles.ac-reunion.fr");
+pref("browser.startup.homepage", "http://hubole.ac-reunion.fr | https://portail.college-boisdenefles.ac-reunion.fr");
 
 // disable default browser check
 pref("browser.shell.checkDefaultBrowser", false);
