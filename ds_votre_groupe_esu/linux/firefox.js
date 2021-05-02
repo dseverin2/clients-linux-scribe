@@ -1,26 +1,12 @@
+
 // Fichier configuration firefox
+pref("network.proxy.type", 2);
+pref("network.proxy.autoconfig_url", "file:///tmp/netlogon/icones/posteslinux/proxy_etab.pac");
 
-// Si vous utilisez un fichier de configuration de proxy, décommentez ci-dessous (+renommer fichier en quesiton) :
-//pref("network.proxy.autoconfig_url", "file:///tmp/netlogon/icones/posteslinux/proxy_etab.pac");
-
-// IMPORTANT : Si votre proxy (Amon) n'est pas en 172.18.248.1:3128,  
-//merci de changer les infos juste ci-dessous :
-pref("network.proxy.ftp", "172.18.248.1");
-pref("network.proxy.ftp_port", 3128);
-pref("network.proxy.http", "172.18.248.1");
-pref("network.proxy.http_port", 3128);
-pref("network.proxy.share_proxy_settings", true);
-pref("network.proxy.socks", "172.18.248.1");
-pref("network.proxy.socks_port", 3128);
-pref("network.proxy.ssl", "172.18.248.1");
-pref("network.proxy.ssl_port", 3128);
-pref("network.proxy.type", 1);
 
 //pref("network.proxy.share_proxy_settings", true);
-pref("network.proxy.no_proxies_on", "127.0.0.1, localhost");
-
-// Page de démarrage
-//pref("browser.startup.homepage", "https://lite.qwant.com");
+pref("network.proxy.no_proxies_on", "127.0.0.1, localhost , ubuntu.com , 9741188y.esidoc.fr, 172.18.248.2, 10.210.98.10, portail.college-boisdenefles.ac-reunion.fr");
+pref("browser.startup.homepage", "http://hubole.ac-reunion.fr | https://portail.college-boisdenefles.ac-reunion.fr");
 
 // disable default browser check
 pref("browser.shell.checkDefaultBrowser", false);

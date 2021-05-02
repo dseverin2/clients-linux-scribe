@@ -16,7 +16,7 @@ gsettings set org.gnome.system.proxy.ftp host '127.0.0.1'
 gsettings set org.gnome.system.proxy.ftp port 3128
 gsettings set org.gnome.system.proxy.socks host '127.0.0.1'
 gsettings set org.gnome.system.proxy.socks port 3128
-gsettings set org.gnome.system.proxy ignore-hosts "['localhost', '127.0.0.1/8', '172.18.248.0/21', '10.210.9.10', '10.210.9.67']"
+gsettings set org.gnome.system.proxy ignore-hosts "['localhost', '127.0.0.1/8', '172.18.248.0/21', '10.210.98.10']"
 gsettings set org.gnome.desktop.lockdown disable-lock-screen 'false'
 gsettings set org.gnome.desktop.session idle-delay 0
 #gsettings set org.gnome.settings-daemon.plugins.print-notifications active false
