@@ -47,8 +47,10 @@ retour=$(yad --title="Paramétrage Esubuntu 2/3" --form\
  --field="Nom Domaine":CBE\
  --field="SOS Problème info":CBE\
  --field="Salle":CBE\
- -- "$esubuntu" "$nom_etab" "$port_cntlm" "$type_cntlm" "$nom_domaine" "$sos_info" "$salle")
+ --field="RNE":CBE\
+ -- "$esubuntu" "$nom_etab" "$port_cntlm" "$type_cntlm" "$nom_domaine" "$sos_info" "$salle" "$rne_etab")
 echo "$retour"
+
 
 esu=$(echo $retour | awk 'BEGIN {FS="|" } { print $1 }')
 if [ "$esu" != "" ]; then sed -i -e "s/^esubuntu=.*/esubuntu=$esu/g" "$conf"; fi
@@ -64,6 +66,8 @@ sos=$(echo $retour | awk 'BEGIN {FS="|" } { print $6 }' | sed 's/\//\\\//g')
 if [ "$sos" != "" ]; then sed -i -e "s/^sos_info=.*/sos_info=\"$sos\"/g" "$conf"; fi
 lieu=$(echo $retour | awk 'BEGIN {FS="|" } { print $7 }')
 if [ "$lieu" != "" ]; then sed -i -e "s/^salle=.*/salle=\"$lieu\"/g" "$conf"; fi
+rne=$(echo $retour | awk 'BEGIN {FS="|" } { print $8 }')
+if [ "$rne" != "" ]; then sed -i -e "s/^rne_etab=.*/rne_etab=\"$rne\"/g" "$conf"; fi
 
 
 retour=$(yad --title="Paramétrage Applications 3/3" --form\
